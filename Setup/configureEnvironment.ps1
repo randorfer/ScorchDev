@@ -1,0 +1,45 @@
+﻿Workflow Install-GitEnvironment
+{
+    if([System.Environment]::Is64BitOperatingSystem) { $GitPath = 'C:\Program Files (x86)\Git\bin\git.exe' }
+    else                                             { $GitPath = 'C:\Program Files\Git\bin\git.exe' }
+    
+    if(-not (Test-Path -Path $GitPath))
+    {
+        Write-Verbose "Installing Git"
+        # if Git isn't setup download and install Git for windows from http://msysgit.github.io/
+        inlinescript
+        {
+            $GitSource  = 'https://github.com/msysgit/msysgit/releases/download'
+    $GitVersion = 'Git-1.9.4-preview20140929'
+            $GitInstall = "$([IO.Path]::GetTempPath())\$GitVersion.exe"
+            (new-object Net.WebClient).DownloadFile("$GitSource/$GitVersion/$GitVersion.exe", $GitInstall)
+            & $GitInstall /VERYSILENT /SUPPRESSMSGBOXES
+        }
+    }
+    else
+    {
+        Write-Verbose "Git is already installed"
+    }
+    Checkpoint-Workflow
+
+    if(-not (Get-Module -ListAvailable | ? { $_.Name -eq 'PsGet' }))
+    {
+        Write-Verbose -Message "Installing PsGet"
+        inlinescript { (new-object Net.WebClient).DownloadString("http://psget.net/GetPsGet.ps1") | iex }
+    }
+    else
+    {
+        Write-Verbose -Message "PsGet already installed"
+    }
+    Checkpoint-Workflow
+
+    if(-not (Get-Module -ListAvailable | ? { $_.Name -eq 'Posh-Git' }))
+    {
+        Write-Verbose -Message "Intalling Posh-Git"
+        Install-Module posh-git
+    }
+    else
+    {
+        Write-Verbose "Posh-Git already installed"
+    }
+}
