@@ -32,7 +32,7 @@
     if(-not (Get-Module -ListAvailable | ? { $_.Name -eq 'PsGet' }))
     {
         Write-Verbose -Message "Installing PsGet"
-        inlinescript { (new-object Net.WebClient).DownloadString("http://psget.net/GetPsGet.ps1") | iex }
+        inlinescript { $ErrorActionPreference = 'SilentlyContinue'; (new-object Net.WebClient).DownloadString("http://psget.net/GetPsGet.ps1") | iex }
     }
     else
     {
@@ -43,7 +43,7 @@
     if(-not (Get-Module -ListAvailable | ? { $_.Name -eq 'Posh-Git' }))
     {
         Write-Verbose -Message "Intalling Posh-Git"
-        inlinescript { Install-Module posh-git }
+        inlinescript { $ErrorActionPreference = 'SilentlyContinue'; Install-Module posh-git }
     }
     else
     {
