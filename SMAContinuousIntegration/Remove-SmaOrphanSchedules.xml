@@ -1,0 +1,15 @@
+<Root>
+  <Description>
+  </Description>
+  <LogVerbose>False</LogVerbose>
+  <LogDebug>False</LogDebug>
+  <LogProgress>False</LogProgress>
+  <Tags>
+    <Tag>Type:System</Tag>
+    <Tag>Project:SMAContinuousIntegration</Tag>
+  </Tags>
+  <Variables>
+  </Variables>
+  <Schedules>
+  </Schedules>
+</Root>
