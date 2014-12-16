@@ -9,11 +9,18 @@
         # if Git isn't setup download and install Git for windows from http://msysgit.github.io/
         inlinescript
         {
+            $GitPath = $Using:GitPath
             $GitSource  = 'https://github.com/msysgit/msysgit/releases/download'
-    $GitVersion = 'Git-1.9.4-preview20140929'
+            $GitVersion = 'Git-1.9.4-preview20140929'
             $GitInstall = "$([IO.Path]::GetTempPath())\$GitVersion.exe"
             (new-object Net.WebClient).DownloadFile("$GitSource/$GitVersion/$GitVersion.exe", $GitInstall)
             & $GitInstall /VERYSILENT /SUPPRESSMSGBOXES
+            
+            $CurrentValue = [Environment]::GetEnvironmentVariable("Path", "Machine")
+            if($CurrentValue -notcontains $(([System.IO.FileInfo]$Gitpath).DirectoryName))
+            {
+                [Environment]::SetEnvironmentVariable("Path", $CurrentValue + ";$(([System.IO.FileInfo]$Gitpath).DirectoryName)", "Machine")
+            }
         }
     }
     else
@@ -36,7 +43,7 @@
     if(-not (Get-Module -ListAvailable | ? { $_.Name -eq 'Posh-Git' }))
     {
         Write-Verbose -Message "Intalling Posh-Git"
-        Install-Module posh-git
+        inlinescript { Install-Module posh-git }
     }
     else
     {
