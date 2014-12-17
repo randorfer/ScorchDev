@@ -12,7 +12,7 @@ Workflow Find-GitRepoChange
 
     $ErrorActionPreference = 'Stop'
 
-    inlinescript
+    $ModifiedFilesJSON = inlinescript
     {
         $Path   = $Using:Path
         $Branch = $Using:Branch
@@ -34,7 +34,33 @@ Workflow Find-GitRepoChange
         {
             Write-Verbose -Message "Branch already set to [$Branch]"
         }
+
+        # Check status
+        $ErrorActionPreference = 'Continue'
+        $initialization = (git fetch) 2> $null
+        if((git status) -match 'Your branch is behind')
+        {
+            $update = (git pull) 2> $null
+            $Modifications = (git show) 2> $null
+
+            $Files = @()
+            for($i = 0 ; $i -lt $Modifications.count ; $i+=1)
+            {
+                if($Modifications[$i] -match 'diff')
+                {
+                    $File = @{ 'FilePath' = "$Path\$($Modifications[$i].Substring(13).Split(' ')[0].Replace('/','\'))" ;
+                               'ChangeType' = "$($Modifications[$i+1].Split(' ')[0])" }
+                    $Files += $File
+
+                }
+            }
+        }
+        $ErrorActionPreference = 'Stop'
+        
+        return (ConvertTo-Json -InputObject $Files)
     }
 
+    if($ModifiedFilesJSON) { Write-Verbose -Message "Found Updates [$ModifiedFilesJSON]" }
     Write-Verbose -Message "Finished [$WorkflowCommandName]"
+    return $ModifiedFilesJSON
 }
