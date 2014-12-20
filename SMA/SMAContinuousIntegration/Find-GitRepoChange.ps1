@@ -12,10 +12,12 @@ Workflow Find-GitRepoChange
 
     $ErrorActionPreference = 'Stop'
 
-    $ModifiedFilesJSON = inlinescript
+    $ReturnJSON = inlinescript
     {
         $Path   = $Using:Path
         $Branch = $Using:Branch
+
+        $ReturnObj = @{'Status' = 'No Change'}
 
         # Set Location to the target repo and initialize
         Set-Location $Path
@@ -57,10 +59,16 @@ Workflow Find-GitRepoChange
         }
         $ErrorActionPreference = 'Stop'
         
-        return (ConvertTo-Json -InputObject $Files)
-    }
+        if($Files) 
+        { 
+            $ReturnObj.Status = 'Updates'
+            $ReturnObj.Add('File', $Files) 
+        }
 
-    if($ModifiedFilesJSON) { Write-Verbose -Message "Found Updates [$ModifiedFilesJSON]" }
+        return (ConvertTo-Json -InputObject $ReturnObj)
+    }
+        
+    Write-Verbose -Message "`$ReturnJSON [$ReturnJSON]"
     Write-Verbose -Message "Finished [$WorkflowCommandName]"
-    return $ModifiedFilesJSON
+    return $ReturnJSON
 }
