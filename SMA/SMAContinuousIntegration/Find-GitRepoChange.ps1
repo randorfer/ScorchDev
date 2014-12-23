@@ -21,16 +21,11 @@ Workflow Find-GitRepoChange
 
         # Set Location to the target repo and initialize
         Set-Location $Path
-        $ErrorActionPreference = 'Continue'
-        $initialization = (git init) 2> $null
-        $ErrorActionPreference = 'Stop'
 
         if(-not ((git branch) -contains "* $Branch"))
         {
             Write-Verbose -Message "Setting current branch to [$Branch]"
-            $ErrorActionPreference = 'Continue'
-            $output = (git checkout $Branch) 2> $null
-            $ErrorActionPreference = 'Stop'
+            git checkout $Branch
         }
         else
         {
