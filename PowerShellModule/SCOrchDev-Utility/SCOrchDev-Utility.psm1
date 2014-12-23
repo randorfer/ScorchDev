@@ -27,14 +27,14 @@ Function Format-ObjectDump
 .SYNOPSIS
     Converts an input string into a boolean value.
 
-.DESCRIPTION
+.EXAMPLE
     $values = @($null, [String]::Empty, "True", "False", 
                 "true", "false", "    true    ", "0", 
                 "1", "-1", "-2", '2', "string", 'y', 'n'
                 'yes', 'no', 't', 'f');
     foreach ($value in $values) 
     {
-        Write-Verbose -Message "[$($Value)] Evaluated as [`$$(ConvertTo-Boolean -InputString $value)]" -Verbose
+        Write-Verbose -Message "[$($Value)] Evaluated as [`$$(ConvertTo-Boolean $value)]" -Verbose
     }                                     
 
     VERBOSE: [] Evaluated as [$False]
@@ -44,56 +44,57 @@ Function Format-ObjectDump
     VERBOSE: [true] Evaluated as [$True]
     VERBOSE: [false] Evaluated as [$False]
     VERBOSE: [    true    ] Evaluated as [$True]
-    VERBOSE: [0] Evaluated as [$False]
+    VERBOSE: [0] Evaluated as [$True]
     VERBOSE: [1] Evaluated as [$True]
     VERBOSE: [-1] Evaluated as [$True]
     VERBOSE: [-2] Evaluated as [$True]
     VERBOSE: [2] Evaluated as [$True]
     VERBOSE: [string] Evaluated as [$True]
     VERBOSE: [y] Evaluated as [$True]
-    VERBOSE: [n] Evaluated as [$False]
+    VERBOSE: [n] Evaluated as [$True]
     VERBOSE: [yes] Evaluated as [$True]
-    VERBOSE: [no] Evaluated as [$False]
+    VERBOSE: [no] Evaluated as [$True]
     VERBOSE: [t] Evaluated as [$True]
-    VERBOSE: [f] Evaluated as [$False]
+    VERBOSE: [f] Evaluated as [$True]
 
-.PARAMETER InputString
-    The string value to convert
+.EXAMPLE
+    ConvertTo-Boolean a -FalseMatches @('a','b')
+    False
+    ConvertTo-Boolean b -FalseMatches @('a','b')
+    False
+    ConvertTo-Boolean ab -FalseMatches @('a','b')
+    True
+
+.PARAMETER InputObject
+    The object value to convert
+
+.PARAMETER FalseMatches
+    An array to match against. If the input object is contained in the
+    False Matches array false will be returned
 #>
 Function ConvertTo-Boolean
 {
-    Param($InputString)
-
-    if(-not [System.String]::IsNullOrEmpty($InputString))
+    Param([Parameter(Mandatory=$False)] $InputObject,
+          [Parameter(Mandatory=$False)] [Array]$FalseMatches = @())
+    
+    if(-not [System.String]::IsNullOrEmpty($InputObject))
     {
-        $res    = $true
-        $success = [bool]::TryParse($InputString,[ref]$res)
+        $res     = $true
+        $success = [bool]::TryParse($InputObject,[ref]$res)
         if($success)
         { 
             return $res
         }
         else
         {
-            $InputString = ([string]$InputString).ToLower()
-    
-            Switch ($InputString)
+            $InputObjectString = $InputObject.ToString()
+            if($FalseMatches -contains $InputObjectString)
             {
-                'f'     { $false }
-                'false' { $false }
-                'off'   { $false }
-                'no'    { $false }
-                'n'     { $false }
-                default
-                {
-                    try
-                    {
-                        return [bool]([int]$InputString)
-                    }
-                    catch
-                    {
-                        return [bool]$InputString
-                    }
-                }
+                return $False
+            }
+            else
+            {
+                return [bool]$InputObject
             }
         }
     }
