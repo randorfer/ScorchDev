@@ -1,2 +1,0 @@
-﻿
-Export-ModuleMember -Function *
