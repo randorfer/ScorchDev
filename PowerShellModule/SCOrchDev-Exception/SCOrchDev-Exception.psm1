@@ -29,8 +29,7 @@ Function Write-Exception
     The "type" of the exception.
 
     This isn't actually the type. It's a string you can use to figure out what the type would be
-    if PowerShell actually supported custom exceptions. Damnit, PowerShell. Use a switch block
-    or similar in your catch statement to work with this.
+    if PowerShell actually supported custom exceptions.
 
 .PARAMETER Message
     A message describing the failure.
@@ -84,7 +83,7 @@ Function New-Exception
 Function Convert-ExceptionToString
 {
     Param([Parameter(Mandatory=$True)]  $Exception)
-    $CustomException = Select-GmiCustomException -Exception $Exception
+    $CustomException = Select-CustomException -Exception $Exception
     $ExceptionString = New-Object -TypeName 'System.Text.StringBuilder'
     if($CustomException)
     {
@@ -125,6 +124,44 @@ Function Convert-ExceptionToString
     }
     return $ExceptionString.ToString()
 }
+
+<#
+.SYNOPSIS
+    Given a list of values, returns the first value that is valid according to $FilterScript.
+
+.DESCRIPTION
+    Select-FirstValid iterates over each value in the list $Value. Each value is passed to
+    $FilterScript as $_. If $FilterScript returns true, the value is considered valid and
+    will be returned if no other value has been already. If $FilterScript returns false,
+    the value is deemed invalid and the next element in $Value is checked.
+
+    If no elements in $Value are valid, returns $Null.
+
+.PARAMETER Value
+    A list of values to check for validity.
+
+.PARAMETER FilterScript
+    A script block that determines what values are valid. Elements of $Value can be referenced
+    by $_. By default, values are simply converted to Bool.
+#>
+Function Select-FirstValid
+{
+    # Don't allow values from the pipeline. The pipeline does weird things with
+    # nested arrays.
+    Param(
+        [Parameter(Mandatory=$True, ValueFromPipeline=$False)] [AllowNull()] $Value,
+        [Parameter(Mandatory=$False)] $FilterScript = { $_ -As [Bool] }
+    )
+    ForEach($_ in $Value)
+    {
+        If($FilterScript.InvokeWithContext($Null, @(Get-Variable -Name '_'), $Null))
+        {
+            Return $_
+        }
+    }
+    Return $Null
+}
+
 <#
 .SYNOPSIS
     Returns the exception information for an exception.

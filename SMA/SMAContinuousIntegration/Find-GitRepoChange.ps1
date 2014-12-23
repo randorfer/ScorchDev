@@ -25,7 +25,21 @@ Workflow Find-GitRepoChange
         if(-not ((git branch) -contains "* $Branch"))
         {
             Write-Verbose -Message "Setting current branch to [$Branch]"
-            git checkout $Branch
+            try
+            {
+                git checkout $Branch
+            }
+            catch
+            {
+                if(ConvertTo-Boolean $LASTEXITCODE)
+                {
+                    Throw-Exception -ExceptionInfo $_
+                }
+                else
+                {
+                    Write-Exception -Stream Verbose -Exception $_
+                }
+            }
         }
         else
         {
