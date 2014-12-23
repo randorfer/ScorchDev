@@ -22,7 +22,7 @@ Workflow Find-GitRepoChange
         # Set Location to the target repo and initialize
         Set-Location $Path
 
-        if(-not ((git branch) -contains "* $Branch"))
+        if((Get-GitStatus).Branch -ne $Branch)
         {
             Write-Verbose -Message "Setting current branch to [$Branch]"
             try
@@ -33,7 +33,7 @@ Workflow Find-GitRepoChange
             {
                 if(ConvertTo-Boolean $LASTEXITCODE)
                 {
-                    Throw-Exception -ExceptionInfo $_
+                    Write-Exception -Stream Error -Exception $_
                 }
                 else
                 {
