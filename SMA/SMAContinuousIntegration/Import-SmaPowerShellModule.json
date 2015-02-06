@@ -1,0 +1,10 @@
+{
+    "LogDebug":  false,
+    "Tags":  [
+                 "System",
+                 "Project:SMAContinuousIntegration"
+             ],
+    "Description":  "",
+    "LogVerbose":  false,
+    "LogProgress":  false
+}

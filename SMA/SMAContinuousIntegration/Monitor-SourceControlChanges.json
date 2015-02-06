@@ -1,0 +1,10 @@
+{
+    "LogDebug":  false,
+    "Tags":  [
+                 "System",
+                 "Project:SMAContinuousIntegration"
+             ],
+    "Description":  "Used for keeping SMA in sync with source control",
+    "LogVerbose":  false,
+    "LogProgress":  false
+}

@@ -3,7 +3,7 @@
 #>
 workflow Monitor-SourceControlChanges
 {
-    Param([string]$WebServiceEndpoint = "https://localhost")
+    Param()
     
     Write-Verbose -Message "Starting [$WorkflowCommandName]"
     $ErrorActionPreference = [System.Management.Automation.ActionPreference]::Stop

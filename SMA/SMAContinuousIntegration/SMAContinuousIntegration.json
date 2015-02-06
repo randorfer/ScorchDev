@@ -1,0 +1,64 @@
+{
+    "Variables":  {
+                      "SMAContinuousIntegration-TFSServer":  {
+                                                                 "isEncrypted":  "False",
+                                                                 "Description":  "",
+                                                                 "Value":  "tfs.generalmills.com",
+                                                                 "Type":  "String"
+                                                             },
+                      "SMAContinuousIntegration-TFSBranch":  {
+                                                                 "isEncrypted":  "False",
+                                                                 "Description":  "",
+                                                                 "Value":  "Dev",
+                                                                 "Type":  "String"
+                                                             },
+                      "SMAContinuousIntegration-TFSModulesSourcePath":  {
+                                                                            "isEncrypted":  "False",
+                                                                            "Description":  "",
+                                                                            "Value":  "D:\\Orchestrator_TFS\\Orchestrator\\PowerShellModulesV2",
+                                                                            "Type":  "String"
+                                                                        },
+                      "SMAContinuousIntegration-TFSScriptsSourcePath":  {
+                                                                            "isEncrypted":  "False",
+                                                                            "Description":  "",
+                                                                            "Value":  "D:\\Orchestrator_TFS\\Orchestrator\\SMA",
+                                                                            "Type":  "String"
+                                                                        },
+                      "SMAContinuousIntegration-CredName":  {
+                                                                "isEncrypted":  "False",
+                                                                "Description":  "",
+                                                                "Value":  "GENMILLS\\M3IS052",
+                                                                "Type":  "String"
+                                                            },
+                      "SMAContinuousIntegration-MonitorLifeSpan":  {
+                                                                       "isEncrypted":  "False",
+                                                                       "Description":  "",
+                                                                       "Value":  "300",
+                                                                       "Type":  "Int"
+                                                                   },
+                      "SMAContinuousIntegration-NetworkPowerShellModulePath":  {
+                                                                                   "isEncrypted":  "False",
+                                                                                   "Description":  "",
+                                                                                   "Value":  "\\\\genmills\\desktop\\AOT\\PowerShellModules",
+                                                                                   "Type":  "String"
+                                                                               },
+                      "SMAContinuousIntegration-TFSCollection":  {
+                                                                     "isEncrypted":  "False",
+                                                                     "Description":  "",
+                                                                     "Value":  "DefaultCollection",
+                                                                     "Type":  "String"
+                                                                 },
+                      "SMAContinuousIntegration-LatestChangeset":  {
+                                                                       "isEncrypted":  "False",
+                                                                       "Description":  "",
+                                                                       "Value":  "0",
+                                                                       "Type":  "Int"
+                                                                   },
+                      "SMAContinuousIntegration-LocalPowerShellModulePath":  {
+                                                                                 "isEncrypted":  "False",
+                                                                                 "Description":  "",
+                                                                                 "Value":  "C:\\Program Files\\GMIPowerShell\\Modules",
+                                                                                 "Type":  "String"
+                                                                             }
+                  }
+}
