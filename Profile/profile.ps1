@@ -22,4 +22,8 @@ $env:LocalSMAVariableUpdateInterval = 0
 # Set up debugging
 $VerbosePreference = 'Continue'
 $DebugPreference = 'Continue'
+
+# Load posh-git example profile
+. "$env:SMAModulePath\posh-git\profile.example.ps1"
+
 Set-StrictMode -Version 1

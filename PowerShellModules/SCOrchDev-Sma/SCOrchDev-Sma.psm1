@@ -73,4 +73,4 @@ function Test-LocalDevelopment
     return $false
 }
 
-Export-ModuleMember -Function *
+Export-ModuleMember -Function * -Verbose:$false

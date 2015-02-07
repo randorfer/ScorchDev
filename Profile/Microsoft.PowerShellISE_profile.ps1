@@ -305,6 +305,3 @@ if (!($psISE.CurrentPowerShellTab.AddOnsMenu.Submenus | Where-Object { $_.Displa
 {
     $psISE.CurrentPowerShellTab.AddOnsMenu.Submenus.Add("Uncomment Selected Lines",{Uncomment-IseSelectedLines},"Ctrl+Shift+K")
 }
-# Load posh-git example profile
-. 'C:\TFS\Orchestrator\PowerShellModulesV2\posh-git\Dev\posh-git\profile.example.ps1'
-

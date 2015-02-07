@@ -1,2 +1,2 @@
 ﻿
-Export-ModuleMember -Function *
+Export-ModuleMember -Function * -Verbose:$false

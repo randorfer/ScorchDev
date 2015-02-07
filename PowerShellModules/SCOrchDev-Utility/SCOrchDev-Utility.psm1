@@ -131,7 +131,7 @@ Function Select-FirstValid
     )
     ForEach($_ in $Value)
     {
-        If($FilterScript.InvokeWithContext($Null, (Get-Variable -Name '_'), $Null))
+        If($FilterScript.InvokeWithContext($Null, @(Get-Variable -Name '_'), $Null))
         {
             Return $_
         }

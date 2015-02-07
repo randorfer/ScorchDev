@@ -61,15 +61,11 @@ Function New-Exception
     else
     {
         $Property = $Property.Clone()
+        $Property['__CUSTOM_EXCEPTION__'] = $True
         $Property['Type'] = $Type
         $Property['Message'] = $Message
     }
-    $PropertyList = @('__CUSTOM_EXCEPTION__')
-    foreach($P in $Property.GetEnumerator())
-    {
-        $PropertyList += @($P.Name, ($P.Value.ToString()))
-    }
-    return ($PropertyList -join "`0")
+    return ($Property | ConvertTo-JSON)
 }
 
 <#
@@ -127,43 +123,6 @@ Function Convert-ExceptionToString
 
 <#
 .SYNOPSIS
-    Given a list of values, returns the first value that is valid according to $FilterScript.
-
-.DESCRIPTION
-    Select-FirstValid iterates over each value in the list $Value. Each value is passed to
-    $FilterScript as $_. If $FilterScript returns true, the value is considered valid and
-    will be returned if no other value has been already. If $FilterScript returns false,
-    the value is deemed invalid and the next element in $Value is checked.
-
-    If no elements in $Value are valid, returns $Null.
-
-.PARAMETER Value
-    A list of values to check for validity.
-
-.PARAMETER FilterScript
-    A script block that determines what values are valid. Elements of $Value can be referenced
-    by $_. By default, values are simply converted to Bool.
-#>
-Function Select-FirstValid
-{
-    # Don't allow values from the pipeline. The pipeline does weird things with
-    # nested arrays.
-    Param(
-        [Parameter(Mandatory=$True, ValueFromPipeline=$False)] [AllowNull()] $Value,
-        [Parameter(Mandatory=$False)] $FilterScript = { $_ -As [Bool] }
-    )
-    ForEach($_ in $Value)
-    {
-        If($FilterScript.InvokeWithContext($Null, @(Get-Variable -Name '_'), $Null))
-        {
-            Return $_
-        }
-    }
-    Return $Null
-}
-
-<#
-.SYNOPSIS
     Returns the exception information for an exception.
 
 .PARAMETER Exception
@@ -177,18 +136,7 @@ Function Get-ExceptionInfo
     $CustomException = Select-CustomException -Exception $Exception 
     if($CustomException)
     {
-        $Fields = $CustomException.Split("`0")
-        # Find the indices of the array where there are property names.
-        #
-        # The first field is our custom exception magic string, so that is excluded.
-        # After that, every other index is a property name.
-        $PropertyIndicies = (1..($Fields.Count - 1)) | Where-Object { ($_ % 2) -eq 1 }
-        foreach($Index in $PropertyIndicies)
-        {
-            $PropertyName = $Fields[$Index]
-            $PropertyValue = $Fields[$Index + 1]
-            $Property[$PropertyName] = $PropertyValue
-        }
+        $ExceptionInfo = ConvertFrom-Json -InputObject $CustomException
     }
     else
     {
@@ -199,6 +147,7 @@ Function Get-ExceptionInfo
         # off a leading "Deserialized."
         $Property['Type'] = (($Exception | Get-Member)[0].TypeName -replace '^Deserialized\.', '')
         $Property['Message'] = $Exception.Message
+        $ExceptionInfo = New-Object -TypeName 'PSObject' -Property $Property
     }
     return (New-Object -TypeName 'PSObject' -Property $Property)
 }
@@ -219,9 +168,17 @@ Function Select-CustomException
     foreach($Exc in @($Exception, $Exception.Exception, $Exception.SerializedRemoteException, $Exception.Message))
     {
         $TestString = ($Exc -as [String])
-        if($TestString.Split("`0")[0] -eq '__CUSTOM_EXCEPTION__')
+        try
         {
-            return $TestString
+            $ExceptionObject = ConvertFrom-Json -InputObject $TestString
+            if($ExceptionObject.'__GMI_CUSTOM_EXCEPTION__')
+            {
+                return $TestString
+            }
+        }
+        catch [System.ArgumentException]
+        {
+            # It's not valid JSON, do nothing.
         }
     }
 }
@@ -311,4 +268,4 @@ Function Throw-Exception
     }
 }
 
-Export-ModuleMember -Function *
+Export-ModuleMember -Function * -Verbose:$false

@@ -1,6 +1,6 @@
-﻿$Script:LocalSMAVariableLastUpdate
+﻿$Script:LocalSMAVariableLastUpdate = (Get-Date)
 $Script:LocalSMAVariables = @{}
-$Script:SessionCredentials = @{}
+$Script:CurrentVariableFile = $null
 $env:LocalSMAVariableWarn = Select-FirstValid -Value $env:LocalSMAVariableWarn, $true -FilterScript { $_ -ne $null }
 
 <#
@@ -169,10 +169,10 @@ function Update-LocalAutomationVariable
 {
     param()
 
-    Write-Verbose -Message "Updating SMA variables for branch"
+    Write-Verbose -Message "Updating SMA variables in memory"
     $Script:LocalSMAVariableLastUpdate = Get-Date
     $FilesToProcess = (Get-ChildItem -Path $env:SMARunbookPath -Include '*.json' -Recurse).FullName
-    Process-SmaJSON -Path $FilesToProcess
+    Read-SmaJSONVariables -Path $FilesToProcess
 }
 
 <#
@@ -182,7 +182,7 @@ function Update-LocalAutomationVariable
 .PARAMETER Path
     The JSON files that should be processed.
 #>
-Function Process-SmaJSON
+Function Read-SmaJSONVariables
 {
     Param(
         [Parameter(Mandatory=$True)]  [AllowNull()] [String[]] $Path
@@ -220,15 +220,106 @@ Function Process-SmaJSON
     }
 }
 
-function Get-SessionCredential
+Function Set-LocalDevAutomationVariable
 {
-    param([Parameter(Mandatory=$True)] [String] $Name)
-
-    if(-not $Script:SessionCredentials[$Name])
+    Param(
+        [Parameter(Mandatory=$False)] $VariableFilePath,
+        [Parameter(Mandatory=$True)]  $Name,
+        [Parameter(Mandatory=$True)]  $Value,
+        [Parameter(Mandatory=$False)] $Description = [System.String]::Empty,
+        [Parameter(Mandatory=$False)] $isEncrypted = $False,
+        [Parameter(Mandatory=$False)] $Type = 'String'
+        )
+    if(-not $VariableFilePath)
     {
-        $Script:SessionCredentials[$Name] = Get-AutomationPSCredential -Name $Name
+        if(-not $Script:CurrentVariableFile)
+        {
+            Throw-Exception -Type 'Variable File Not Set' `
+                            -Message 'The variable file path has not been set'
+        }
+        $VariableFilePath = $Script:CurrentVariableFile
     }
-    return $Script:SessionCredentials[$Name]
+    else
+    {
+        if($Script:CurrentVariableFile -ne $VariableFilePath)
+        {
+            Write-Warning -Message "Setting Default Variable file to [$VariableFilePath]" `
+                          -WarningAction 'Continue'
+            $Script:CurrentVariableFile = $VariableFilePath
+        }
+    }
+
+    $VariableJSON = ConvertFrom-JSON -InputObject ((Get-Content -Path $VariableFilePath) -as [String])
+    if(Test-IsNullOrEmpty $VariableJSON.Variables)
+    {
+        Add-Member -InputObject $VariableJSON -MemberType NoteProperty -Value @() -Name Variables
+    }
+    if(($VariableJSON.Variables | Get-Member -MemberType NoteProperty).Name -Contains $Name)
+    {
+        $VariableJSON.Variables."$Name".Value = $Value
+        if($Description) { $VariableJSON.Variables."$Name".Description = $Description }
+        if($Encrypted)   { $VariableJSON.Variables."$Name".Encrypted   = $Encrypted   }
+    }
+    else
+    {
+        Add-Member -InputObject $VariableJSON.Variables `
+                   -MemberType NoteProperty `
+                   -Value @{'Value' = $Value ;
+                            'Description' = $Description ;
+                            'isEncrypted' = $isEncrypted ;
+                            'Type' = $Type } `
+                            -Name $Name
+    }
+    
+    Set-Content -Path $VariableFilePath -Value (ConvertTo-JSON $VariableJSON)
+    Read-SmaJSONVariables $VariableFilePath
+}
+
+Function Remove-LocalDevAutomationVariable
+{
+    Param(
+        [Parameter(Mandatory=$False)] $VariableFilePath,
+        [Parameter(Mandatory=$True)]  $Name
+        )
+    if(-not $VariableFilePath)
+    {
+        if(-not $Script:CurrentVariableFile)
+        {
+            Theow-Exception -Type 'Variable File Not Set' `
+                            -Message 'The variable file path has not been set'
+        }
+        $VariableFilePath = $Script:CurrentVariableFile
+    }
+    else
+    {
+        if($Script:CurrentVariableFile -ne $VariableFilePath)
+        {
+            Write-Warning -Message "Setting Default Variable file to [$VariableFilePath]" `
+                          -WarningAction 'Continue'
+            $Script:CurrentVariableFile = $VariableFilePath
+        }
+    }
+
+    $VariableJSON = ConvertFrom-JSON -InputObject ((Get-Content -Path $VariableFilePath) -as [String])
+    if(Test-IsNullOrEmpty $VariableJSON.Variables)
+    {
+        Add-Member -InputObject $VariableJSON -MemberType NoteProperty -Value @() -Name Variables
+    }
+    if(($VariableJSON.Variables | Get-Member -MemberType NoteProperty).Name -Contains $Name)
+    {
+        $VariableJSON.Variables = $VariableJSON.Variables | Select-Object -Property * -ExcludeProperty $Name
+        Set-Content -Path $VariableFilePath -Value (ConvertTo-JSON $VariableJSON)
+        Read-SmaJSONVariables $VariableFilePath
+    }
+    else
+    {
+        Write-Warning (New-Exception -Type 'Variable Not found' `
+                                     -Message "The variable was not found in the current variable file. Try specifiying the file" `
+                                     -Property @{ 'VariableName' = $Name ;
+                                                  'CurrentFilePath' = $VariableFilePath ;
+                                                  'VariableJSON' = $VariableJSON }) `
+                      -WarningAction 'Continue'
+    }
 }
 
 #region Code from EmulatedAutomationActivities
@@ -286,6 +377,7 @@ Workflow Get-BatchAutomationPSCredential
     param(
         [Parameter(Mandatory=$True)] [Hashtable] $Alias
     )
+
     $Creds = New-Object -TypeName 'PSObject'
     foreach($Key in $Alias.Keys)
     {
