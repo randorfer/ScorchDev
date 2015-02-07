@@ -1,5 +1,5 @@
 ﻿$Script:LocalSMAVariableLastUpdate = (Get-Date)
-$Script:LocalSMAVariables = @{}
+$Script:LocalSMAVariables = $null
 $Script:CurrentVariableFile = $null
 $env:LocalSMAVariableWarn = Select-FirstValid -Value $env:LocalSMAVariableWarn, $true -FilterScript { $_ -ne $null }
 
