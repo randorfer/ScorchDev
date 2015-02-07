@@ -212,7 +212,7 @@ Function Read-SmaJSONVariables
             ForEach($VariableName in ($JSON.Variables | Get-Member -MemberType NoteProperty).Name)
             {
                 $Var = $JSON.Variables."$VariableName"
-                $VarType = Select-FirstValid -Value $TypeMap[$Var.Type], $([String])
+                $VarType = Select-FirstValid -Value @($TypeMap[$Var.Type], $([String]))
                 $retVar = New-Object -TypeName 'PSObject' -Property @{ 'Name' = $VariableName; 'Value' = ($var.Value -As $VarType)}
                 $Script:LocalSMAVariables[$VariableName] = $retVar
             }
