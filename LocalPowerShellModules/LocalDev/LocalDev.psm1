@@ -63,46 +63,6 @@ function Import-Workflow {
 
 <#
 .SYNOPSIS
-    Returns a dictionary mapping the name of a PowerShell command to the file containing its
-    definition.
-
-.DESCRIPTION
-    Find-DeclaredCommand searches $Path for .ps1 files. Each .ps1 is tokenized in order to
-    determine what functions and workflows are defined in it. This information is used to
-    return a dictionary mapping the command name to the file in which it is defined.
-
-    Find-DeclaredCommand only considers scripts whose full paths contain '\Dev\' in accordance
-    with GMI convention.
-
-.PARAMETER Path
-    The path to search for command definitions.
-#>
-function Find-DeclaredCommand
-{
-    param(
-        [Parameter(Mandatory=$True)] [String] $Path,
-        [Parameter(Mandatory=$False)] [AllowNull()] [String] $Branch = $null
-    )
-    $RunbookPaths = Get-ChildItem -Path $Path -Include '*.ps1'
-
-    $DeclaredCommandMap = @{}
-    foreach ($Path in $RunbookPaths) {
-        $Tokens = [System.Management.Automation.PSParser]::Tokenize((Get-Content -Path $Path), [ref] $null)
-        $PreviousCommand = $null
-        $DeclaredCommands = ($Tokens | Where-Object -FilterScript {
-            ($_.Type -eq 'CommandArgument') -and ($PreviousCommand.Content -in ('function', 'workflow'))
-            $PreviousCommand = $_
-        }).Content
-        foreach ($DeclaredCommand in $DeclaredCommands) {
-            Write-Debug -Message "Found command $DeclaredCommand in $Path"
-            $DeclaredCommandMap[$DeclaredCommand] = $Path
-        }
-    }
-    return $DeclaredCommandMap
-}
-
-<#
-.SYNOPSIS
     Returns the named automation variable, referencing local XML files to find values.
 
 .PARAMETER Name
@@ -135,7 +95,7 @@ Function Get-AutomationVariable
     }
     If(-not $Script:LocalSMAVariables.ContainsKey($Name))
     {
-        Write-Warning -Message "Couldn't find variable $Name in branch $Branch" -WarningAction 'Continue'
+        Write-Warning -Message "Couldn't find variable $Name" -WarningAction 'Continue'
         Write-Warning -Message 'Do you need to update your local variables? Try running Update-LocalAutomationVariable.'
         Throw-Exception -Type 'VariableDoesNotExist' -Message "Couldn't find variable $Name" -Property @{
             'Variable' = $Name;

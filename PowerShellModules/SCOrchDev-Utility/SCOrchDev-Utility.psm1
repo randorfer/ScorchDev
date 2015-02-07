@@ -134,10 +134,46 @@ Function Select-FirstValid
     {
         If($FilterScript.InvokeWithContext($Null, (Get-Variable -Name '_'), $Null))
         {
-            Return $_Value
+            Return $_
         }
     }
     Return $Null
+}
+
+<#
+.SYNOPSIS
+    Returns a dictionary mapping the name of a PowerShell command to the file containing its
+    definition.
+
+.DESCRIPTION
+    Find-DeclaredCommand searches $Path for .ps1 files. Each .ps1 is tokenized in order to
+    determine what functions and workflows are defined in it. This information is used to
+    return a dictionary mapping the command name to the file in which it is defined.
+
+.PARAMETER Path
+    The path to search for command definitions.
+#>
+function Find-DeclaredCommand
+{
+    param(
+        [Parameter(Mandatory=$True)] [String] $Path
+    )
+    $RunbookPaths = Get-ChildItem -Path $Path -Include '*.ps1' -Recurse
+
+    $DeclaredCommandMap = @{}
+    foreach ($Path in $RunbookPaths) {
+        $Tokens = [System.Management.Automation.PSParser]::Tokenize((Get-Content -Path $Path), [ref] $null)
+        $PreviousCommand = $null
+        $DeclaredCommands = ($Tokens | Where-Object -FilterScript {
+            ($_.Type -eq 'CommandArgument') -and ($PreviousCommand.Content -in ('function', 'workflow'))
+            $PreviousCommand = $_
+        }).Content
+        foreach ($DeclaredCommand in $DeclaredCommands) {
+            Write-Debug -Message "Found command $DeclaredCommand in $Path"
+            $DeclaredCommandMap[$DeclaredCommand] = $Path
+        }
+    }
+    return $DeclaredCommandMap
 }
 
 <#
