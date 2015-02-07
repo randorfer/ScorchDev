@@ -8,8 +8,6 @@ workflow Monitor-SourceControlChanges
     Write-Verbose -Message "Starting [$WorkflowCommandName]"
     $ErrorActionPreference = [System.Management.Automation.ActionPreference]::Stop
 
-    # TODO: implement local dev module so we can pull these without being connected.
-    
     $CIVariables = Get-BatchAutomationVariable -Name @('MonitorLifeSpan',
                                                        'LocalGitRepo',
                                                        'GitBranch') `
@@ -21,7 +19,6 @@ workflow Monitor-SourceControlChanges
     $MonitorActive      = ( Get-Date ) -lt $MonitorRefreshTime
     $DelayCycle         = 5
     $DelayCheckpoint    = 5
-    $RepoVars = New-Object PSObject -Property @{'Path' = 'C:\git\SCORCHDev' ; 'Branch' = 'Dev'}
     
     while($MonitorActive)
     {
