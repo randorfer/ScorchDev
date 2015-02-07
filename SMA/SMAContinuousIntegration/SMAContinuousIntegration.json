@@ -59,6 +59,18 @@
                                                                                  "Description":  "",
                                                                                  "Value":  "C:\\Program Files\\GMIPowerShell\\Modules",
                                                                                  "Type":  "String"
-                                                                             }
+                                                                             },
+                      "SMAContinuousIntegration-LocalGitRepo":  {
+                                                                    "isEncrypted":  false,
+                                                                    "Description":  "",
+                                                                    "Type":  "String",
+                                                                    "Value":  "C:\\git\\ScorchDev"
+                                                                },
+                      "SMAContinuousIntegration-GitBranch":  {
+                                                                 "isEncrypted":  false,
+                                                                 "Description":  "",
+                                                                 "Type":  "String",
+                                                                 "Value":  "Dev"
+                                                             }
                   }
 }

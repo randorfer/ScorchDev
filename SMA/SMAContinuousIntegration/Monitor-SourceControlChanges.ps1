@@ -9,15 +9,14 @@ workflow Monitor-SourceControlChanges
     $ErrorActionPreference = [System.Management.Automation.ActionPreference]::Stop
 
     # TODO: implement local dev module so we can pull these without being connected.
-    <#
-    $CIVariables = Get-BatchSMAVariable -Name @('MonitorLifeSpan',
-                                                'LocalGitRepo',
-                                                'GitBranch') `
-                                        -Prefix 'SMAContinuousIntegration' `
-                                        -WebServiceEndpoint $WebServiceEndpoint
+    
+    $CIVariables = Get-BatchAutomationVariable -Name @('MonitorLifeSpan',
+                                                       'LocalGitRepo',
+                                                       'GitBranch') `
+                                               -Prefix 'SMAContinuousIntegration'
 
     $MonitorRefreshTime = ( Get-Date ).AddMinutes( $CIVariables.MonitorLifeSpan )
-    #>
+    
     $MonitorRefreshTime = ( Get-Date ).AddMinutes( 60 )
     $MonitorActive      = ( Get-Date ) -lt $MonitorRefreshTime
     $DelayCycle         = 5

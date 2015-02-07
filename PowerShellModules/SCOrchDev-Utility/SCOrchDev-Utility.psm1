@@ -23,6 +23,7 @@ Function Format-ObjectDump
 
     return "$typeInfo`r`n$objList"
 }
+
 <#
 .SYNOPSIS
     Converts an input string into a boolean value.
