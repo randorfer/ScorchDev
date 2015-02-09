@@ -233,7 +233,7 @@ Function Select-RelevantException
     }
     catch
     {
-        switch -CaseSensitive (Get-ExceptionType -Exception $_)
+        switch -CaseSensitive ((Get-ExceptionInfo -Exception $_).Type)
         {
             'GenericFailure'
             {

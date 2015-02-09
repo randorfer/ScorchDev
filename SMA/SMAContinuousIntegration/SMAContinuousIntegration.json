@@ -60,17 +60,35 @@
                                                                                  "Value":  "C:\\Program Files\\GMIPowerShell\\Modules",
                                                                                  "Type":  "String"
                                                                              },
-                      "SMAContinuousIntegration-LocalGitRepo":  {
-                                                                    "isEncrypted":  false,
-                                                                    "Description":  "",
-                                                                    "Type":  "String",
-                                                                    "Value":  "C:\\git\\ScorchDev"
-                                                                },
                       "SMAContinuousIntegration-GitBranch":  {
                                                                  "isEncrypted":  false,
                                                                  "Description":  "",
                                                                  "Type":  "String",
                                                                  "Value":  "Dev"
-                                                             }
+                                                             },
+                      "SMAContinuousIntegration-MonitorDelayCycle":  {
+                                                                         "isEncrypted":  false,
+                                                                         "Description":  "",
+                                                                         "Type":  "Integer",
+                                                                         "Value":  5
+                                                                     },
+                      "SMAContinuousIntegration-MonitorCheckpoint":  {
+                                                                         "isEncrypted":  false,
+                                                                         "Description":  "",
+                                                                         "Type":  "Integer",
+                                                                         "Value":  5
+                                                                     },
+                      "SMAContinuousIntegration-GitLocalRepo":  {
+                                                                    "isEncrypted":  false,
+                                                                    "Description":  "",
+                                                                    "Type":  "String",
+                                                                    "Value":  "C:\\git\\ScorchDev"
+                                                                },
+                      "SMAContinuousIntegration-GitCurrentCommit":  {
+                                                                        "isEncrypted":  false,
+                                                                        "Description":  "",
+                                                                        "Type":  "String",
+                                                                        "Value":  "-1"
+                                                                    }
                   }
 }

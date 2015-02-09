@@ -9,25 +9,23 @@ workflow Monitor-SourceControlChanges
     $ErrorActionPreference = [System.Management.Automation.ActionPreference]::Stop
 
     $CIVariables = Get-BatchAutomationVariable -Name @('MonitorLifeSpan',
-                                                       'LocalGitRepo',
-                                                       'GitBranch') `
+                                                       'MonitorDelayCycle',
+                                                       'MonitorCheckpoint',
+                                                       'GitLocalRepo',
+                                                       'GitBranch',
+                                                       'GitCurrentCommit') `
                                                -Prefix 'SMAContinuousIntegration'
 
     $MonitorRefreshTime = ( Get-Date ).AddMinutes( $CIVariables.MonitorLifeSpan )
-    
-    $MonitorRefreshTime = ( Get-Date ).AddMinutes( 60 )
     $MonitorActive      = ( Get-Date ) -lt $MonitorRefreshTime
-    $DelayCycle         = 5
-    $DelayCheckpoint    = 5
     
     while($MonitorActive)
     {
 		try
 		{
-			$RepoChangeJSON = Find-GitRepoChange -Path $RepoVars.Path `
-                                                 -Branch $RepoVars.Branch
-
-            $RepoChange = ConvertFrom-JSON -InputObject $RepoChangeJSON
+			$RepoChange = ConvertFrom-JSON( Find-GitRepoChange -Path $CIVariables.GitLocalRepo `
+                                                               -Branch $CIVariables.GitBranch `
+                                                               -LastCommit $CIVariables.GitCurrentCommit)
 
             if($RepoChange.Status -eq 'Updates')
             {
@@ -36,7 +34,17 @@ workflow Monitor-SourceControlChanges
         }
         catch
         {
-            
+            switch -CaseSensitive ((Get-ExceptionInfo -Exception $_).Type)
+            {
+                'GitTargetBranchNotFound'
+                {
+                    Throw $_
+                }
+                default
+                {
+                    Throw $_
+                }
+            }
         }
         finally
 		{

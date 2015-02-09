@@ -6,18 +6,23 @@ Function Find-GitRepoChange
 {
     Param([Parameter(Mandatory=$true) ] $Path,
           [Parameter(Mandatory=$true) ] $Branch,
-          [Parameter(Mandatory=$true) ] $CurrentCommit)
+          [Parameter(Mandatory=$true) ] $LastCommit)
     
-    $ErrorActionPreference = 'Continue'
-
-    $ReturnObj = @{'Status' = 'No Change'}
+    $ErrorActionPreference = [System.Management.Automation.ActionPreference]::Stop
+    
+    $CurrentCommit = (git rev-parse --short HEAD)
+    Write-Verbose -Message "Last Commit [$LastCommit] - Current Commit [$CurrentCommit]"
+    
+    $ReturnObj = @{ 'Changes' = 'NoChanges' ;
+                    'CurrentCommit' = $CurrentCommit;
+                    'Files' = @() }
 
     # Set Location to the target repo and initialize
     Set-Location $Path
 
-    if(-not "$(git branch)" -match '\*\s(\w+)')
+    if(-not ("$(git branch)" -match '\*\s(\w+)'))
     {
-        Throw-Exception -Type 'git error' `
+        Throw-Exception -Type 'GitTargetBranchNotFound' `
                         -Message 'git could not find any current branch' `
                         -Property @{ 'result' = $(git branch) ;
                                      'match'  = "$(git branch)" -match '\*\s(\w+)'}
@@ -26,36 +31,39 @@ Function Find-GitRepoChange
     if($Matches[1] -eq $Branch)
     {
         Write-Verbose -Message "Setting current branch to [$Branch]"
-        git checkout $Branch
-        if($LASTEXITCODE -ne 0)
+        try
         {
-            Write-Exception -Stream Error -Exception $_
+            git checkout $Branch
         }
-        else
+        catch
         {
-            Write-Exception -Stream Verbose -Exception $_
+            if($LASTEXITCODE -ne 0)
+            {
+                Write-Exception -Stream Error -Exception $_
+            }
+            else
+            {
+                Write-Exception -Stream Verbose -Exception $_
+            }
         }
     }
 
     
-    $initialization = git fetch
-    if((git status) -match 'Your branch is behind')
+    $initialization = git pull
+    if(-not ($initialization -eq 'Already up-to-date.'))
     {
-        $update = git pull
-        $ModifiedFiles = git diff --name-status $CurrentCommit (git rev-parse HEAD)
+        $ModifiedFiles = git diff --name-status (Select-FirstValid -Value $LastCommit, $null -FilterScript { $_ -ne -1 }) $CurrentCommit
         
-        $Files = @()
         Foreach($File in $ModifiedFiles)
         {
             if("$($File)" -Match '([a-zA-Z])\s+(.+((\.psm1)|(\.psd1)|(\.ps1)|(\.json)))$')
             {
-                $Files += @{ 'FilePath' = "$($Path)\$($Matches[2])" ;
-                             'ChangeType' = $Matches[1] }
+                $ReturnObj.Files += @{ 'FilePath' = "$($Path)\$($Matches[2])" ;
+                                       'ChangeType' = $Matches[1] }
             }
         }
     }
-        
-    $Files = ConvertTo-Json -InputObject $Files
-    return $Files
+    
+    return (ConvertTo-Json $ReturnObj)
 }
 Export-ModuleMember -Function * -Verbose:$false
