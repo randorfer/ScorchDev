@@ -23,13 +23,15 @@ workflow Monitor-SourceControlChanges
     {
 		try
 		{
-            Write-Verbose -Message "`$LastCommit [$LastCommit]"
 			$RepoChange = ConvertFrom-JSON( Find-GitRepoChange -Path $CIVariables.GitLocalRepo `
                                                                -Branch $CIVariables.GitBranch `
-                                                               -LastCommit $LastCommit -Verbose)
-                                                                         
-            Write-Verbose $RepoChange.Files
-            Write-Verbose -Message "Finished Processing $($RepoChange.CurrentCommit)"
+                                                               -LastCommit $LastCommit)
+            if(($LastCommit -ne $RepoChange.CurrentCommit))
+            {
+                Write-Verbose -Message "Starting to Process [$($LastCommit)..$($RepoChange.CurrentCommit)]"
+                Write-Verbose -Message "Modified Files [$(ConvertTo-JSON $RepoChange.Files)]"
+                Write-Verbose -Message "Finished Processing [$($LastCommit)..$($RepoChange.CurrentCommit)]"
+            }
             $LastCommit = $RepoChange.CurrentCommit
         }
         catch

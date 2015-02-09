@@ -1,6 +1,7 @@
 ﻿<#
     .Synopsis
-        Check the target Git Repo / Branch for any updated files
+        Check the target Git Repo / Branch for any updated files. 
+        Ingores files in the root        
 #>
 Function Find-GitRepoChange
 {
@@ -12,11 +13,8 @@ Function Find-GitRepoChange
     
     # Set current directory to the git repo location
     Set-Location $Path
-
-    $CurrentCommit = (git rev-parse --short HEAD)
-    Write-Verbose -Message "Last Commit [$LastCommit] - Current Commit [$CurrentCommit]"
-    
-    $ReturnObj = @{ 'CurrentCommit' = $CurrentCommit;
+      
+    $ReturnObj = @{ 'CurrentCommit' = $LastCommit;
                     'Files' = @() }
 
     if(-not ("$(git branch)" -match '\*\s(\w+)'))
@@ -63,14 +61,17 @@ Function Find-GitRepoChange
             Write-Exception -Stream Verbose -Exception $_
         }
     }
+    $CurrentCommit = (git rev-parse --short HEAD)
     $ModifiedFiles = git diff --name-status (Select-FirstValid -Value $LastCommit, $null -FilterScript { $_ -ne -1 }) $CurrentCommit
-        
+    $ReturnObj = @{ 'CurrentCommit' = $CurrentCommit ; 'Files' = @() }
     Foreach($File in $ModifiedFiles)
     {
-        if("$($File)" -Match '([a-zA-Z])\s+(.+((\.psm1)|(\.psd1)|(\.ps1)|(\.json)))$')
+        if("$($File)" -Match '([a-zA-Z])\s+.+\/([^\./]+(\..+)?)$')
         {
-            $ReturnObj.Files += @{ 'FilePath' = "$($Path)\$($Matches[2])" ;
-                                    'ChangeType' = $Matches[1] }
+            $ReturnObj.Files += @{ 'FullPath' = "$($Path)\$($Matches[2].Replace('/','\'))" ;
+                                   'FileName' = $Matches[2] ;
+                                   'FileExtension' = $Matches[3]
+                                   'ChangeType' = $Matches[1] }
         }
     }
     
