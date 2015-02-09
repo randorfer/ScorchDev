@@ -70,7 +70,7 @@
                                                                          "isEncrypted":  false,
                                                                          "Description":  "",
                                                                          "Type":  "Integer",
-                                                                         "Value":  5
+                                                                         "Value":  30
                                                                      },
                       "SMAContinuousIntegration-MonitorCheckpoint":  {
                                                                          "isEncrypted":  false,

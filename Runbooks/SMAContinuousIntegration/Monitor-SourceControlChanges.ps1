@@ -18,19 +18,19 @@ workflow Monitor-SourceControlChanges
 
     $MonitorRefreshTime = ( Get-Date ).AddMinutes( $CIVariables.MonitorLifeSpan )
     $MonitorActive      = ( Get-Date ) -lt $MonitorRefreshTime
-    
+    $LastCommit         = $CIVariables.GitCurrentCommit
     while($MonitorActive)
     {
 		try
 		{
+            Write-Verbose -Message "`$LastCommit [$LastCommit]"
 			$RepoChange = ConvertFrom-JSON( Find-GitRepoChange -Path $CIVariables.GitLocalRepo `
                                                                -Branch $CIVariables.GitBranch `
-                                                               -LastCommit $CIVariables.GitCurrentCommit)
-
-            if($RepoChange.Status -eq 'Updates')
-            {
-                Write-Warning -Message "Updates Found" -WarningAction Continue
-            }
+                                                               -LastCommit $LastCommit -Verbose)
+                                                                         
+            Write-Verbose $RepoChange.Files
+            Write-Verbose -Message "Finished Processing $($RepoChange.CurrentCommit)"
+            $LastCommit = $RepoChange.CurrentCommit
         }
         catch
         {
@@ -49,16 +49,16 @@ workflow Monitor-SourceControlChanges
         finally
 		{
 			#region Sleep for Delay Cycle
-			[int]$RemainingDelay = $DelayCycle - (Get-Date).TimeOfDay.TotalSeconds % $DelayCycle
-			If ( $RemainingDelay -eq 0 ) { $RemainingDelay = $DelayCycle }
+			[int]$RemainingDelay = $CIVariables.MonitorDelayCycle - (Get-Date).TimeOfDay.TotalSeconds % $CIVariables.MonitorDelayCycle 
+			If ( $RemainingDelay -eq 0 ) { $RemainingDelay = $CIVariables.MonitorDelayCycle  }
 			Write-Verbose -Message "Sleeping for $RemainingDelay seconds."
 			Checkpoint-Workflow
 
 			While ( $RemainingDelay -gt 0 )
 			{    
-				Start-Sleep -Seconds ( [math]::Min( $RemainingDelay, $DelayCheckpoint ) )
+				Start-Sleep -Seconds ( [math]::Min( $RemainingDelay, $CIVariables.MonitorCheckpoint ) )
 				Checkpoint-Workflow
-				$RemainingDelay -= $DelayCheckpoint
+				$RemainingDelay -= $CIVariables.MonitorCheckpoint
 			}
 			#endregion
 			$MonitorActive = ( Get-Date ) -lt $MonitorRefreshTime

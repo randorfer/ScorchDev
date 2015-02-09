@@ -48,18 +48,29 @@ Function Find-GitRepoChange
     }
 
     
-    $initialization = git pull
-    if(-not ($initialization -eq 'Already up-to-date.'))
+    try
     {
-        $ModifiedFiles = git diff --name-status (Select-FirstValid -Value $LastCommit, $null -FilterScript { $_ -ne -1 }) $CurrentCommit
-        
-        Foreach($File in $ModifiedFiles)
+        $initialization = git pull
+    }
+    catch
+    {
+        if($LASTEXITCODE -ne -1)
         {
-            if("$($File)" -Match '([a-zA-Z])\s+(.+((\.psm1)|(\.psd1)|(\.ps1)|(\.json)))$')
-            {
-                $ReturnObj.Files += @{ 'FilePath' = "$($Path)\$($Matches[2])" ;
-                                       'ChangeType' = $Matches[1] }
-            }
+            Write-Exception -Stream Error -Exception $_
+        }
+        else
+        {
+            Write-Exception -Stream Verbose -Exception $_
+        }
+    }
+    $ModifiedFiles = git diff --name-status (Select-FirstValid -Value $LastCommit, $null -FilterScript { $_ -ne -1 }) $CurrentCommit
+        
+    Foreach($File in $ModifiedFiles)
+    {
+        if("$($File)" -Match '([a-zA-Z])\s+(.+((\.psm1)|(\.psd1)|(\.ps1)|(\.json)))$')
+        {
+            $ReturnObj.Files += @{ 'FilePath' = "$($Path)\$($Matches[2])" ;
+                                    'ChangeType' = $Matches[1] }
         }
     }
     
