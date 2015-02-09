@@ -3,7 +3,7 @@
 ## Modules
 $env:AutomationWorkspace = 'C:\GIT\ScorchDev'
 $env:SMAModulePath = "$env:AutomationWorkspace\PowerShellModules"
-$env:SMARunbookPath = "$env:AutomationWorkspace\SMA"
+$env:SMARunbookPath = "$env:AutomationWorkspace\Runbooks"
 $env:PSModulePath = "$env:SMAModulePath;$env:AutomationWorkspace\LocalPowerShellModules;$env:PSModulePath"
 $env:AutomationWebServiceEndpoint = 'https://mgoapsmad1'
 $env:LocalAuthoring = $true

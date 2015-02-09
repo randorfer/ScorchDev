@@ -10,15 +10,14 @@ Function Find-GitRepoChange
     
     $ErrorActionPreference = [System.Management.Automation.ActionPreference]::Stop
     
+    # Set current directory to the git repo location
+    Set-Location $Path
+
     $CurrentCommit = (git rev-parse --short HEAD)
     Write-Verbose -Message "Last Commit [$LastCommit] - Current Commit [$CurrentCommit]"
     
-    $ReturnObj = @{ 'Changes' = 'NoChanges' ;
-                    'CurrentCommit' = $CurrentCommit;
+    $ReturnObj = @{ 'CurrentCommit' = $CurrentCommit;
                     'Files' = @() }
-
-    # Set Location to the target repo and initialize
-    Set-Location $Path
 
     if(-not ("$(git branch)" -match '\*\s(\w+)'))
     {
@@ -28,12 +27,12 @@ Function Find-GitRepoChange
                                      'match'  = "$(git branch)" -match '\*\s(\w+)'}
     }
 
-    if($Matches[1] -eq $Branch)
+    if($Matches[1] -ne $Branch)
     {
         Write-Verbose -Message "Setting current branch to [$Branch]"
         try
         {
-            git checkout $Branch
+            git checkout $Branch | Out-Null
         }
         catch
         {
