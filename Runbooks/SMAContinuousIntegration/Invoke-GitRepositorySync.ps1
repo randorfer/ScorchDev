@@ -85,7 +85,7 @@ Workflow Invoke-GitRepositorySync
                         {
                             if($ProcessedSettingsFiles -notcontains $File.FileName)
                             {
-                                $SettingsFilesToProcess += $File.FileName
+                                $ProcessedSettingsFiles += $File.FileName
                                 Switch -CaseSensitive ($File.FileExtension)
                                 {
                                     "D"
