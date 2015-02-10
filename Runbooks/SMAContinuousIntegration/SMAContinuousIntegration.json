@@ -89,12 +89,6 @@
                                                                         "Description":  "",
                                                                         "Type":  "String",
                                                                         "Value":  "-1"
-                                                                    },
-                      "SMAContinuousIntegration-testvar":  {
-                                      "isEncrypted":  false,
-                                      "Description":  "",
-                                      "Type":  "String",
-                                      "Value":  "{\r\n    \"test\":  \"this\"\r\n}"
-                                  }
+                                                                    }
                   }
 }
