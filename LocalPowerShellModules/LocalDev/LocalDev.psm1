@@ -255,41 +255,48 @@ Function Set-LocalDevAutomationVariable
         }
     }
 
+    if($Name -notlike "$($Prefix)-*")
+    {
+        $Name = "$($Prefix)-$($Name)"
+    }
+
     $VariableJSON = ConvertFrom-JSON -InputObject ((Get-Content -Path $VariableFilePath) -as [String])
     if(Test-IsNullOrEmpty $VariableJSON.Variables)
     {
         Add-Member -InputObject $VariableJSON -MemberType NoteProperty -Value @() -Name Variables
     }
+
+    $Type = $Value.GetType().Name
+    Switch($Type)
+    {
+        "Int32"
+        {
+                
+        }
+        "String"
+        {
+                
+        }
+        "DateTime"
+        {
+                
+        }
+        default
+        {
+            $Type = 'String'
+            $Value = ConvertTo-JSON $Value
+        }
+    }
+
     if(($VariableJSON.Variables | Get-Member -MemberType NoteProperty).Name -Contains $Name)
     {
         $VariableJSON.Variables."$Name".Value = $Value
+        $VariableJSON.Variables."$Name".Type = $Type
         if($Description) { $VariableJSON.Variables."$Name".Description = $Description }
         if($Encrypted)   { $VariableJSON.Variables."$Name".Encrypted   = $Encrypted   }
     }
     else
     {
-        $Type = $Value.GetType().Name
-        Switch($Type)
-        {
-            "Int32"
-            {
-                
-            }
-            "String"
-            {
-                
-            }
-            "DateTime"
-            {
-                
-            }
-            default
-            {
-                $Type = 'String'
-                $Value = ConvertTo-JSON $Value
-            }
-        }
-
         Add-Member -InputObject $VariableJSON.Variables `
                    -MemberType NoteProperty `
                    -Value @{'Value' = $Value ;

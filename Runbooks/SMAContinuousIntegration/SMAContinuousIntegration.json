@@ -89,6 +89,12 @@
                                                                         "Description":  "",
                                                                         "Type":  "String",
                                                                         "Value":  "-1"
-                                                                    }
+                                                                    },
+                      "SMAContinuousIntegration-RepositoryInformation":  {
+                                                                             "isEncrypted":  false,
+                                                                             "Description":  "",
+                                                                             "Type":  "String",
+                                                                             "Value":  "{\r\n    \"C:\\\\git2\\\\ScorchDev\":  {\r\n                                \"RunbookFolder\":  \"Runbooks\",\r\n                                \"PowerShellModuleFolder\":  \"PowerShellModules\",\r\n                                \"CurrentCommit\":  {\r\n                                                      \"Prod\":  \"1\",\r\n                                                      \"Dev\":  \"-1\",\r\n                                                      \"QA\":  \"-1\"\r\n                                                  }\r\n                            },\r\n    \"C:\\\\git\\\\ScorchDev\":  {\r\n                               \"RunbookFolder\":  \"Runbooks\",\r\n                               \"PowerShellModuleFolder\":  \"PowerShellModules\",\r\n                               \"CurrentCommit\":  {\r\n                                                     \"Prod\":  \"1\",\r\n                                                     \"Dev\":  \"-1\",\r\n                                                     \"QA\":  \"-1\"\r\n                                                 }\r\n                           }\r\n}"
+                                                                         }
                   }
 }

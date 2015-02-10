@@ -20,15 +20,28 @@
 Workflow Invoke-GitRepositorySync
 {
     Param([Parameter(Mandatory=$true)][String] $Path,
-          [Parameter(Mandatory=$true)][String] $Branch,
-          [Parameter(Mandatory=$true)][String] $RunbookFolder,
-          [Parameter(Mandatory=$true)][String] $PowerShellModuleFolder)
+          [Parameter(Mandatory=$true)][String] $Branch)
     
     Write-Verbose -Message "Starting [$WorkflowCommandName]"
     $ErrorActionPreference = [System.Management.Automation.ActionPreference]::Stop
 
-    $CIVariables = Get-BatchAutomationVariable -Name @('ReposityCommitDetailsJSON') `
+    $CIVariables = Get-BatchAutomationVariable -Name @('RepositoryInformation') `
                                                -Prefix 'SMAContinuousIntegration'
+
+    Try
+    {
+        $RepositoryInformation = (ConvertFrom-Json $CIVariables.RepositoryInformation)."$Path"
+        Write-Verbose -Message "`$RepositoryInformation [$(ConvertTo-JSON $RepositoryInformation)]"
+
+        $RepoChangeJSON = Find-GitRepoChange -Path $Path `
+                                             -Branch $Branch `
+                                             -LastCommit $RepositoryInformation.CurrentCommit."$Branch"
+        $RepoChange = ConvertFrom-JSON -InputObject $RepoChangeJSON
+    }
+    Catch
+    {
+
+    }
 
     Write-Verbose -Message "Finished [$WorkflowCommandName]"
 }

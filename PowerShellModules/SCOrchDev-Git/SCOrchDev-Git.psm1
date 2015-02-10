@@ -7,14 +7,14 @@ Function Find-GitRepoChange
 {
     Param([Parameter(Mandatory=$true) ] $Path,
           [Parameter(Mandatory=$true) ] $Branch,
-          [Parameter(Mandatory=$true) ] $LastCommit)
+          [Parameter(Mandatory=$true) ] $CurrentCommit)
     
     $ErrorActionPreference = [System.Management.Automation.ActionPreference]::Stop
     
     # Set current directory to the git repo location
     Set-Location $Path
       
-    $ReturnObj = @{ 'CurrentCommit' = $LastCommit;
+    $ReturnObj = @{ 'CurrentCommit' = $CurrentCommit;
                     'Files' = @() }
 
     if(-not ("$(git branch)" -match '\*\s(\w+)'))
@@ -61,16 +61,16 @@ Function Find-GitRepoChange
             Write-Exception -Stream Verbose -Exception $_
         }
     }
-    $CurrentCommit = (git rev-parse --short HEAD)
-    $ModifiedFiles = git diff --name-status (Select-FirstValid -Value $LastCommit, $null -FilterScript { $_ -ne -1 }) $CurrentCommit
-    $ReturnObj = @{ 'CurrentCommit' = $CurrentCommit ; 'Files' = @() }
+    $NewCommit = (git rev-parse --short HEAD)
+    $ModifiedFiles = git diff --name-status (Select-FirstValid -Value $CurrentCommit, $null -FilterScript { $_ -ne -1 }) $NewCommit
+    $ReturnObj = @{ 'CurrentCommit' = $NewCommit ; 'Files' = @() }
     Foreach($File in $ModifiedFiles)
     {
-        if("$($File)" -Match '([a-zA-Z])\s+.+\/([^\./]+(\..+)?)$')
+        if("$($File)" -Match '([a-zA-Z])\s+(.+\/([^\./]+(\..+)?))$')
         {
             $ReturnObj.Files += @{ 'FullPath' = "$($Path)\$($Matches[2].Replace('/','\'))" ;
-                                   'FileName' = $Matches[2] ;
-                                   'FileExtension' = $Matches[3]
+                                   'FileName' = $Matches[3] ;
+                                   'FileExtension' = $Matches[4]
                                    'ChangeType' = $Matches[1] }
         }
     }
