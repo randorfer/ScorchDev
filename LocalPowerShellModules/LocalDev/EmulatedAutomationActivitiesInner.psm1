@@ -1,22 +1,22 @@
 ﻿$SmaWebServiceDetails = @{
-    "WebServiceEndpoint" = "https://mgoapsmad1";
+    "WebServiceEndpoint" = "https://scorchsma01.scorchdev.com";
     "Port" = 9090;
     "AuthenticationType" = "Windows";
 }
 
-<#
+
     # Uncomment this section and fill in $CredUsername and $CredPassword values
     # to talk to SMA using Basic Auth instead of Windows Auth
 
     # username / password of an account with access to the SMA Web Service
-    $CredUsername = "FILL ME IN"
-    $CredPassword = "FILL ME IN"
+    $CredUsername = "scorchdev\sma"
+    $CredPassword = "TechEd_2014"
     
     $SecurePassword = $CredPassword | ConvertTo-SecureString -asPlainText -Force
    
     $SmaWebServiceDetails.AuthenticationType = "Basic"
     $SmaWebServiceDetails.Credential = New-Object System.Management.Automation.PSCredential($CredUsername,$SecurePassword)
-#>
+
 
 function Get-AutomationAsset {
     param(

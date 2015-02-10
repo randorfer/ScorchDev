@@ -209,4 +209,4 @@ Function Test-IsNullOrEmpty
     Param([Parameter(Mandatory=$True)][AllowNull()] $String)
     Return [String]::IsNullOrEmpty($String)
 }
-Export-ModuleMember -Function *
+Export-ModuleMember -Function * -Verbose:$false -Debug:$false

@@ -270,4 +270,99 @@ Function Format-SMAObject
 
     (ConvertFrom-JSON (ConvertTo-Json $PropertyHT))
 }
-Export-ModuleMember -Function * -Verbose:$false
+
+Function Set-SmaRunbookTags
+{
+    Param([string]$RunbookID, 
+          [string]$Tags=$null,
+          [string]$WebserviceEndpoint=$null,
+          [string]$TenantId='00000000-0000-0000-0000-000000000000',
+          [string]$port = "9090",
+          [pscredential]$Credential)
+
+    $null = $(
+        Write-Verbose -Message "Starting Set-SmaRunbookTags for [$RunbookID] Tags [$Tags]" 
+        $RunbookURI = "$($WebserviceEndpoint):$($port)/$($TenantId)/Runbooks(guid'$($RunbookID)')"
+        [xml]$baseXML = @'
+<?xml version="1.0" encoding="utf-8"?>
+<entry xmlns="http://www.w3.org/2005/Atom" xmlns:d="http://schemas.microsoft.com/ado/2007/08/dataservices" xmlns:m="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata">
+    <id></id>
+    <category term="Orchestrator.ResourceModel.Runbook" scheme="http://schemas.microsoft.com/ado/2007/08/dataservices/scheme" />
+    <title />
+    <updated></updated>
+    <author>
+        <name />
+    </author>
+    <content type="application/xml">
+        <m:properties>
+            <d:Tags></d:Tags>
+        </m:properties>
+    </content>
+</entry>
+'@
+        $baseXML.Entry.id                      = $RunbookURI
+        $baseXML.Entry.Content.Properties.Tags = [string]$Tags
+
+        if($Credential)
+        {
+            $output = Invoke-RestMethod -Method Merge `
+                                        -Uri $RunbookURI `
+                                        -Body $baseXML `
+                                        -Credential $Credential `
+                                        -ContentType 'application/atom+xml'
+        }
+        else
+        {
+            $output = Invoke-RestMethod -Method Merge `
+                                        -Uri $RunbookURI `
+                                        -Body $baseXML `
+                                        -UseDefaultCredentials `
+                                        -ContentType 'application/atom+xml'
+        }
+        Write-Verbose -Message "Finished Set-SmaRunbookTags for $RunbookID"
+    )
+}
+Function Get-SmaWorkflowNameFromFile
+{
+    Param([Parameter(Mandatory=$true)][string] $FilePath)
+
+    $FileContent = Get-Content $FilePath
+    if("$FileContent" -match '(?im)workflow\s+([^\s]+)')
+    {
+        return $Matches[1]
+    }
+    else
+    {
+        Throw-Exception -Type 'WorkflowNameNotFound' `
+                        -Message 'Could not find the workflow tag and corresponding workflow name' `
+                        -Property @{ 'FileContent' = "$FileContent" }
+    }
+}
+Function New-SmaChangesetTagLine
+{
+    Param([Parameter(Mandatory=$false)][string] $TagLine,
+          [Parameter(Mandatory=$true)][string]  $CurrentCommit)
+
+    if($TagLine -match 'CurrentCommit:([^;]+);')
+    {
+        if($Matches[1] -ne $CurrentCommit)
+        {
+            $NewVersion = $True
+            $TagLine = $TagLine.Replace($Matches[1],$CurrentCommit) 
+        }
+        else
+        {
+            $NewVersion = $False
+            $TagLine = $TagLine
+        }
+    }
+    else
+    {
+        Write-Verbose -Message "[$TagLine] Did not have a current commit tag."
+        $TagLine = "$($CommitTag)$($TagLine)"
+        $NewVersion = $True
+    }
+    return ConvertTo-JSON @{'TagLine' = $TagLine ;
+                            'NewVersion' = $NewVersion }
+}
+Export-ModuleMember -Function * -Verbose:$false -Debug:$False
