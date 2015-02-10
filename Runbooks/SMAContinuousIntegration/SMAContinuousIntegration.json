@@ -34,7 +34,7 @@
                                                                        "isEncrypted":  "False",
                                                                        "Description":  "",
                                                                        "Value":  "300",
-                                                                       "Type":  "Int"
+                                                                       "Type":  "Int32"
                                                                    },
                       "SMAContinuousIntegration-NetworkPowerShellModulePath":  {
                                                                                    "isEncrypted":  "False",
@@ -52,7 +52,7 @@
                                                                        "isEncrypted":  "False",
                                                                        "Description":  "",
                                                                        "Value":  "0",
-                                                                       "Type":  "Int"
+                                                                       "Type":  "Int32"
                                                                    },
                       "SMAContinuousIntegration-LocalPowerShellModulePath":  {
                                                                                  "isEncrypted":  "False",
@@ -69,13 +69,13 @@
                       "SMAContinuousIntegration-MonitorDelayCycle":  {
                                                                          "isEncrypted":  false,
                                                                          "Description":  "",
-                                                                         "Type":  "Integer",
+                                                                         "Type":  "Int32",
                                                                          "Value":  30
                                                                      },
                       "SMAContinuousIntegration-MonitorCheckpoint":  {
                                                                          "isEncrypted":  false,
                                                                          "Description":  "",
-                                                                         "Type":  "Integer",
+                                                                         "Type":  "Int32",
                                                                          "Value":  5
                                                                      },
                       "SMAContinuousIntegration-GitLocalRepo":  {
@@ -89,6 +89,12 @@
                                                                         "Description":  "",
                                                                         "Type":  "String",
                                                                         "Value":  "-1"
-                                                                    }
+                                                                    },
+                      "SMAContinuousIntegration-testvar":  {
+                                      "isEncrypted":  false,
+                                      "Description":  "",
+                                      "Type":  "String",
+                                      "Value":  "{\r\n    \"test\":  \"this\"\r\n}"
+                                  }
                   }
 }

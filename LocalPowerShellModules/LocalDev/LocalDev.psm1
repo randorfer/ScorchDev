@@ -179,16 +179,48 @@ Function Read-SmaJSONVariables
         }
     }
 }
+<#
+    .Synopsis
+        Creates a variable in a json file. When this is commited these
+        variables will be created in SMA through continuous integration
 
+    .Parameter VariableFilePath
+        The path to the file to store this variable in. If not passed it is
+        assumed you want to store it in the same file you did last time
+
+    .Parameter Name
+        The name of the variable to create. 
+        Variables will be named in the format
+
+        Prefix-Name
+
+    .Parameter Prefix
+        The prefix of the variable to create. If not passed it will default
+        to the name of the variable file you are storing it in
+        Variables will be named in the format
+
+        Prefix-Name
+    
+    .Parameter Value
+        The value to store in the object. If a non primative is passed it
+        will be converted into a string using convertto-json
+
+    .Parameter Description
+        The description of the variable to store in SMA
+
+    .isEncrypted
+        A boolean flag representing if this value should be encrypted in SMA
+
+#>
 Function Set-LocalDevAutomationVariable
 {
     Param(
         [Parameter(Mandatory=$False)] $VariableFilePath,
         [Parameter(Mandatory=$True)]  $Name,
         [Parameter(Mandatory=$True)]  $Value,
+        [Parameter(Mandatory=$False)] $Prefix = [System.String]::Empty,
         [Parameter(Mandatory=$False)] $Description = [System.String]::Empty,
-        [Parameter(Mandatory=$False)] $isEncrypted = $False,
-        [Parameter(Mandatory=$False)] $Type = 'String'
+        [Parameter(Mandatory=$False)] $isEncrypted = $False
         )
     if(-not $VariableFilePath)
     {
@@ -209,6 +241,20 @@ Function Set-LocalDevAutomationVariable
         }
     }
 
+    if(Test-IsNullOrEmpty $Prefix)
+    {
+        if($VariableFilePath -Match '.*\\(.+)\.json$')
+        {
+            $Prefix = $Matches[1]
+        }
+        else
+        {
+            Throw-Exception -Type 'UndeterminableDefaultPrefix' `
+                            -Message 'Could not determine what the default prefix should be' `
+                            -Property @{ 'VariableFilePath' = $VariableFilePath }
+        }
+    }
+
     $VariableJSON = ConvertFrom-JSON -InputObject ((Get-Content -Path $VariableFilePath) -as [String])
     if(Test-IsNullOrEmpty $VariableJSON.Variables)
     {
@@ -222,6 +268,28 @@ Function Set-LocalDevAutomationVariable
     }
     else
     {
+        $Type = $Value.GetType().Name
+        Switch($Type)
+        {
+            "Int32"
+            {
+                
+            }
+            "String"
+            {
+                
+            }
+            "DateTime"
+            {
+                
+            }
+            default
+            {
+                $Type = 'String'
+                $Value = ConvertTo-JSON $Value
+            }
+        }
+
         Add-Member -InputObject $VariableJSON.Variables `
                    -MemberType NoteProperty `
                    -Value @{'Value' = $Value ;

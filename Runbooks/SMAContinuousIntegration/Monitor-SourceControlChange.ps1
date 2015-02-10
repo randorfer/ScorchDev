@@ -1,7 +1,10 @@
 ﻿<#
-    #TODO Put header information here
+    .Synopsis
+        Monitors a local git repository for new commits from a centralized repository.
+        When a new commit is found a list of modified files is passed to Sync-CommitChanges
+        to update the SMA environment with those changes
 #>
-workflow Monitor-SourceControlChanges
+workflow Monitor-SourceControlChange
 {
     Param()
     
@@ -23,9 +26,11 @@ workflow Monitor-SourceControlChanges
     {
 		try
 		{
-			$RepoChange = ConvertFrom-JSON( Find-GitRepoChange -Path $CIVariables.GitLocalRepo `
-                                                               -Branch $CIVariables.GitBranch `
-                                                               -LastCommit $LastCommit)
+			$RepoChangeJSON = Find-GitRepoChange -Path $CIVariables.GitLocalRepo `
+                                                 -Branch $CIVariables.GitBranch `
+                                                 -LastCommit $LastCommit
+            $RepoChange = ConvertFrom-JSON -InputObject $RepoChangeJSON
+
             if(($LastCommit -ne $RepoChange.CurrentCommit))
             {
                 Write-Verbose -Message "Starting to Process [$($LastCommit)..$($RepoChange.CurrentCommit)]"
