@@ -40,9 +40,14 @@ Workflow Invoke-GitRepositorySync
         if($RepoChange.CurrentCommit -ne $CurrentCommit)
         {
             Write-Verbose -Message "Processing [$CurrentCommit..$($RepoChange.CurrentCommit)]"
+            
             $ProcessedWorkflows = @()
             $ProcessedSettingsFiles = @()
             $ProcessedPowerShellModules = @()
+            
+            $CleanupOrphanRunbooks = $False
+            $CleanupOrphanAssets = $False
+
             # Only Process the file 1 time per set. Sort by change type so Adds get
             # Priority over deletes. Sorts .ps1 files before .json files
             Foreach($File in ($RepoChange.Files | Sort-Object ChangeType |Sort-Object FileExtension -Descending))
@@ -62,6 +67,7 @@ Workflow Invoke-GitRepositorySync
                                 {
                                     "D"
                                     {
+                                        $CleanupOrphanRunbooks = $True
                                     }
                                     Default
                                     {
@@ -84,6 +90,7 @@ Workflow Invoke-GitRepositorySync
                                 {
                                     "D"
                                     {
+                                        $CleanupOrphanAssets = $true
                                     }
                                     Default
                                     {
@@ -116,6 +123,7 @@ Workflow Invoke-GitRepositorySync
                                 {
                                     "D"
                                     {
+                                        # Not implemented
                                     }
                                     Default
                                     {
@@ -136,6 +144,16 @@ Workflow Invoke-GitRepositorySync
                 Write-Verbose -Message "[$($File.FileName)] Finished Processing"
                 Checkpoint-Workflow
 
+            }
+
+            if($CleanupOrphanRunbooks)
+            {
+                #Remove-OrphanRunbook
+            }
+            if($CleanupOrphanAssets)
+            {
+                #Remove-OrphanVariable
+                #Remove-OrphanSchedule
             }
             Write-Verbose -Message "Finished Processing [$CurrentCommit..$($RepoChange.CurrentCommit)]"
         }
