@@ -147,12 +147,6 @@ Function Read-SmaJSONVariables
     Param(
         [Parameter(Mandatory=$True)]  [AllowNull()] [String[]] $Path
     )
-    $TypeMap = @{
-        'String'  = [String];
-        'Str'     = [String];
-        'Integer' = [Int];
-        'Int'     = [Int]
-    }
 
     $Script:LocalSMAVariables = @{}
     ForEach($_Path in $Path)
@@ -172,8 +166,7 @@ Function Read-SmaJSONVariables
             ForEach($VariableName in ($JSON.Variables | Get-Member -MemberType NoteProperty).Name)
             {
                 $Var = $JSON.Variables."$VariableName"
-                $VarType = Select-FirstValid -Value @($TypeMap[$Var.Type], $([String]))
-                $retVar = New-Object -TypeName 'PSObject' -Property @{ 'Name' = $VariableName; 'Value' = ($var.Value -As $VarType)}
+                $retVar = New-Object -TypeName 'PSObject' -Property @{ 'Name' = $VariableName; 'Value' = $var.Value }
                 $Script:LocalSMAVariables[$VariableName] = $retVar
             }
         }
@@ -301,8 +294,7 @@ Function Set-LocalDevAutomationVariable
                    -MemberType NoteProperty `
                    -Value @{'Value' = $Value ;
                             'Description' = $Description ;
-                            'isEncrypted' = $isEncrypted ;
-                            'Type' = $Type } `
+                            'isEncrypted' = $isEncrypted } `
                             -Name $Name
     }
     

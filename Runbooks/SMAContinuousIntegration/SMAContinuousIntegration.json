@@ -1,93 +1,43 @@
 {
     "Variables":  {
-                      "SMAContinuousIntegration-TFSServer":  {
-                                                                 "isEncrypted":  "False",
-                                                                 "Description":  "",
-                                                                 "Value":  "tfs.generalmills.com",
-                                                                 "Type":  "String"
-                                                             },
-                      "SMAContinuousIntegration-TFSBranch":  {
-                                                                 "isEncrypted":  "False",
-                                                                 "Description":  "",
-                                                                 "Value":  "Dev",
-                                                                 "Type":  "String"
-                                                             },
-                      "SMAContinuousIntegration-TFSModulesSourcePath":  {
-                                                                            "isEncrypted":  "False",
-                                                                            "Description":  "",
-                                                                            "Value":  "D:\\Orchestrator_TFS\\Orchestrator\\PowerShellModulesV2",
-                                                                            "Type":  "String"
-                                                                        },
-                      "SMAContinuousIntegration-TFSScriptsSourcePath":  {
-                                                                            "isEncrypted":  "False",
-                                                                            "Description":  "",
-                                                                            "Value":  "D:\\Orchestrator_TFS\\Orchestrator\\SMA",
-                                                                            "Type":  "String"
-                                                                        },
-                      "SMAContinuousIntegration-CredName":  {
-                                                                "isEncrypted":  "False",
-                                                                "Description":  "",
-                                                                "Value":  "GENMILLS\\M3IS052",
-                                                                "Type":  "String"
-                                                            },
                       "SMAContinuousIntegration-MonitorLifeSpan":  {
-                                                                       "isEncrypted":  "False",
+                                                                       "isEncrypted":  false,
                                                                        "Description":  "",
-                                                                       "Value":  "300",
-                                                                       "Type":  "Int32"
+                                                                       "Value":  300
                                                                    },
                       "SMAContinuousIntegration-NetworkPowerShellModulePath":  {
-                                                                                   "isEncrypted":  "False",
+                                                                                   "isEncrypted":  false,
                                                                                    "Description":  "",
-                                                                                   "Value":  "\\\\genmills\\desktop\\AOT\\PowerShellModules",
-                                                                                   "Type":  "String"
+                                                                                   "Value":  "\\\\genmills\\desktop\\AOT\\PowerShellModules"
                                                                                },
-                      "SMAContinuousIntegration-TFSCollection":  {
-                                                                     "isEncrypted":  "False",
-                                                                     "Description":  "",
-                                                                     "Value":  "DefaultCollection",
-                                                                     "Type":  "String"
-                                                                 },
-                      "SMAContinuousIntegration-LatestChangeset":  {
-                                                                       "isEncrypted":  "False",
-                                                                       "Description":  "",
-                                                                       "Value":  "0",
-                                                                       "Type":  "Int32"
-                                                                   },
                       "SMAContinuousIntegration-LocalPowerShellModulePath":  {
-                                                                                 "isEncrypted":  "False",
+                                                                                 "isEncrypted":  false,
                                                                                  "Description":  "",
-                                                                                 "Value":  "C:\\Program Files\\GMIPowerShell\\Modules",
-                                                                                 "Type":  "String"
+                                                                                 "Value":  "C:\\Program Files\\GMIPowerShell\\Modules"
                                                                              },
                       "SMAContinuousIntegration-GitBranch":  {
                                                                  "isEncrypted":  false,
                                                                  "Description":  "",
-                                                                 "Type":  "String",
                                                                  "Value":  "Dev"
                                                              },
                       "SMAContinuousIntegration-MonitorDelayCycle":  {
                                                                          "isEncrypted":  false,
                                                                          "Description":  "",
-                                                                         "Type":  "Int32",
                                                                          "Value":  30
                                                                      },
                       "SMAContinuousIntegration-MonitorCheckpoint":  {
                                                                          "isEncrypted":  false,
                                                                          "Description":  "",
-                                                                         "Type":  "Int32",
                                                                          "Value":  5
                                                                      },
                       "SMAContinuousIntegration-GitLocalRepo":  {
                                                                     "isEncrypted":  false,
                                                                     "Description":  "",
-                                                                    "Type":  "String",
                                                                     "Value":  "C:\\git\\ScorchDev"
                                                                 },
                       "SMAContinuousIntegration-GitCurrentCommit":  {
                                                                         "isEncrypted":  false,
                                                                         "Description":  "",
-                                                                        "Type":  "String",
                                                                         "Value":  "-1"
                                                                     },
                       "SMAContinuousIntegration-RepositoryInformation":  {
@@ -99,19 +49,16 @@
                       "SMAContinuousIntegration-SMACredName":  {
                                                                    "isEncrypted":  false,
                                                                    "Description":  "",
-                                                                   "Type":  "String",
                                                                    "Value":  "SCOrchDev\\SMA"
                                                                },
                       "SMAContinuousIntegration-WebserviceEndpoint":  {
                                                                           "isEncrypted":  false,
                                                                           "Description":  "",
-                                                                          "Type":  "String",
                                                                           "Value":  "https://scorchsma01.scorchdev.com"
                                                                       },
                       "SMAContinuousIntegration-WebservicePort":  {
                                                                       "isEncrypted":  false,
                                                                       "Description":  "",
-                                                                      "Type":  "String",
                                                                       "Value":  "9090"
                                                                   }
                   }

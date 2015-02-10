@@ -94,6 +94,7 @@ Workflow Invoke-GitRepositorySync
                                     }
                                     Default
                                     {
+                                        Publish-SMASettingsFileChange -FilePath $File.FullPath
                                     }
                                 }
                             }

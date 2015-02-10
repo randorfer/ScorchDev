@@ -365,4 +365,47 @@ Function New-SmaChangesetTagLine
     return ConvertTo-JSON @{'TagLine' = $TagLine ;
                             'NewVersion' = $NewVersion }
 }
+Function Get-SmaVariablesFromFile
+{
+    Param([Parameter(Mandatory=$false)][string] $FilePath)
+
+    $FileContent = Get-Content $FilePath
+    $Variables = (ConvertFrom-Json ((Get-Content -Path $FilePath) -as [String])).Variables
+
+    if(Test-IsNullOrEmpty $Variables)
+    {
+        Write-Warning -Message "No variables root in folder"
+    }
+
+    $returnObj = @()
+    foreach($variableName in ($Variables | Get-Member -MemberType NoteProperty).Name)
+    {
+        $returnObj += ConvertTo-JSON @{'Name' = $variableName ;
+                                       'isEncrypted' = $Variables."$variableName".isEncrypted ;
+                                       'Description' = $Variables."$variableName".Description ;
+                                       'Value' = $Variables."$variableName".Value}
+    }
+    return $returnObj
+}
+Function Get-SmaSchedulesFromFile
+{
+    Param([Parameter(Mandatory=$false)][string] $FilePath)
+
+    $FileContent = Get-Content $FilePath
+    $Schedules = (ConvertFrom-Json ((Get-Content -Path $FilePath) -as [String])).Schedules
+
+    if(Test-IsNullOrEmpty $Schedules)
+    {
+        Write-Warning -Message "No Schedules root in folder"
+    }
+    $returnObj = @()
+    foreach($scheduleName in ($Schedules | Get-Member -MemberType NoteProperty).Name)
+    {
+        $returnObj += ConvertTo-JSON @{'Name' = $scheduleName ;
+                                       'isEncrypted' = $Schedules."$scheduleName".isEncrypted ;
+                                       'Description' = $Schedules."$scheduleName".Description ;
+                                       'Value' = $Schedules."$scheduleName".Value}
+    }
+    return $returnObj
+}
 Export-ModuleMember -Function * -Verbose:$false -Debug:$False
