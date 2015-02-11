@@ -66,7 +66,7 @@ Function Find-GitRepoChange
     $ReturnObj = @{ 'CurrentCommit' = $NewCommit ; 'Files' = @() }
     Foreach($File in $ModifiedFiles)
     {
-        if("$($File)" -Match '([a-zA-Z])\s+(.+\/([^\./]+(\..+)?))$')
+        if("$($File)" -Match '([a-zA-Z])\s+(.+\/([^\./]+(\..+)))$')
         {
             $ReturnObj.Files += @{ 'FullPath' = "$($Path)\$($Matches[2].Replace('/','\'))" ;
                                    'FileName' = $Matches[3] ;
