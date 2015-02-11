@@ -34,7 +34,7 @@
 
     
 #>
-Workflow Deploy-LocalPowerShellModule
+Workflow Publish-LocalPowerShellModule
 {
     Param( [Parameter(Mandatory=$true) ][string] $ModuleName,
            [Parameter(Mandatory=$true) ][string] $ModuleRootPath,

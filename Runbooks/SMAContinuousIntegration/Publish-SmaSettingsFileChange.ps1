@@ -46,6 +46,14 @@ Workflow Publish-SMASettingsFileChange
             }
             Write-Verbose -Message "[$($Variable.Name)] Finished Updating"
         }
+
+        $Schedules = Get-SmaSchedulesFromFile -FilePath $FilePath
+        foreach($ScheduleJSON in $Schedules)
+        {
+            Write-Verbose -Message "[$ScheduleJSON] Updating"
+            $Schedule = ConvertFrom-Json $ScheduleJSON
+            Write-Verbose -Message "[$($Variable.Name)] Finished Updating"
+        }
     }
     Catch
     {

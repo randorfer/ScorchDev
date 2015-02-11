@@ -1,7 +1,7 @@
 ﻿<#
 	Some Stuff
 #>
-Workflow Start-SmaRunbookListRepublish
+Workflow Invoke-SmaRunbookListRepublish
 {
     Param([array]  $RunbookList,
           [string] $WebServiceEndpoint = "https://localhost")

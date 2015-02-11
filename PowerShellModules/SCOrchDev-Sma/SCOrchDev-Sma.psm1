@@ -408,4 +408,16 @@ Function Get-SmaSchedulesFromFile
     }
     return $returnObj
 }
+Function Set-SmaRepositoryInformationCommitVersion
+{
+    Param([Parameter(Mandatory=$false)][string] $RepositoryInformation,
+          [Parameter(Mandatory=$false)][string] $Path,
+          [Parameter(Mandatory=$false)][string] $Commit)
+
+    
+    $RepositoryInformation = (ConvertFrom-JSON $RepositoryInformation)
+    $RepositoryInformation."$Path".CurrentCommit = $Commit
+
+    return (ConvertTo-Json $RepositoryInformation)
+}
 Export-ModuleMember -Function * -Verbose:$false -Debug:$False

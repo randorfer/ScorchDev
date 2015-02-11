@@ -19,27 +19,30 @@
 #>
 Workflow Invoke-GitRepositorySync
 {
-    Param([Parameter(Mandatory=$true)][String] $Path,
-          [Parameter(Mandatory=$true)][String] $Branch)
+    Param([Parameter(Mandatory=$true)][String] $Path)
     
     Write-Verbose -Message "Starting [$WorkflowCommandName]"
     $ErrorActionPreference = [System.Management.Automation.ActionPreference]::Stop
 
-    $CIVariables = Get-BatchAutomationVariable -Name @('RepositoryInformation') `
+    $CIVariables = Get-BatchAutomationVariable -Name @('RepositoryInformation',
+                                                       'SMACredName',
+                                                       'WebserviceEndpoint'
+                                                       'WebservicePort') `
                                                -Prefix 'SMAContinuousIntegration'
-
+    $SMACred = Get-AutomationPSCredential -Name $CIVariables.SMACredName
     Try
     {
         $RepositoryInformation = (ConvertFrom-Json $CIVariables.RepositoryInformation)."$Path"
         Write-Verbose -Message "`$RepositoryInformation [$(ConvertTo-JSON $RepositoryInformation)]"
 
         $RepoChangeJSON = Find-GitRepoChange -Path $Path `
-                                             -Branch $Branch `
-                                             -CurrentCommit $RepositoryInformation.CurrentCommit."$Branch"
+                                             -Branch $RepositoryInformation.Branch `
+                                             -CurrentCommit $RepositoryInformation.CurrentCommit
+
         $RepoChange = ConvertFrom-JSON -InputObject $RepoChangeJSON
-        if($RepoChange.CurrentCommit -ne $CurrentCommit)
+        if($RepoChange.CurrentCommit -ne $RepositoryInformation.CurrentCommit)
         {
-            Write-Verbose -Message "Processing [$CurrentCommit..$($RepoChange.CurrentCommit)]"
+            Write-Verbose -Message "Processing [$($RepositoryInformation.CurrentCommit)..$($RepoChange.CurrentCommit)]"
             
             $ProcessedWorkflows = @()
             $ProcessedSettingsFiles = @()
@@ -156,7 +159,17 @@ Workflow Invoke-GitRepositorySync
                 #Remove-OrphanVariable
                 #Remove-OrphanSchedule
             }
-            Write-Verbose -Message "Finished Processing [$CurrentCommit..$($RepoChange.CurrentCommit)]"
+            
+            $UpdatedRepositoryInformation = Set-SmaRepositoryInformationCommitVersion -RepositoryInformation $CIVariables.RepositoryInformation `
+                                                                                      -Path $Path `
+                                                                                      -Commit $RepoChange.CurrentCommit
+            Set-SmaVariable -Name 'SMAContinuousIntegration-RepositoryInformation' `
+                            -Value $UpdatedRepositoryInformation `
+                            -WebServiceEndpoint $CIVariables.WebserviceEndpoint `
+                            -Port $CIVariables.WebservicePort `
+                            -Credential $SMACred
+
+            Write-Verbose -Message "Finished Processing [$($RepositoryInformation.CurrentCommit)..$($RepoChange.CurrentCommit)]"
         }
     }
     Catch

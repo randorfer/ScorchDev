@@ -14,9 +14,7 @@ workflow Monitor-SourceControlChange
     $CIVariables = Get-BatchAutomationVariable -Name @('MonitorLifeSpan',
                                                        'MonitorDelayCycle',
                                                        'MonitorCheckpoint',
-                                                       'GitLocalRepo',
-                                                       'GitBranch',
-                                                       'GitCurrentCommit') `
+                                                       'RepositoryInformation') `
                                                -Prefix 'SMAContinuousIntegration'
 
     $MonitorRefreshTime = ( Get-Date ).AddMinutes( $CIVariables.MonitorLifeSpan )
@@ -26,18 +24,13 @@ workflow Monitor-SourceControlChange
     {
 		try
 		{
-			$RepoChangeJSON = Find-GitRepoChange -Path $CIVariables.GitLocalRepo `
-                                                 -Branch $CIVariables.GitBranch `
-                                                 -LastCommit $LastCommit
-            $RepoChange = ConvertFrom-JSON -InputObject $RepoChangeJSON
-
-            if(($LastCommit -ne $RepoChange.CurrentCommit))
+            $RepositoryInformation = ConvertFrom-JSON $CIVariables.RepositoryInformation
+            foreach($RepositoryPath in ($RepositoryInformation | Get-Member -MemberType NoteProperty).Name )
             {
-                Write-Verbose -Message "Starting to Process [$($LastCommit)..$($RepoChange.CurrentCommit)]"
-                Write-Verbose -Message "Modified Files [$(ConvertTo-JSON $RepoChange.Files)]"
-                Write-Verbose -Message "Finished Processing [$($LastCommit)..$($RepoChange.CurrentCommit)]"
+                Write-Verbose -Message "[$RepositoryPath] Starting Processing"
+                Invoke-GitRepositorySync -Path $RepositoryPath
+                Write-Verbose -Message "[$RepositoryPath] Finished Processing"
             }
-            $LastCommit = $RepoChange.CurrentCommit
         }
         catch
         {

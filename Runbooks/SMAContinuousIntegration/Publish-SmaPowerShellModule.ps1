@@ -27,7 +27,7 @@
 
     
 #>
-Workflow Import-SmaPowerShellModule
+Workflow Publish-SmaPowerShellModule
 {
     Param( [Parameter(Mandatory=$true) ][string] $ModuleName,
            [Parameter(Mandatory=$true) ][string] $ModuleRootPath,

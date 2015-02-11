@@ -5,21 +5,6 @@
                                                                        "Description":  "",
                                                                        "Value":  300
                                                                    },
-                      "SMAContinuousIntegration-NetworkPowerShellModulePath":  {
-                                                                                   "isEncrypted":  false,
-                                                                                   "Description":  "",
-                                                                                   "Value":  "\\\\genmills\\desktop\\AOT\\PowerShellModules"
-                                                                               },
-                      "SMAContinuousIntegration-LocalPowerShellModulePath":  {
-                                                                                 "isEncrypted":  false,
-                                                                                 "Description":  "",
-                                                                                 "Value":  "C:\\Program Files\\GMIPowerShell\\Modules"
-                                                                             },
-                      "SMAContinuousIntegration-GitBranch":  {
-                                                                 "isEncrypted":  false,
-                                                                 "Description":  "",
-                                                                 "Value":  "Dev"
-                                                             },
                       "SMAContinuousIntegration-MonitorDelayCycle":  {
                                                                          "isEncrypted":  false,
                                                                          "Description":  "",
@@ -30,21 +15,11 @@
                                                                          "Description":  "",
                                                                          "Value":  5
                                                                      },
-                      "SMAContinuousIntegration-GitLocalRepo":  {
-                                                                    "isEncrypted":  false,
-                                                                    "Description":  "",
-                                                                    "Value":  "C:\\git\\ScorchDev"
-                                                                },
-                      "SMAContinuousIntegration-GitCurrentCommit":  {
-                                                                        "isEncrypted":  false,
-                                                                        "Description":  "",
-                                                                        "Value":  "-1"
-                                                                    },
                       "SMAContinuousIntegration-RepositoryInformation":  {
                                                                              "isEncrypted":  false,
                                                                              "Description":  "",
                                                                              "Type":  "String",
-                                                                             "Value":  "{\r\n    \"C:\\\\git2\\\\ScorchDev\":  {\r\n                                \"RunbookFolder\":  \"Runbooks\",\r\n                                \"PowerShellModuleFolder\":  \"PowerShellModules\",\r\n                                \"CurrentCommit\":  {\r\n                                                      \"Prod\":  \"1\",\r\n                                                      \"Dev\":  \"-1\",\r\n                                                      \"QA\":  \"-1\"\r\n                                                  }\r\n                            },\r\n    \"C:\\\\git\\\\ScorchDev\":  {\r\n                               \"RunbookFolder\":  \"Runbooks\",\r\n                               \"PowerShellModuleFolder\":  \"PowerShellModules\",\r\n                               \"CurrentCommit\":  {\r\n                                                     \"Prod\":  \"1\",\r\n                                                     \"Dev\":  \"-1\",\r\n                                                     \"QA\":  \"-1\"\r\n                                                 }\r\n                           }\r\n}"
+                                                                             "Value":  "{\r\n    \"C:\\\\git2\\\\ScorchDev\":  {\r\n                                \"RunbookFolder\":  \"Runbooks\",\r\n                                \"PowerShellModuleFolder\":  \"PowerShellModules\",\r\n                                \"CurrentCommit\":  \"-1\",\r\n                                \"Branch\": \"Dev\"\r\n                            },\r\n    \"C:\\\\git\\\\ScorchDev\":  {\r\n                               \"RunbookFolder\":  \"Runbooks\",\r\n                               \"PowerShellModuleFolder\":  \"PowerShellModules\",\r\n                               \"CurrentCommit\":  \"-1\",\r\n                               \"Branch\": \"Dev\"\r\n                           }\r\n}"
                                                                          },
                       "SMAContinuousIntegration-SMACredName":  {
                                                                    "isEncrypted":  false,

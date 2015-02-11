@@ -1,7 +1,6 @@
 ﻿<#
     .Synopsis
         Takes a ps1 file and publishes it to the current SMA environment.
-        Creates a new source controlled .json settings file if one does not already exist
     .Parameter
 #>
 Workflow Publish-SMARunbookChange
