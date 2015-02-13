@@ -306,7 +306,8 @@ Function Remove-LocalDevAutomationVariable
 {
     Param(
         [Parameter(Mandatory=$False)] $SettingsFilePath,
-        [Parameter(Mandatory=$True)]  $Name
+        [Parameter(Mandatory=$True)]  $Name,
+        [Parameter(Mandatory=$False)] $Prefix
         )
     if(-not $SettingsFilePath)
     {
@@ -325,6 +326,25 @@ Function Remove-LocalDevAutomationVariable
                           -WarningAction 'Continue'
             $Script:CurrentSettingsFile = $SettingsFilePath
         }
+    }
+
+    if(Test-IsNullOrEmpty $Prefix)
+    {
+        if($SettingsFilePath -Match '.*\\(.+)\.json$')
+        {
+            $Prefix = $Matches[1]
+        }
+        else
+        {
+            Throw-Exception -Type 'UndeterminableDefaultPrefix' `
+                            -Message 'Could not determine what the default prefix should be' `
+                            -Property @{ 'SettingsFilePath' = $SettingsFilePath }
+        }
+    }
+
+    if($Name -notlike "$($Prefix)-*")
+    {
+        $Name = "$($Prefix)-$($Name)"
     }
 
     $SettingsVars = ConvertFrom-JSON -InputObject ((Get-Content -Path $SettingsFilePath) -as [String])
@@ -537,7 +557,8 @@ Function Remove-LocalDevAutomationSchedule
 {
     Param(
         [Parameter(Mandatory=$False)] $SettingsFilePath,
-        [Parameter(Mandatory=$True)]  $Name
+        [Parameter(Mandatory=$True)]  $Name,
+        [Parameter(Mandatory=$False)] $Prefix
         )
     if(-not $SettingsFilePath)
     {
@@ -557,7 +578,24 @@ Function Remove-LocalDevAutomationSchedule
             $Script:CurrentSettingsFile = $SettingsFilePath
         }
     }
+    if(Test-IsNullOrEmpty $Prefix)
+    {
+        if($SettingsFilePath -Match '.*\\(.+)\.json$')
+        {
+            $Prefix = $Matches[1]
+        }
+        else
+        {
+            Throw-Exception -Type 'UndeterminableDefaultPrefix' `
+                            -Message 'Could not determine what the default prefix should be' `
+                            -Property @{ 'SettingsFilePath' = $SettingsFilePath }
+        }
+    }
 
+    if($Name -notlike "$($Prefix)-*")
+    {
+        $Name = "$($Prefix)-$($Name)"
+    }
     $SettingsVars = ConvertFrom-JSON -InputObject ((Get-Content -Path $SettingsFilePath) -as [String])
     if(Test-IsNullOrEmpty $SettingsVars.Schedules)
     {
