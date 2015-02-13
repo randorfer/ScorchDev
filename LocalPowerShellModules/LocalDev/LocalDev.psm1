@@ -312,7 +312,7 @@ Function Remove-LocalDevAutomationVariable
     {
         if(-not $Script:CurrentSettingsFile)
         {
-            Theow-Exception -Type 'Variable File Not Set' `
+            Throw-Exception -Type 'Variable File Not Set' `
                             -Message 'The variable file path has not been set'
         }
         $SettingsFilePath = $Script:CurrentSettingsFile
@@ -432,8 +432,8 @@ Function Set-LocalDevAutomationSchedule
     {
         if(-not $Script:CurrentSettingsFile)
         {
-            Throw-Exception -Type 'Variable File Not Set' `
-                            -Message 'The variable file path has not been set'
+            Throw-Exception -Type 'Settings File Not Set' `
+                            -Message 'The settings file path has not been set'
         }
         $SettingsFilePath = $Script:CurrentSettingsFile
     }
@@ -532,6 +532,50 @@ Function Set-LocalDevAutomationSchedule
     }
     
     Set-Content -Path $SettingsFilePath -Value (ConvertTo-JSON $SettingsVars)
-    Read-SmaJSONVariables $SettingsFilePath
+}
+Function Remove-LocalDevAutomationSchedule
+{
+    Param(
+        [Parameter(Mandatory=$False)] $SettingsFilePath,
+        [Parameter(Mandatory=$True)]  $Name
+        )
+    if(-not $SettingsFilePath)
+    {
+        if(-not $Script:CurrentSettingsFile)
+        {
+            Throw-Exception -Type 'Variable File Not Set' `
+                            -Message 'The variable file path has not been set'
+        }
+        $SettingsFilePath = $Script:CurrentSettingsFile
+    }
+    else
+    {
+        if($Script:CurrentSettingsFile -ne $SettingsFilePath)
+        {
+            Write-Warning -Message "Setting Default Variable file to [$SettingsFilePath]" `
+                          -WarningAction 'Continue'
+            $Script:CurrentSettingsFile = $SettingsFilePath
+        }
+    }
+
+    $SettingsVars = ConvertFrom-JSON -InputObject ((Get-Content -Path $SettingsFilePath) -as [String])
+    if(Test-IsNullOrEmpty $SettingsVars.Schedules)
+    {
+        Add-Member -InputObject $SettingsVars -MemberType NoteProperty -Value @() -Name Schedules
+    }
+    if(($SettingsVars.Schedules | Get-Member -MemberType NoteProperty).Name -Contains $Name)
+    {
+        $SettingsVars.Schedules = $SettingsVars.Schedules | Select-Object -Property * -ExcludeProperty $Name
+        Set-Content -Path $SettingsFilePath -Value (ConvertTo-JSON $SettingsVars)
+    }
+    else
+    {
+        Write-Warning (New-Exception -Type 'Schedule Not found' `
+                                     -Message "The schedule was not found in the current variable file. Try specifiying the file" `
+                                     -Property @{ 'sariableName' = $Name ;
+                                                  'CurrentFilePath' = $SettingsFilePath ;
+                                                  'SettingsJSON' = $SettingsVars }) `
+                      -WarningAction 'Continue'
+    }
 }
 Export-ModuleMember -Function * -Verbose:$false
