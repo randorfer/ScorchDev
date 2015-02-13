@@ -25,11 +25,11 @@ workflow Monitor-SourceControlChange
 		try
 		{
             $RepositoryInformation = ConvertFrom-JSON $CIVariables.RepositoryInformation
-            foreach($RepositoryPath in ($RepositoryInformation | Get-Member -MemberType NoteProperty).Name )
+            foreach($RepositoryName in ($RepositoryInformation | Get-Member -MemberType NoteProperty).Name )
             {
-                Write-Verbose -Message "[$RepositoryPath] Starting Processing"
-                Invoke-GitRepositorySync -Path $RepositoryPath
-                Write-Verbose -Message "[$RepositoryPath] Finished Processing"
+                Write-Verbose -Message "[$RepositoryName] Starting Processing"
+                Invoke-GitRepositorySync -RepositoryName $RepositoryName
+                Write-Verbose -Message "[$RepositoryName] Finished Processing"
             }
         }
         catch

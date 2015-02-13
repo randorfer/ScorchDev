@@ -341,8 +341,10 @@ Function Get-SmaWorkflowNameFromFile
 Function New-SmaChangesetTagLine
 {
     Param([Parameter(Mandatory=$false)][string] $TagLine,
-          [Parameter(Mandatory=$true)][string]  $CurrentCommit)
+          [Parameter(Mandatory=$true)][string]  $CurrentCommit,
+          [Parameter(Mandatory=$true)][string]  $RepositoryName)
 
+    $NewVersion = $False
     if($TagLine -match 'CurrentCommit:([^;]+);')
     {
         if($Matches[1] -ne $CurrentCommit)
@@ -350,16 +352,25 @@ Function New-SmaChangesetTagLine
             $NewVersion = $True
             $TagLine = $TagLine.Replace($Matches[1],$CurrentCommit) 
         }
-        else
-        {
-            $NewVersion = $False
-            $TagLine = $TagLine
-        }
     }
     else
     {
         Write-Verbose -Message "[$TagLine] Did not have a current commit tag."
-        $TagLine = "$($CommitTag)$($TagLine)"
+        $TagLine = "CurrentCommit:$($CurrentCommit);$($TagLine)"
+        $NewVersion = $True
+    }
+    if($TagLine -match 'RepositoryName:([^;]+);')
+    {
+        if($Matches[1] -ne $RepositoryName)
+        {
+            $NewVersion = $True
+            $TagLine = $TagLine.Replace($Matches[1],$RepositoryName) 
+        }
+    }
+    else
+    {
+        Write-Verbose -Message "[$TagLine] Did not have a RepositoryName tag."
+        $TagLine = "RepositoryName:$($RepositoryName);$($TagLine)"
         $NewVersion = $True
     }
     return ConvertTo-JSON @{'TagLine' = $TagLine ;

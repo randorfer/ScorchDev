@@ -1,12 +1,22 @@
 ﻿<#
     .Synopsis
         Takes a ps1 file and publishes it to the current SMA environment.
-    .Parameter
+    
+    .Parameter FilePath
+        The full path to the script file
+
+    .Parameter CurrentCommit
+        The current commit to store this version under
+
+    .Parameter RepositoryName
+        The name of the repository that will be listed as the 'owner' of this
+        runbook
 #>
 Workflow Publish-SMARunbookChange
 {
     Param( [Parameter(Mandatory=$True)][String] $FilePath,
-           [Parameter(Mandatory=$True)][String] $CurrentCommit )
+           [Parameter(Mandatory=$True)][String] $CurrentCommit,
+           [Parameter(Mandatory=$True)][String] $RepositoryName )
     
     Write-Verbose -Message "Starting [$WorkflowCommandName]"
     $ErrorActionPreference = [System.Management.Automation.ActionPreference]::Stop
@@ -20,18 +30,17 @@ Workflow Publish-SMARunbookChange
     Try
     {
         $WorkflowName = Get-SmaWorkflowNameFromFile -FilePath $FilePath
-        $CommitTag = "CurrentCommit:$CurrentCommit;"
         
         $ErrorActionPreference = [System.Management.Automation.ActionPreference]::SilentlyContinue
         $Runbook = Get-SmaRunbook -Name $WorkflowName `
-                                    -WebServiceEndpoint $CIVariables.WebserviceEndpoint `
-                                    -Port $CIVariables.WebservicePort `
-                                    -Credential $SMACred
+                                  -WebServiceEndpoint $CIVariables.WebserviceEndpoint `
+                                  -Port $CIVariables.WebservicePort `
+                                  -Credential $SMACred
         $ErrorActionPreference = [System.Management.Automation.ActionPreference]::Stop
 
         if(Test-IsNullOrEmpty $Runbook.RunbookID.Guid)
         {
-           Write-Verbose -Message "[$WorkflowName] Initial Import"
+            Write-Verbose -Message "[$WorkflowName] Initial Import"
             
             $ImportedRunbook = Import-SmaRunbook -Path $FilePath `
                                                  -WebServiceEndpoint $CIVariables.WebserviceEndpoint `
@@ -42,14 +51,15 @@ Workflow Publish-SMARunbookChange
                                       -WebServiceEndpoint $CIVariables.WebserviceEndpoint `
                                       -Port $CIVariables.WebservicePort `
                                       -Credential $SMACred
-            $TagLine = $CommitTag
+            $TagLine = "RepositoryName:$RepositoryName;CurrentCommit:$CurrentCommit;"
             $NewVersion = $True
         }
         else
         {
             Write-Verbose -Message "[$WorkflowName] Update"
             $TagUpdateJSON = New-SmaChangesetTagLine -TagLine $Runbook.Tags `
-                                                     -CurrentCommit $CurrentCommit
+                                                     -CurrentCommit $CurrentCommit `
+                                                     -RepositoryName $RepositoryName
             $TagUpdate = ConvertFrom-Json $TagUpdateJSON
             $TagLine = $TagUpdate.TagLine
             $NewVersion = $TagUpdate.NewVersion

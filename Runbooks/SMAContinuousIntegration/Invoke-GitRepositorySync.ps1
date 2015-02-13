@@ -3,23 +3,11 @@
         Check GIT repository for new commits. If found sync the changes into
         the current SMA environment
 
-    .Parameter Path
-        The path to the root of the Git Repository
-
-    .Parameter Branch
-        The branch of the repository to syncronize this SMA environment with
-
-    .Parameter RunbookFolder
-        The relative path from the repository root that will contain all all
-        runbook files
-
-    .Parameter PowerShellModuleFolder
-        The relative path from the repository root that will contain all all
-        PowerShell module folders
+    .Parameter RepositoryName
 #>
 Workflow Invoke-GitRepositorySync
 {
-    Param([Parameter(Mandatory=$true)][String] $Path)
+    Param([Parameter(Mandatory=$true)][String] $RepositoryName)
     
     Write-Verbose -Message "Starting [$WorkflowCommandName]"
     $ErrorActionPreference = [System.Management.Automation.ActionPreference]::Stop
@@ -32,7 +20,7 @@ Workflow Invoke-GitRepositorySync
     $SMACred = Get-AutomationPSCredential -Name $CIVariables.SMACredName
     Try
     {
-        $RepositoryInformation = (ConvertFrom-Json $CIVariables.RepositoryInformation)."$Path"
+        $RepositoryInformation = (ConvertFrom-Json $CIVariables.RepositoryInformation)."$RepositoryName"
         Write-Verbose -Message "`$RepositoryInformation [$(ConvertTo-JSON $RepositoryInformation)]"
 
         $RepoChangeJSON = Find-GitRepoChange -Path $Path `
@@ -75,7 +63,8 @@ Workflow Invoke-GitRepositorySync
                                     Default
                                     {
                                         Publish-SMARunbookChange -FilePath $File.FullPath `
-                                                                 -CurrentCommit $RepoChange.CurrentCommit
+                                                                 -CurrentCommit $RepoChange.CurrentCommit `
+                                                                 -RepositoryName $RepositoryName
                                     }
                                 }
                             }
@@ -97,7 +86,9 @@ Workflow Invoke-GitRepositorySync
                                     }
                                     Default
                                     {
-                                        Publish-SMASettingsFileChange -FilePath $File.FullPath
+                                        Publish-SMASettingsFileChange -FilePath $File.FullPath `
+                                                                      -CurrentCommit $RepoChange.CurrentCommit `
+                                                                      -RepositoryName $RepositoryName
                                     }
                                 }
                             }

@@ -1,11 +1,21 @@
 ﻿<#
     .Synopsis
         Takes a json file and publishes all schedules and variables from it into SMA
-    .Parameter
+    
+    .Parameter FilePath
+        The path to the settings file to process
+
+    .Parameter CurrentCommit
+        The current commit to tag the variables and schedules with
+
+    .Parameter RepositoryName
+        The Repository Name that will 'own' the variables and schedules
 #>
 Workflow Publish-SMASettingsFileChange
 {
-    Param( [Parameter(Mandatory=$True)][String] $FilePath )
+    Param( [Parameter(Mandatory=$True)][String] $FilePath,
+           [Parameter(Mandatory=$True)][String] $CurrentCommit,
+           [Parameter(Mandatory=$True)][String] $RepositoryName)
     
     Write-Verbose -Message "Starting [$WorkflowCommandName]"
     $ErrorActionPreference = [System.Management.Automation.ActionPreference]::Stop
@@ -23,12 +33,34 @@ Workflow Publish-SMASettingsFileChange
         {
             Write-Verbose -Message "[$VariableJSON] Updating"
             $Variable = ConvertFrom-Json $VariableJSON
-
+            $ErrorActionPreference = [System.Management.Automation.ActionPreference]::SilentlyContinue
+            $SmaVariable = Get-SmaVariable -Name $Variable.Name `
+                                           -WebServiceEndpoint $CIVariables.WebserviceEndpoint `
+                                           -Port $CIVariables.WebservicePort `
+                                           -Credential $SMACred
+            $ErrorActionPreference = [System.Management.Automation.ActionPreference]::Stop
+            if(Test-IsNullOrEmpty $SmaVariable.VariableId.Guid)
+            {
+                Write-Verbose -Message "[$($Variable.Name)] is a New Variable"
+                $VariableDescription = "$($Variable.Description)`n`r__RepositoryName:$($RepositoryName);CurrentCommit:$($CurrentCommit)__"
+                $NewVersion = $True
+            }
+            else
+            {
+                Write-Verbose -Message "[$($Variable.Name)] is an existing Variable"
+                $TagUpdateJSON = New-SmaChangesetTagLine -TagLine $SmaVariable.Description`
+                                                         -CurrentCommit $CurrentCommit `
+                                                         -RepositoryName $RepositoryName
+                $TagUpdate = ConvertFrom-Json $TagUpdateJSON
+                $VariableDescription = "$($Variable.Description)`n`r$($TagUpdate.TagLine)"
+                $NewVersion = $TagUpdate.NewVersion
+            }
+            
             if(ConvertTo-Boolean $Variable.isEncrypted)
             {
                 $CreateEncryptedVariable = Set-SmaVariable -Name $Variable.Name `
 													       -Value $Variable.Value `
-														   -Description $Variable.Description `
+														   -Description $VariableDescription `
                                                            -Encrypted `
 														   -WebServiceEndpoint $CIVariables.WebserviceEndpoint `
                                                            -Port $CIVariables.WebservicePort `
@@ -39,7 +71,7 @@ Workflow Publish-SMASettingsFileChange
             {
                 $CreateNonEncryptedVariable = Set-SmaVariable -Name $Variable.Name `
 													          -Value $Variable.Value `
-														      -Description $Variable.Description `
+														      -Description $VariableDescription `
 														      -WebServiceEndpoint $CIVariables.WebserviceEndpoint `
                                                               -Port $CIVariables.WebservicePort `
                                                               -Credential $SMACred
