@@ -209,4 +209,15 @@ Function Test-IsNullOrEmpty
     Param([Parameter(Mandatory=$True)][AllowNull()] $String)
     Return [String]::IsNullOrEmpty($String)
 }
+Function ConvertTo-IDictionaryFromJSON
+{
+    Param([Parameter(Mandatory=$True)][string] $InputObject)
+    $outputObj = @{}
+    $JSONObject = ConvertFrom-Json $InputObject
+    foreach($Name in ($JSONObject | Get-Member -MemberType NoteProperty).Name)
+    {
+        $outputObj.Add($Name, $JSONObject."$Name") | Out-Null
+    }
+    return $outputObj
+}
 Export-ModuleMember -Function * -Verbose:$false -Debug:$false

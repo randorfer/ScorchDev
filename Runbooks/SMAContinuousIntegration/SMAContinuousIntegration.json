@@ -36,5 +36,15 @@
                                                                       "Description":  "",
                                                                       "Value":  "9090"
                                                                   }
+                  },
+    "Schedules":  {
+                      "SMAContinuousIntegration-this-daily":  {
+                                                                  "Description":  "",
+                                                                  "DayInterval":  1,
+                                                                  "ExpirationTime":  "\/Date(1426443897775)\/",
+                                                                  "NextRun":  "\/Date(1423855497775)\/",
+                                                                  "RunbookName":  "demo123",
+                                                                  "Parameter":  "{\r\n\r\n}"
+                                                              }
                   }
 }

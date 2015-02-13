@@ -42,7 +42,7 @@ Workflow Publish-SMASettingsFileChange
             if(Test-IsNullOrEmpty $SmaVariable.VariableId.Guid)
             {
                 Write-Verbose -Message "[$($Variable.Name)] is a New Variable"
-                $VariableDescription = "$($Variable.Description)`n`r__RepositoryName:$($RepositoryName);CurrentCommit:$($CurrentCommit)__"
+                $VariableDescription = "$($Variable.Description)`n`r__RepositoryName:$($RepositoryName);CurrentCommit:$($CurrentCommit);__"
                 $NewVersion = $True
             }
             else
@@ -55,26 +55,28 @@ Workflow Publish-SMASettingsFileChange
                 $VariableDescription = "$($Variable.Description)`n`r$($TagUpdate.TagLine)"
                 $NewVersion = $TagUpdate.NewVersion
             }
-            
-            if(ConvertTo-Boolean $Variable.isEncrypted)
+            if($NewVersion)
             {
-                $CreateEncryptedVariable = Set-SmaVariable -Name $Variable.Name `
-													       -Value $Variable.Value `
-														   -Description $VariableDescription `
-                                                           -Encrypted `
-														   -WebServiceEndpoint $CIVariables.WebserviceEndpoint `
-                                                           -Port $CIVariables.WebservicePort `
-                                                           -Credential $SMACred `
-                                                           -Force
-            }
-            else
-            {
-                $CreateNonEncryptedVariable = Set-SmaVariable -Name $Variable.Name `
-													          -Value $Variable.Value `
-														      -Description $VariableDescription `
-														      -WebServiceEndpoint $CIVariables.WebserviceEndpoint `
-                                                              -Port $CIVariables.WebservicePort `
-                                                              -Credential $SMACred
+                if(ConvertTo-Boolean $Variable.isEncrypted)
+                {
+                    $CreateEncryptedVariable = Set-SmaVariable -Name $Variable.Name `
+													           -Value $Variable.Value `
+														       -Description $VariableDescription `
+                                                               -Encrypted `
+														       -WebServiceEndpoint $CIVariables.WebserviceEndpoint `
+                                                               -Port $CIVariables.WebservicePort `
+                                                               -Credential $SMACred `
+                                                               -Force
+                }
+                else
+                {
+                    $CreateNonEncryptedVariable = Set-SmaVariable -Name $Variable.Name `
+													              -Value $Variable.Value `
+														          -Description $VariableDescription `
+														          -WebServiceEndpoint $CIVariables.WebserviceEndpoint `
+                                                                  -Port $CIVariables.WebservicePort `
+                                                                  -Credential $SMACred
+                }
             }
             Write-Verbose -Message "[$($Variable.Name)] Finished Updating"
         }
@@ -83,8 +85,93 @@ Workflow Publish-SMASettingsFileChange
         foreach($ScheduleJSON in $Schedules)
         {
             Write-Verbose -Message "[$ScheduleJSON] Updating"
-            $Schedule = ConvertFrom-Json $ScheduleJSON
-            Write-Verbose -Message "[$($Variable.Name)] Finished Updating"
+            try
+            {
+                $Schedule = ConvertFrom-Json $ScheduleJSON
+                $ErrorActionPreference = [System.Management.Automation.ActionPreference]::SilentlyContinue
+                $SmaSchedule = Get-SmaSchedule -Name $Schedule.Name `
+                                               -WebServiceEndpoint $CIVariables.WebserviceEndpoint `
+                                               -Port $CIVariables.WebservicePort `
+                                               -Credential $SMACred
+                $ErrorActionPreference = [System.Management.Automation.ActionPreference]::Stop
+                if(Test-IsNullOrEmpty $SmaSchedule.ScheduleId.Guid)
+                {
+                    Write-Verbose -Message "[$($Schedule.Name)] is a New Schedule"
+                    $ScheduleDescription = "$($Schedule.Description)`n`r__RepositoryName:$($RepositoryName);CurrentCommit:$($CurrentCommit);__"
+                    $NewVersion = $True
+                }
+                else
+                {
+                    Write-Verbose -Message "[$($Schedule.Name)] is an existing Variable"
+                    $TagUpdateJSON = New-SmaChangesetTagLine -TagLine $SmaSchedule.Description`
+                                                             -CurrentCommit $CurrentCommit `
+                                                             -RepositoryName $RepositoryName
+                    $TagUpdate = ConvertFrom-Json $TagUpdateJSON
+                    $ScheduleDescription = "$($Variable.Description)`n`r$($TagUpdate.TagLine)"
+                    $NewVersion = $TagUpdate.NewVersion
+                }
+                if($NewVersion)
+                {
+                    $CreateSchedule = Set-SmaSchedule -Name $Schedule.Name `
+                                                      -Description $ScheduleDescription `
+                                                      -ScheduleType DailySchedule `
+                                                      -DayInterval $Schedule.DayInterval `
+                                                      -StartTime $Schedule.NextRun `
+                                                      -ExpiryTime $Schedule.ExpirationTime `
+                                                      -WebServiceEndpoint $CIVariables.WebserviceEndpoint `
+                                                      -Port $CIVariables.WebservicePort `
+                                                      -Credential $SMACred
+
+                    if(Test-IsNullOrEmpty $CreateSchedule)
+                    {
+                        Throw-Exception -Type 'ScheduleFailedToCreate' `
+                                        -Message 'Failed to create the schedule' `
+                                        -Property @{ 'ScheduleName' = $Schedule.Name ;
+                                                     'Description' = $ScheduleDescription;
+                                                     'ScheduleType' = 'DailySchedule' ;
+                                                     'DayInterval' = $Schedule.DayInterval ;
+                                                     'StartTime' = $Schedule.NextRun ;
+                                                     'ExpiryTime' = $Schedule.ExpirationTime ;
+                                                     'WebServiceEndpoint' = $CIVariables.WebserviceEndpoint ;
+                                                     'Port' = $CIVariables.WebservicePort ;
+                                                     'Credential' = $SMACred.UserName }
+                    }
+                    try
+                    {
+                        $Parameters  = ConvertTo-IDictionaryFromJSON $Schedule.Parameter
+
+                        $RunbookStart = Start-SmaRunbook -Name $schedule.RunbookName `
+                                                         -ScheduleName $Schedule.Name `
+                                                         -WebServiceEndpoint $CIVariables.WebserviceEndpoint `
+                                                         -Port $CIVariables.WebservicePort `
+                                                         -Parameters $Parameters `
+                                                         -Credential $SMACred
+                        if(Test-IsNullOrEmpty $RunbookStart)
+                        {
+                            Throw-Exception -Type 'ScheduleFailedToSet' `
+                                            -Message 'Failed to set the schedule on the target runbook' `
+                                            -Property @{ 'ScheduleName' = $Schedule.Name ;
+                                                         'RunbookName' = $Schedule.RunbookName ; 
+                                                         'Parameters' = $(ConvertTo-Json $Parameters) }
+                        }
+                    }
+                    catch
+                    {
+                        Remove-SmaSchedule -Name $Schedule.Name `
+                                           -WebServiceEndpoint $CIVariables.WebserviceEndpoint `
+                                           -Port $CIVariables.WebservicePort `
+                                           -Credential $SMACred `
+                                           -Force
+                        Write-Exception $_ -Stream Warning
+                    }
+                                                  
+                }
+            }
+            catch
+            {
+                Write-Exception $_ -Stream Warning
+            }
+            Write-Verbose -Message "[$($Schedule.Name)] Finished Updating"
         }
     }
     Catch

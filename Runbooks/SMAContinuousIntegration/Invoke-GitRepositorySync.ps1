@@ -23,7 +23,7 @@ Workflow Invoke-GitRepositorySync
         $RepositoryInformation = (ConvertFrom-Json $CIVariables.RepositoryInformation)."$RepositoryName"
         Write-Verbose -Message "`$RepositoryInformation [$(ConvertTo-JSON $RepositoryInformation)]"
 
-        $RepoChangeJSON = Find-GitRepoChange -Path $Path `
+        $RepoChangeJSON = Find-GitRepoChange -Path $($RepositoryInformation.Path) `
                                              -Branch $RepositoryInformation.Branch `
                                              -CurrentCommit $RepositoryInformation.CurrentCommit
 
@@ -45,7 +45,7 @@ Workflow Invoke-GitRepositorySync
             {
                 Write-Verbose -Message "[$($File.FileName)] Starting Processing"
                 # Process files in the runbooks folder
-                if($File.FullPath -like "$Path\$($RepositoryInformation.RunbookFolder)\*")
+                if($File.FullPath -like "$($RepositoryInformation.Path)\$($RepositoryInformation.RunbookFolder)\*")
                 {
                     Switch -CaseSensitive ($File.FileExtension)
                     {
@@ -105,7 +105,7 @@ Workflow Invoke-GitRepositorySync
                 }
 
                 # Process files in the PowerShellModules folder
-                elseif($File.FullPath -like "$Path\$($RepositoryInformation.PowerShellModuleFolder)\*")
+                elseif($File.FullPath -like "$($RepositoryInformation.Path)\$($RepositoryInformation.PowerShellModuleFolder)\*")
                 {
                     Switch -CaseSensitive ($File.FileExtension)
                     {

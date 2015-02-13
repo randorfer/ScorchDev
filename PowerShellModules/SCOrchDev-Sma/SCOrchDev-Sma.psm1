@@ -413,9 +413,12 @@ Function Get-SmaSchedulesFromFile
     foreach($scheduleName in ($Schedules | Get-Member -MemberType NoteProperty).Name)
     {
         $returnObj += ConvertTo-JSON @{'Name' = $scheduleName ;
-                                       'isEncrypted' = $Schedules."$scheduleName".isEncrypted ;
                                        'Description' = $Schedules."$scheduleName".Description ;
-                                       'Value' = $Schedules."$scheduleName".Value}
+                                       'DayInterval' = $Schedules."$scheduleName".DayInterval -as [int] ;
+                                       'ExpirationTime' = $Schedules."$scheduleName".ExpirationTime -as [DateTime] ;
+                                       'NextRun' = $Schedules."$scheduleName".NextRun -as [DateTime] ;
+                                       'RunbookName' = $Schedules."$scheduleName".RunbookName ;
+                                       'Parameter' = $Schedules."$scheduleName".Parameter}
     }
     return $returnObj
 }
