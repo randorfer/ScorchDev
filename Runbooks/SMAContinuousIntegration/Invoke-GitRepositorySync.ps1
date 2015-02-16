@@ -142,12 +142,11 @@ Workflow Invoke-GitRepositorySync
 
             if($CleanupOrphanRunbooks)
             {
-                #Remove-OrphanRunbook
+                Remove-SmaOrphanRunbook -RepositoryName $RepositoryName
             }
             if($CleanupOrphanAssets)
             {
-                #Remove-OrphanVariable
-                #Remove-OrphanSchedule
+                Remove-SmaOrphanAsset -RepositoryName $RepositoryName
             }
             
             $UpdatedRepositoryInformation = Set-SmaRepositoryInformationCommitVersion -RepositoryInformation $CIVariables.RepositoryInformation `

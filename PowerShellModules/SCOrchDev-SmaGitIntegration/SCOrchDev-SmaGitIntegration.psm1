@@ -110,4 +110,58 @@ Function Set-SmaRepositoryInformationCommitVersion
 
     return (ConvertTo-Json $RepositoryInformation)
 }
+Function Get-GitRepositoryWorkflowName
+{
+    Param([Parameter(Mandatory=$false)][string] $Path)
+
+    $RunbookNames = @()
+    $RunbookFiles = Get-ChildItem -Path $Path `
+                                  -Filter '*.ps1' `
+                                  -Recurse `
+                                  -File
+    foreach($RunbookFile in $RunbookFiles)
+    {
+        $RunbookNames += Get-SmaWorkflowNameFromFile -FilePath $RunbookFile.FullName
+    }
+    $RunbookNames
+}
+Function Get-GitRepositoryVariableName
+{
+    Param([Parameter(Mandatory=$false)][string] $Path)
+
+    $RunbookNames = @()
+    $RunbookFiles = Get-ChildItem -Path $Path `
+                                  -Filter '*.json' `
+                                  -Recurse `
+                                  -File
+    foreach($RunbookFile in $RunbookFiles)
+    {
+        $RunbookNames += Get-SmaWorkflowNameFromFile -FilePath $RunbookFile.FullName
+    }
+    Return $RunbookNames
+}
+Function Get-GitRepositoryAssetName
+{
+    Param([Parameter(Mandatory=$false)][string] $Path)
+
+    $Assets = @{ 'Variable' = @() ;
+                 'Schedule' = @() }
+    $AssetFiles = Get-ChildItem -Path $Path `
+                                  -Filter '*.json' `
+                                  -Recurse `
+                                  -File
+    
+    foreach($AssetFile in $AssetFiles)
+    {
+        Foreach($Variable in (Get-SmaVariablesFromFile -FilePath $AssetFile.FullName))
+        {
+            $Assets.Variable += (ConvertFrom-Json $Variable).name
+        }
+        Foreach($Schedule in (Get-SmaSchedulesFromFile -FilePath $AssetFile.FullName))
+        {
+            $Assets.Schedule += (ConvertFrom-Json $Variable).name
+        }
+    }
+    Return $Assets
+}
 Export-ModuleMember -Function * -Verbose:$false -Debug:$False
