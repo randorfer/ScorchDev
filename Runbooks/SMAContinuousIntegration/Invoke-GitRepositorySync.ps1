@@ -39,8 +39,7 @@ Workflow Invoke-GitRepositorySync
             $CleanupOrphanRunbooks = $False
             $CleanupOrphanAssets = $False
 
-            # Only Process the file 1 time per set. Sort by change type so Adds get
-            # Priority over deletes. Sorts .ps1 files before .json files
+            # Only Process the file 1 time per set. Sort .ps1 files before .json files
             Foreach($File in ($RepoChange.Files | Sort-Object ChangeType |Sort-Object FileExtension -Descending))
             {
                 Write-Verbose -Message "[$($File.FileName)] Starting Processing"

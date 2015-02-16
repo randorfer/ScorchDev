@@ -209,14 +209,87 @@ Function Test-IsNullOrEmpty
     Param([Parameter(Mandatory=$True)][AllowNull()] $String)
     Return [String]::IsNullOrEmpty($String)
 }
-Function ConvertTo-IDictionaryFromJSON
-{
-    Param([Parameter(Mandatory=$True)][string] $InputObject)
-    $outputObj = @{}
-    $JSONObject = ConvertFrom-Json $InputObject
-    foreach($Name in ($JSONObject | Get-Member -MemberType NoteProperty).Name)
+<#
+    .Synopsis
+        Takes a pscustomobject and converts into a IDictionary.
+        Translates all membertypes into keys for the IDictionary
+    
+    .Parameter InputObject
+        The input pscustomobject object to convert
+
+    .Parameter MemberType
+        The membertype to change into a key property
+
+    .Parameter KeyFilterScript
+        A script to run to manipulate the keyname during grouping.
+#>
+Function ConvertFrom-PSCustomObject
+{ 
+    Param([Parameter(Mandatory=$True)] 
+          $InputObject,
+          [Parameter(Mandatory=$False)][System.Management.Automation.PSMemberTypes]
+          $MemberType = [System.Management.Automation.PSMemberTypes]::NoteProperty,
+          [Parameter(Mandatory=$False)][ScriptBlock] 
+          $KeyFilterScript = { Param($KeyName) $KeyName } ) 
+    
+    $outputObj = @{}   
+    
+    foreach($KeyName in ($InputObject | Get-Member -MemberType $MemberType).Name) 
     {
-        $outputObj.Add($Name, $JSONObject."$Name") | Out-Null
+        $KeyName = Invoke-Command $KeyFilterScript -ArgumentList $KeyName
+        if(-not (Test-IsNullOrEmpty $KeyName))
+        {
+            if($outputObj.ContainsKey($KeyName))
+            {
+                $outputObj += $InputObject."$KeyName"
+            }
+            else
+            {
+                $outputObj.Add($KeyName, $InputObject."$KeyName") | Out-Null 
+            } 
+        }
+    } 
+    return $outputObj 
+} 
+
+<#
+    .Synopsis
+        Converts an object or array of objects into a hashtable
+        by grouping them by the target key property
+    
+    .Parameter InputObject
+        The object or array of objects to convert
+
+    .Parameter KeyName
+        The name of the property to group the objects by
+
+    .Parameter KeyFilterScript
+        A script to run to manipulate the keyname during grouping.
+#>
+Function ConvertTo-Hashtable
+{
+    Param([Parameter(Mandatory=$True)]
+          $InputObject,
+          [Parameter(Mandatory=$True)][string]
+          $KeyName,
+          [Parameter(Mandatory=$False)][ScriptBlock]
+          $KeyFilterScript = { Param($Key) $Key })
+    $outputObj = @{}
+    foreach($Object in $InputObject)
+    {
+        $Key = $Object."$KeyName"
+        $Key = Invoke-Command $KeyFilterScript -ArgumentList $Key
+        if(-not (Test-IsNullOrEmpty $Key))
+        {
+            if($outputObj.ContainsKey($Key))
+            {
+                $outputObj[$Key] += $Object
+            }
+            else
+            {
+                $outputObj.Add($Key, @($Object)) | Out-Null
+            }
+        }
     }
     return $outputObj
 }
