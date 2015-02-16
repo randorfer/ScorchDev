@@ -138,7 +138,8 @@ Workflow Publish-SMASettingsFileChange
                     }
                     try
                     {
-                        $Parameters  = ConvertTo-IDictionaryFromJSON $Schedule.Parameter
+                        $Parameters   = ConvertFrom-PSCustomObject -InputObject $Schedule.Parameter `
+                                                                   -MemberType NoteProperty `
 
                         $RunbookStart = Start-SmaRunbook -Name $schedule.RunbookName `
                                                          -ScheduleName $Schedule.Name `
