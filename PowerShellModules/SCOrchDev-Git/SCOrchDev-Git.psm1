@@ -75,6 +75,6 @@ Function Find-GitRepoChange
         }
     }
     
-    return (ConvertTo-Json $ReturnObj)
+    return (ConvertTo-Json $ReturnObj -Compress)
 }
 Export-ModuleMember -Function * -Verbose:$false
