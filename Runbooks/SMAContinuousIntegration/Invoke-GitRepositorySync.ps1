@@ -121,6 +121,8 @@ Workflow Invoke-GitRepositorySync
                                     }
                                     Default
                                     {
+                                        Publish-SmaPowerShellModule -ModuleDefinitionFilePath $File.FullName `
+                                                                    -RepositoryName $RepositoryName
                                     }
                                 }
                             }

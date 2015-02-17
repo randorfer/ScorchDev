@@ -293,4 +293,71 @@ Function ConvertTo-Hashtable
     }
     return $outputObj
 }
+
+<#
+    .Synopsis
+        Creates a zip file from a target directory
+    
+    .Parameter SourceDir
+        The directory to zip up
+
+    .Parameter ZipFilePath
+        The path to store the new zip file at
+
+    .Parameter OverwriteExisting
+        If the zip file already exists should it be overwritten. Default: True
+#>
+Function New-ZipFile
+{
+    Param([Parameter(Mandatory=$true) ][string] $SourceDir,
+          [Parameter(Mandatory=$true) ][string] $ZipFilePath,
+          [Parameter(Mandatory=$false)][bool]   $OverwriteExisting = $true)
+            
+    $null = $(
+        Write-Verbose -Message "Starting New-ZipFile"
+        Write-Verbose -Message "`$SourceDir [$SourceDir]"
+        Write-Verbose -Message "`$ZipFilePath [$ZipFilePath]"
+                
+        if($OverwriteExisting)
+        {
+            if(Test-Path -Path $ZipFilePath)
+            {
+                Remove-Item $ZipFilePath -Force -Confirm:$false
+            }
+        }
+
+        if(-not (Test-Path -Path "$($ZipFilePath.Substring(0,$ZipFilePath.LastIndexOf('\')))"))
+        {
+            $newDir = New-Item -ItemType Directory `
+                                -Path "$($ZipFilePath.Substring(0,$ZipFilePath.LastIndexOf('\')))" `
+                                -Force `
+                                -Confirm:$false
+        }
+
+        Add-Type -Assembly System.IO.Compression.FileSystem
+        $CompressionLevel = [System.IO.Compression.CompressionLevel]::Optimal
+        [System.IO.Compression.ZipFile]::CreateFromDirectory($SourceDir, $ZipFilePath, $CompressionLevel, $false)
+        Write-Verbose -Message "Finished New-ZipFile"
+    )
+}
+<#
+    .Synopsis
+        Creates a new empty temporary directory
+    
+    .Parameter Root
+        The root path to create the temporary directory under
+#>
+Function New-TempDirectory
+{
+    Param([Parameter(Mandatory=$false) ][string] $SourceDir = "C:\")
+    
+    do
+    {
+        $TempDirectory   = "$($SourceDir)\$([System.Guid]::NewGuid())"
+        $DirectoryExists = Test-Path -Path $TempDirectory
+    }
+    while($DirectoryExists)
+
+    New-Item -ItemType Directory $TempDirectory
+}
 Export-ModuleMember -Function * -Verbose:$false -Debug:$false
