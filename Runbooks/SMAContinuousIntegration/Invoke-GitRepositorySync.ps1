@@ -23,9 +23,7 @@ Workflow Invoke-GitRepositorySync
         $RepositoryInformation = (ConvertFrom-Json $CIVariables.RepositoryInformation)."$RepositoryName"
         Write-Verbose -Message "`$RepositoryInformation [$(ConvertTo-JSON $RepositoryInformation)]"
 
-        $RepoChangeJSON = Find-GitRepoChange -Path $($RepositoryInformation.Path) `
-                                             -Branch $RepositoryInformation.Branch `
-                                             -CurrentCommit $RepositoryInformation.CurrentCommit
+        $RepoChangeJSON = Find-GitRepoChange -RepositoryInformation $RepositoryInformation
 
         $RepoChange = ConvertFrom-JSON -InputObject $RepoChangeJSON
         if($RepoChange.CurrentCommit -ne $RepositoryInformation.CurrentCommit)

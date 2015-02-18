@@ -1,4 +1,11 @@
-﻿Function Get-SmaWorkflowNameFromFile
+﻿<#
+    .Synopsis
+        Looks for the tag workflow in a file and returns the next string
+    
+    .Parameter FilePath
+        The path to the file to search
+#>
+Function Get-SmaWorkflowNameFromFile
 {
     Param([Parameter(Mandatory=$true)][string] $FilePath)
 
@@ -14,6 +21,21 @@
                         -Property @{ 'FileContent' = "$FileContent" }
     }
 }
+<#
+    .Synopsis
+        Tags a current tag line and compares it to the passed
+        commit and repository. If the commit is not the same
+        update the tag line and return new version
+    
+    .Parameter TagLine
+        The current tag string from an SMA runbook
+
+    .Parameter CurrentCommit
+        The current commit string
+
+    .Parameter RepositoryName
+        The name of the repository that is being processed
+#>
 Function New-SmaChangesetTagLine
 {
     Param([Parameter(Mandatory=$false)][string] $TagLine,
@@ -52,61 +74,71 @@ Function New-SmaChangesetTagLine
     return ConvertTo-JSON @{'TagLine' = $TagLine ;
                             'NewVersion' = $NewVersion }
 }
+<#
+    .Synopsis
+        Returns all variables in a JSON settings file
+
+    .Parameter FilePath
+        The path to the JSON file containing SMA settings
+#>
 Function Get-SmaVariablesFromFile
 {
     Param([Parameter(Mandatory=$false)][string] $FilePath)
 
     $FileContent = Get-Content $FilePath
-    $Variables = (ConvertFrom-Json ((Get-Content -Path $FilePath) -as [String])).Variables
+    $Variables = ConvertFrom-PSCustomObject ((ConvertFrom-Json ((Get-Content -Path $FilePath) -as [String])).Variables)
 
-    if(Test-IsNullOrEmpty $Variables)
+    if(Test-IsNullOrEmpty $Variables.Keys)
     {
         Write-Warning -Message "No variables root in folder"
     }
 
-    $returnObj = @()
-    foreach($variableName in ($Variables | Get-Member -MemberType NoteProperty).Name)
-    {
-        $returnObj += ConvertTo-JSON @{'Name' = $variableName ;
-                                       'isEncrypted' = $Variables."$variableName".isEncrypted ;
-                                       'Description' = $Variables."$variableName".Description ;
-                                       'Value' = $Variables."$variableName".Value}
-    }
-    return $returnObj
+    return ConvertTo-JSON $Variables
 }
+<#
+    .Synopsis
+        Returns all Schedules in a JSON settings file
+
+    .Parameter FilePath
+        The path to the JSON file containing SMA settings
+#>
 Function Get-SmaSchedulesFromFile
 {
     Param([Parameter(Mandatory=$false)][string] $FilePath)
 
     $FileContent = Get-Content $FilePath
-    $Schedules = (ConvertFrom-Json ((Get-Content -Path $FilePath) -as [String])).Schedules
+    $Variables = ConvertFrom-PSCustomObject ((ConvertFrom-Json ((Get-Content -Path $FilePath) -as [String])).Schedules)
 
-    if(Test-IsNullOrEmpty $Schedules)
+    if(Test-IsNullOrEmpty $Variables.Keys)
     {
         Write-Warning -Message "No Schedules root in folder"
     }
-    $returnObj = @()
-    foreach($scheduleName in ($Schedules | Get-Member -MemberType NoteProperty).Name)
-    {
-        $returnObj += ConvertTo-JSON @{'Name' = $scheduleName ;
-                                       'Description' = $Schedules."$scheduleName".Description ;
-                                       'DayInterval' = $Schedules."$scheduleName".DayInterval -as [int] ;
-                                       'ExpirationTime' = $Schedules."$scheduleName".ExpirationTime -as [DateTime] ;
-                                       'NextRun' = $Schedules."$scheduleName".NextRun -as [DateTime] ;
-                                       'RunbookName' = $Schedules."$scheduleName".RunbookName ;
-                                       'Parameter' = $Schedules."$scheduleName".Parameter}
-    }
-    return $returnObj
+
+    return ConvertTo-JSON $Variables
 }
+<#
+    .Synopsis
+        Updates a Global RepositoryInformation string with the new commit version
+        for the target repository
+
+    .Parameter RepositoryInformation
+        The JSON representation of a repository
+
+    .Parameter RepositoryName
+        The name of the repository to update
+
+    .Paramter Commit
+        The new commit to store
+#>
 Function Set-SmaRepositoryInformationCommitVersion
 {
     Param([Parameter(Mandatory=$false)][string] $RepositoryInformation,
-          [Parameter(Mandatory=$false)][string] $Path,
+          [Parameter(Mandatory=$false)][string] $RepositoryName,
           [Parameter(Mandatory=$false)][string] $Commit)
 
     
     $RepositoryInformation = (ConvertFrom-JSON $RepositoryInformation)
-    $RepositoryInformation."$Path".CurrentCommit = $Commit
+    $RepositoryInformation."$RepositoryName".CurrentCommit = $Commit
 
     return (ConvertTo-Json $RepositoryInformation)
 }

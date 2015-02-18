@@ -48,7 +48,7 @@ PowerShellVersion = '4.0'
 # ProcessorArchitecture = ''
 
 # Modules that must be imported into the global environment prior to importing this module
-# RequiredModules = @('')
+RequiredModules = @('SCOrchDev-Utility')
 
 # Assemblies that must be loaded prior to importing this module
 # RequiredAssemblies = @()
@@ -78,7 +78,7 @@ VariablesToExport = '*'
 AliasesToExport = '*'
 
 # List of all modules packaged with this module
-ModuleList = @('SCOrchDev-Sma')
+ModuleList = @('SCOrchDev-SmaGitIntegration')
 
 # List of all files packaged with this module
 FileList = @('SCOrchDev-SmaGitIntegration.psd1', 'SCOrchDev-SmaGitIntegration.psm1')
