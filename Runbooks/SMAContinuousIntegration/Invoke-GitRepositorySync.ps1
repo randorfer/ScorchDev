@@ -66,17 +66,20 @@ Workflow Invoke-GitRepositorySync
             {
                 Remove-SmaOrphanAsset -RepositoryName $RepositoryName
             }
-            
+            if($ReturnInformation.UpdatePSModules)
+            {
+                # Implement a mini version of discover all local modules
+            }
             $UpdatedRepositoryInformation = Set-SmaRepositoryInformationCommitVersion -RepositoryInformation $CIVariables.RepositoryInformation `
-                                                                                      -Path $Path `
-                                                                                      -Commit $RepoChange.CurrentCommit
+                                                                                      -RepositoryName $RepositoryName `
+                                                                                      -Commit $RepositoryChange.CurrentCommit
             Set-SmaVariable -Name 'SMAContinuousIntegration-RepositoryInformation' `
                             -Value $UpdatedRepositoryInformation `
                             -WebServiceEndpoint $CIVariables.WebserviceEndpoint `
                             -Port $CIVariables.WebservicePort `
                             -Credential $SMACred
 
-            Write-Verbose -Message "Finished Processing [$($RepositoryInformation.CurrentCommit)..$($RepoChange.CurrentCommit)]"
+            Write-Verbose -Message "Finished Processing [$($RepositoryInformation.CurrentCommit)..$($RepositoryChange.CurrentCommit)]"
         }
     }
     Catch

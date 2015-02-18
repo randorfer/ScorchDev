@@ -135,12 +135,11 @@ Function Set-SmaRepositoryInformationCommitVersion
     Param([Parameter(Mandatory=$false)][string] $RepositoryInformation,
           [Parameter(Mandatory=$false)][string] $RepositoryName,
           [Parameter(Mandatory=$false)][string] $Commit)
-
     
-    $RepositoryInformation = (ConvertFrom-JSON $RepositoryInformation)
-    $RepositoryInformation."$RepositoryName".CurrentCommit = $Commit
+    $_RepositoryInformation = (ConvertFrom-JSON $RepositoryInformation)
+    $_RepositoryInformation."$RepositoryName".CurrentCommit = $Commit
 
-    return (ConvertTo-Json $RepositoryInformation)
+    return (ConvertTo-Json $_RepositoryInformation)
 }
 Function Get-GitRepositoryWorkflowName
 {
@@ -185,13 +184,13 @@ Function Get-GitRepositoryAssetName
     
     foreach($AssetFile in $AssetFiles)
     {
-        Foreach($Variable in (Get-SmaVariablesFromFile -FilePath $AssetFile.FullName))
+        Foreach($VariableName in (ConvertFrom-PSCustomObject(ConvertFrom-JSON (Get-SmaVariablesFromFile -FilePath $AssetFile.FullName))).Keys)
         {
-            $Assets.Variable += (ConvertFrom-Json $Variable).name
+            $Assets.Variable += $VariableName
         }
-        Foreach($Schedule in (Get-SmaSchedulesFromFile -FilePath $AssetFile.FullName))
+        Foreach($ScheduleName in (ConvertFrom-PSCustomObject(ConvertFrom-JSON (Get-SmaSchedulesFromFile -FilePath $AssetFile.FullName))).Keys)
         {
-            $Assets.Schedule += (ConvertFrom-Json $Variable).name
+            $Assets.Schedule += $ScheduleName
         }
     }
     Return $Assets
@@ -250,6 +249,7 @@ Function Group-RepositoryFile
             {
                 if($Path -like "$($RepositoryInformation.Path)\$($RepositoryInformation.RunbookFolder)\*")
                 {
+                    $ReturnObj.CleanAssets = $True
                     $ReturnObj.SettingsFiles += $Path
                     break
                 }
@@ -269,7 +269,7 @@ Function Group-RepositoryFile
         {
             foreach($Path in $PSModuleFiles."$PSModuleName".FullPath)
             {
-                if($Path -like "$($RepositoryInformation.Path)\$($RepositoryInformation.RunbookFolder)\*")
+                if($Path -like "$($RepositoryInformation.Path)\$($RepositoryInformation.PowerShellModuleFolder)\*")
                 {
                     $ReturnObj.UpdatePSModules = $True
                     break
