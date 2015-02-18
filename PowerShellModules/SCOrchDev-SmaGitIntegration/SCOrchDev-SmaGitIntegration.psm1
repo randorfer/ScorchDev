@@ -196,4 +196,20 @@ Function Get-GitRepositoryAssetName
     }
     Return $Assets
 }
+<#
+    .Synopsis 
+        Groups all files that will be processed.
+        # TODO put logic for import order here
+        # TODO Remove duplicates
+    .Files
+        The files to sort
+#>
+Function Group-RepositoryFile
+{
+    Param([Parameter(Mandatory=$True)] $Files)
+
+    $Files = ConvertTo-Hashtable -InputObject $Files -KeyName FileExtension
+    $CleanRunbooks = $Files.'.ps1'.ChangeType -contains 'D'
+    Return $Files | Sort-Object ChangeType |Sort-Object FileExtension -Descending
+}
 Export-ModuleMember -Function * -Verbose:$false -Debug:$False

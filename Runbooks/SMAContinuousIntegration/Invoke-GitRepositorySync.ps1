@@ -23,22 +23,26 @@ Workflow Invoke-GitRepositorySync
         $RepositoryInformation = (ConvertFrom-Json $CIVariables.RepositoryInformation)."$RepositoryName"
         Write-Verbose -Message "`$RepositoryInformation [$(ConvertTo-JSON $RepositoryInformation)]"
 
-        $RepoChangeJSON = Find-GitRepoChange -RepositoryInformation $RepositoryInformation
-
-        $RepoChange = ConvertFrom-JSON -InputObject $RepoChangeJSON
-        if($RepoChange.CurrentCommit -ne $RepositoryInformation.CurrentCommit)
+        $RunbookWorker = Get-SmaRunbookWorkerDeployment -WebServiceEndpoint $CIVariables.WebserviceEndpoint `
+                                                        -Port $CIVariables.WebservicePort `
+                                                        -Credential $SMACred
+        
+        # Update the repository on all SMA Workers
+        InlineScript
         {
-            Write-Verbose -Message "Processing [$($RepositoryInformation.CurrentCommit)..$($RepoChange.CurrentCommit)]"
-            
-            $ProcessedWorkflows = @()
-            $ProcessedSettingsFiles = @()
-            $ProcessedPowerShellModules = @()
-            
-            $CleanupOrphanRunbooks = $False
-            $CleanupOrphanAssets = $False
+            $RepositoryInformation = $Using:RepositoryInformation
+            Update-GitRepository -RepositoryInformation $RepositoryInformation
+        } -PSComputerName $RunbookWorker -PSCredential $SMACred
 
-            # Only Process the file 1 time per set. Sort .ps1 files before .json files
-            Foreach($File in ($RepoChange.Files | Sort-Object ChangeType |Sort-Object FileExtension -Descending))
+        $RepositoryChangeJSON = Find-GitRepositoryChange -RepositoryInformation $RepositoryInformation
+        $RepositoryChange = ConvertFrom-JSON -InputObject $RepositoryChangeJSON
+
+        if($RepositoryChange.CurrentCommit -ne $RepositoryInformation.CurrentCommit)
+        {
+            Write-Verbose -Message "Processing [$($RepositoryInformation.CurrentCommit)..$($RepositoryInformation.CurrentCommit)]"
+            
+            $ReturnInformation = Group-RepositoryFile -Files $RepoChange.Files
+            Foreach($File in $SortedFiles)
             {
                 Write-Verbose -Message "[$($File.FileName)] Starting Processing"
                 # Process files in the runbooks folder
@@ -47,23 +51,25 @@ Workflow Invoke-GitRepositorySync
                     Switch -CaseSensitive ($File.FileExtension)
                     {
                         '.ps1'
-                        {   
-                            if($ProcessedWorkflows -notcontains $File.FileName)
+                        {
+                            if($File.ChangeType -eq 'D' -and (-not $CleanupOrphanRunbooks))
                             {
-                                $ProcessedWorkflows += $File.FileName
-                                Switch -CaseSensitive ($File.FileExtension)
+                                
+                            }
+                            
+                            Switch -CaseSensitive ($File.FileExtension)
+                            {
+                                "D"
                                 {
-                                    "D"
-                                    {
-                                        $CleanupOrphanRunbooks = $True
-                                    }
-                                    Default
-                                    {
-                                        Publish-SMARunbookChange -FilePath $File.FullPath `
-                                                                 -CurrentCommit $RepoChange.CurrentCommit `
-                                                                 -RepositoryName $RepositoryName
-                                    }
+                                    $CleanupOrphanRunbooks = $True
                                 }
+                                Default
+                                {
+                                    Publish-SMARunbookChange -FilePath $File.FullPath `
+                                                                -CurrentCommit $RepoChange.CurrentCommit `
+                                                                -RepositoryName $RepositoryName
+                                }
+                            }
                             }
                             else
                             {
