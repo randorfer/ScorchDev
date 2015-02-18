@@ -43,7 +43,7 @@
                                                          "DayInterval":  1,
                                                          "ExpirationTime":  "\/Date(1426450246937)\/",
                                                          "NextRun":  "\/Date(1423948246937)\/",
-                                                         "RunbookName":  "Publish-SmaRunbook",
+                                                         "RunbookName":  "Publish-SmaRunbookChanges",
                                                          "Parameter":  "{\r\n\r\n}"
                                                      }
                   }

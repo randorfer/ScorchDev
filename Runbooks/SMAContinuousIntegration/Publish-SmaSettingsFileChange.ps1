@@ -28,30 +28,29 @@ Workflow Publish-SMASettingsFileChange
 
     Try
     {
-        $Variables = Get-SmaVariablesFromFile -FilePath $FilePath
-        foreach($VariableJSON in $Variables)
+        $Variables = ConvertFrom-PSCustomObject (ConvertFrom-JSON (Get-SmaVariablesFromFile -FilePath $FilePath))
+        foreach($VariableName in $Variables.Keys)
         {
-            Write-Verbose -Message "[$VariableJSON] Updating"
-            $Variable = ConvertFrom-Json $VariableJSON
+            Write-Verbose -Message "[$VariableName] Updating"
+            $Variable = $Variables."$VariableName"
             $ErrorActionPreference = [System.Management.Automation.ActionPreference]::SilentlyContinue
-            $SmaVariable = Get-SmaVariable -Name $Variable.Name `
+            $SmaVariable = Get-SmaVariable -Name $VariableName `
                                            -WebServiceEndpoint $CIVariables.WebserviceEndpoint `
                                            -Port $CIVariables.WebservicePort `
                                            -Credential $SMACred
             $ErrorActionPreference = [System.Management.Automation.ActionPreference]::Stop
             if(Test-IsNullOrEmpty $SmaVariable.VariableId.Guid)
             {
-                Write-Verbose -Message "[$($Variable.Name)] is a New Variable"
+                Write-Verbose -Message "[$($VariableName)] is a New Variable"
                 $VariableDescription = "$($Variable.Description)`n`r__RepositoryName:$($RepositoryName);CurrentCommit:$($CurrentCommit);__"
                 $NewVersion = $True
             }
             else
             {
-                Write-Verbose -Message "[$($Variable.Name)] is an existing Variable"
-                $TagUpdateJSON = New-SmaChangesetTagLine -TagLine $SmaVariable.Description`
+                Write-Verbose -Message "[$($VariableName)] is an existing Variable"
+                $TagUpdate = ConvertFrom-JSON( New-SmaChangesetTagLine -TagLine $SmaVariable.Description`
                                                          -CurrentCommit $CurrentCommit `
-                                                         -RepositoryName $RepositoryName
-                $TagUpdate = ConvertFrom-Json $TagUpdateJSON
+                                                         -RepositoryName $RepositoryName )
                 $VariableDescription = "$($Variable.Description)`n`r$($TagUpdate.TagLine)"
                 $NewVersion = $TagUpdate.NewVersion
             }
@@ -59,7 +58,7 @@ Workflow Publish-SMASettingsFileChange
             {
                 if(ConvertTo-Boolean $Variable.isEncrypted)
                 {
-                    $CreateEncryptedVariable = Set-SmaVariable -Name $Variable.Name `
+                    $CreateEncryptedVariable = Set-SmaVariable -Name $VariableName `
 													           -Value $Variable.Value `
 														       -Description $VariableDescription `
                                                                -Encrypted `
@@ -70,7 +69,7 @@ Workflow Publish-SMASettingsFileChange
                 }
                 else
                 {
-                    $CreateNonEncryptedVariable = Set-SmaVariable -Name $Variable.Name `
+                    $CreateNonEncryptedVariable = Set-SmaVariable -Name $VariableName `
 													              -Value $Variable.Value `
 														          -Description $VariableDescription `
 														          -WebServiceEndpoint $CIVariables.WebserviceEndpoint `
@@ -78,41 +77,44 @@ Workflow Publish-SMASettingsFileChange
                                                                   -Credential $SMACred
                 }
             }
-            Write-Verbose -Message "[$($Variable.Name)] Finished Updating"
+            else
+            {
+                Write-Verbose -Message "[$($VariableName)] Is not a new version. Skipping"
+            }
+            Write-Verbose -Message "[$($VariableName)] Finished Updating"
         }
 
-        $Schedules = Get-SmaSchedulesFromFile -FilePath $FilePath
-        foreach($ScheduleJSON in $Schedules)
+        $Schedules = ConvertFrom-PSCustomObject ( ConvertFrom-JSON (Get-SmaSchedulesFromFile -FilePath $FilePath) )
+        foreach($ScheduleName in $Schedules.Keys)
         {
-            Write-Verbose -Message "[$ScheduleJSON] Updating"
+            Write-Verbose -Message "[$ScheduleName] Updating"
             try
             {
-                $Schedule = ConvertFrom-Json $ScheduleJSON
+                $Schedule = $Schedules."$ScheduleName"
                 $ErrorActionPreference = [System.Management.Automation.ActionPreference]::SilentlyContinue
-                $SmaSchedule = Get-SmaSchedule -Name $Schedule.Name `
+                $SmaSchedule = Get-SmaSchedule -Name $ScheduleName `
                                                -WebServiceEndpoint $CIVariables.WebserviceEndpoint `
                                                -Port $CIVariables.WebservicePort `
                                                -Credential $SMACred
                 $ErrorActionPreference = [System.Management.Automation.ActionPreference]::Stop
                 if(Test-IsNullOrEmpty $SmaSchedule.ScheduleId.Guid)
                 {
-                    Write-Verbose -Message "[$($Schedule.Name)] is a New Schedule"
+                    Write-Verbose -Message "[$($ScheduleName)] is a New Schedule"
                     $ScheduleDescription = "$($Schedule.Description)`n`r__RepositoryName:$($RepositoryName);CurrentCommit:$($CurrentCommit);__"
                     $NewVersion = $True
                 }
                 else
                 {
-                    Write-Verbose -Message "[$($Schedule.Name)] is an existing Variable"
-                    $TagUpdateJSON = New-SmaChangesetTagLine -TagLine $SmaSchedule.Description`
+                    Write-Verbose -Message "[$($ScheduleName)] is an existing Schedule"
+                    $TagUpdate = ConvertFrom-JSON( New-SmaChangesetTagLine -TagLine $SmaVariable.Description`
                                                              -CurrentCommit $CurrentCommit `
-                                                             -RepositoryName $RepositoryName
-                    $TagUpdate = ConvertFrom-Json $TagUpdateJSON
-                    $ScheduleDescription = "$($Variable.Description)`n`r$($TagUpdate.TagLine)"
+                                                             -RepositoryName $RepositoryName )
+                    $ScheduleDescription = "$($Schedule.Description)`n`r$($TagUpdate.TagLine)"
                     $NewVersion = $TagUpdate.NewVersion
                 }
                 if($NewVersion)
                 {
-                    $CreateSchedule = Set-SmaSchedule -Name $Schedule.Name `
+                    $CreateSchedule = Set-SmaSchedule -Name $ScheduleName `
                                                       -Description $ScheduleDescription `
                                                       -ScheduleType DailySchedule `
                                                       -DayInterval $Schedule.DayInterval `
@@ -126,7 +128,7 @@ Workflow Publish-SMASettingsFileChange
                     {
                         Throw-Exception -Type 'ScheduleFailedToCreate' `
                                         -Message 'Failed to create the schedule' `
-                                        -Property @{ 'ScheduleName' = $Schedule.Name ;
+                                        -Property @{ 'ScheduleName' = $ScheduleName ;
                                                      'Description' = $ScheduleDescription;
                                                      'ScheduleType' = 'DailySchedule' ;
                                                      'DayInterval' = $Schedule.DayInterval ;
@@ -142,7 +144,7 @@ Workflow Publish-SMASettingsFileChange
                                                                    -MemberType NoteProperty `
 
                         $RunbookStart = Start-SmaRunbook -Name $schedule.RunbookName `
-                                                         -ScheduleName $Schedule.Name `
+                                                         -ScheduleName $ScheduleName `
                                                          -WebServiceEndpoint $CIVariables.WebserviceEndpoint `
                                                          -Port $CIVariables.WebservicePort `
                                                          -Parameters $Parameters `
@@ -151,14 +153,14 @@ Workflow Publish-SMASettingsFileChange
                         {
                             Throw-Exception -Type 'ScheduleFailedToSet' `
                                             -Message 'Failed to set the schedule on the target runbook' `
-                                            -Property @{ 'ScheduleName' = $Schedule.Name ;
+                                            -Property @{ 'ScheduleName' = $ScheduleName ;
                                                          'RunbookName' = $Schedule.RunbookName ; 
                                                          'Parameters' = $(ConvertTo-Json $Parameters) }
                         }
                     }
                     catch
                     {
-                        Remove-SmaSchedule -Name $Schedule.Name `
+                        Remove-SmaSchedule -Name $ScheduleName `
                                            -WebServiceEndpoint $CIVariables.WebserviceEndpoint `
                                            -Port $CIVariables.WebservicePort `
                                            -Credential $SMACred `
@@ -172,7 +174,7 @@ Workflow Publish-SMASettingsFileChange
             {
                 Write-Exception $_ -Stream Warning
             }
-            Write-Verbose -Message "[$($Schedule.Name)] Finished Updating"
+            Write-Verbose -Message "[$($ScheduleName)] Finished Updating"
         }
     }
     Catch

@@ -34,14 +34,12 @@ Workflow Invoke-GitRepositorySync
             Update-GitRepository -RepositoryInformation $RepositoryInformation
         } -PSComputerName $RunbookWorker -PSCredential $SMACred
 
-        $RepositoryChangeJSON = Find-GitRepositoryChange -RepositoryInformation $RepositoryInformation
-        $RepositoryChange = ConvertFrom-JSON -InputObject $RepositoryChangeJSON
-
+        $RepositoryChange = ConvertFrom-JSON ( Find-GitRepositoryChange -RepositoryInformation $RepositoryInformation )
         if($RepositoryChange.CurrentCommit -ne $RepositoryInformation.CurrentCommit)
         {
             Write-Verbose -Message "Processing [$($RepositoryInformation.CurrentCommit)..$($RepositoryInformation.CurrentCommit)]"
             
-            $ReturnInformation = ConvertFrom-JSON (Group-RepositoryFile -Files $RepositoryChange.Files)
+            $ReturnInformation = ConvertFrom-JSON (Group-RepositoryFile -Files $RepositoryChange.Files -RepositoryInformation $RepositoryInformation)
             Foreach($RunbookFilePath in $ReturnInformation.ScriptFiles)
             {
                 Write-Verbose -Message "[$($RunbookFilePath)] Starting Processing"

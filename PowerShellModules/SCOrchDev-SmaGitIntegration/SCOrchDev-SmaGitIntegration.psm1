@@ -201,18 +201,21 @@ Function Get-GitRepositoryAssetName
         Groups all files that will be processed.
         # TODO put logic for import order here
         # TODO Remove duplicates
-    .Files
+    .Parameter Files
         The files to sort
+    .Parameter RepositoryInformation
 #>
 Function Group-RepositoryFile
 {
-    Param([Parameter(Mandatory=$True)] $Files)
+    Param([Parameter(Mandatory=$True)] $Files,
+          [Parameter(Mandatory=$True)] $RepositoryInformation)
 
     $_Files = ConvertTo-Hashtable -InputObject $Files -KeyName FileExtension
     $ReturnObj = @{ 'ScriptFiles' = @() ;
                     'SettingsFiles' = @() ;
                     'CleanRunbooks' = $False ;
-                    'CleanAssets' = $False }
+                    'CleanAssets' = $False ;
+                    'UpdatePSModules' = $False }
 
     # Process PS1 Files
     $PowerShellScriptFiles = ConvertTo-HashTable $_Files.'.ps1' -KeyName 'FileName'
@@ -221,7 +224,14 @@ Function Group-RepositoryFile
         if($PowerShellScriptFiles."$ScriptName".ChangeType -contains 'M' -or
            $PowerShellScriptFiles."$ScriptName".ChangeType -contains 'A')
         {
-            $ReturnObj.ScriptFiles += $PowerShellScriptFiles."$ScriptName"[0].FullPath
+            foreach($Path in $PowerShellScriptFiles."$ScriptName".FullPath)
+            {
+                if($Path -like "$($RepositoryInformation.Path)\$($RepositoryInformation.RunbookFolder)\*")
+                {
+                    $ReturnObj.ScriptFiles += $Path
+                    break
+                }
+            }            
         }
         else
         {
@@ -236,12 +246,37 @@ Function Group-RepositoryFile
         if($SettingsFiles."$SettingsFileName".ChangeType -contains 'M' -or
            $SettingsFiles."$SettingsFileName".ChangeType -contains 'A')
         {
-            $ReturnObj.SettingsFiles += $SettingsFiles."$SettingsFileName"[0].FullPath
+            foreach($Path in $SettingsFiles."$SettingsFileName".FullPath)
+            {
+                if($Path -like "$($RepositoryInformation.Path)\$($RepositoryInformation.RunbookFolder)\*")
+                {
+                    $ReturnObj.SettingsFiles += $Path
+                    break
+                }
+            }
         }
         else
         {
             $ReturnObj.CleanAssets = $True
         }
+    }
+
+    $PSModuleFiles = ConvertTo-HashTable $_Files.'.psd1' -KeyName 'FileName'
+    foreach($PSModuleName in $PSModuleFiles.Keys)
+    {
+        if($PSModuleFiles."$PSModuleName".ChangeType -contains 'M' -or
+           $PSModuleFiles."$PSModuleName".ChangeType -contains 'A')
+        {
+            foreach($Path in $PSModuleFiles."$PSModuleName".FullPath)
+            {
+                if($Path -like "$($RepositoryInformation.Path)\$($RepositoryInformation.RunbookFolder)\*")
+                {
+                    $ReturnObj.UpdatePSModules = $True
+                    break
+                }
+            }
+        }
+        if($ReturnObj.UpdatePSModules) { break }
     }
 
     Return (ConvertTo-JSON $ReturnObj)
