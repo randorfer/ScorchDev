@@ -1,4 +1,4 @@
-{
+﻿{
     "Variables":  {
                       "SMAContinuousIntegration-MonitorLifeSpan":  {
                                                                        "isEncrypted":  false,
@@ -38,7 +38,6 @@
                                                                   }
                   },
     "Schedules":  {
-                      "*":  null,
                       "SMAContinuousIntegration-a":  {
                                                          "Description":  "a",
                                                          "DayInterval":  1,
