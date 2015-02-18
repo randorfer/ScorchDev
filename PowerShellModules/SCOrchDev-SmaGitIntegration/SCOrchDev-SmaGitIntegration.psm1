@@ -208,8 +208,42 @@ Function Group-RepositoryFile
 {
     Param([Parameter(Mandatory=$True)] $Files)
 
-    $Files = ConvertTo-Hashtable -InputObject $Files -KeyName FileExtension
-    $CleanRunbooks = $Files.'.ps1'.ChangeType -contains 'D'
-    Return $Files | Sort-Object ChangeType |Sort-Object FileExtension -Descending
+    $_Files = ConvertTo-Hashtable -InputObject $Files -KeyName FileExtension
+    $ReturnObj = @{ 'ScriptFiles' = @() ;
+                    'SettingsFiles' = @() ;
+                    'CleanRunbooks' = $False ;
+                    'CleanAssets' = $False }
+
+    # Process PS1 Files
+    $PowerShellScriptFiles = ConvertTo-HashTable $_Files.'.ps1' -KeyName 'FileName'
+    foreach($ScriptName in $PowerShellScriptFiles.Keys)
+    {
+        if($PowerShellScriptFiles."$ScriptName".ChangeType -contains 'M' -or
+           $PowerShellScriptFiles."$ScriptName".ChangeType -contains 'A')
+        {
+            $ReturnObj.ScriptFiles += $PowerShellScriptFiles."$ScriptName"[0].FullPath
+        }
+        else
+        {
+            $ReturnObj.CleanRunbooks = $True
+        }
+    }
+
+    # Process Settings Files
+    $SettingsFiles = ConvertTo-HashTable $_Files.'.json' -KeyName 'FileName'
+    foreach($SettingsFileName in $SettingsFiles.Keys)
+    {
+        if($SettingsFiles."$SettingsFileName".ChangeType -contains 'M' -or
+           $SettingsFiles."$SettingsFileName".ChangeType -contains 'A')
+        {
+            $ReturnObj.SettingsFiles += $SettingsFiles."$SettingsFileName"[0].FullPath
+        }
+        else
+        {
+            $ReturnObj.CleanAssets = $True
+        }
+    }
+
+    Return (ConvertTo-JSON $ReturnObj)
 }
 Export-ModuleMember -Function * -Verbose:$false -Debug:$False

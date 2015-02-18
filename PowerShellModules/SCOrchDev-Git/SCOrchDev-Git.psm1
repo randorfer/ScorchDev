@@ -25,7 +25,7 @@ Function Find-GitRepositoryChange
     {
         if("$($File)" -Match '([a-zA-Z])\s+(.+\/([^\./]+(\..+)))$')
         {
-            $ReturnObj.Files += @{ 'FullPath' = "$($Path)\$($Matches[2].Replace('/','\'))" ;
+            $ReturnObj.Files += @{ 'FullPath' = "$($RepositoryInformation.Path)\$($Matches[2].Replace('/','\'))" ;
                                    'FileName' = $Matches[3] ;
                                    'FileExtension' = $Matches[4].ToLower()
                                    'ChangeType' = $Matches[1] }
@@ -90,7 +90,7 @@ Function Update-GitRepository
         }
         else
         {
-            Write-Exception -Stream Verbose -Exception $_
+            Write-Verbose -Message "Updated Repository"
         }
     }
 }
