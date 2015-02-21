@@ -23,9 +23,7 @@ Workflow Invoke-GitRepositorySync
         $RepositoryInformation = (ConvertFrom-Json $CIVariables.RepositoryInformation)."$RepositoryName"
         Write-Verbose -Message "`$RepositoryInformation [$(ConvertTo-JSON $RepositoryInformation)]"
 
-        $RunbookWorker = Get-SmaRunbookWorkerDeployment -WebServiceEndpoint $CIVariables.WebserviceEndpoint `
-                                                        -Port $CIVariables.WebservicePort `
-                                                        -Credential $SMACred
+        $RunbookWorker = Get-SMARunbookWorker
         
         # Update the repository on all SMA Workers
         InlineScript
@@ -39,7 +37,8 @@ Workflow Invoke-GitRepositorySync
         {
             Write-Verbose -Message "Processing [$($RepositoryInformation.CurrentCommit)..$($RepositoryInformation.CurrentCommit)]"
             
-            $ReturnInformation = ConvertFrom-JSON (Group-RepositoryFile -Files $RepositoryChange.Files -RepositoryInformation $RepositoryInformation)
+            $ReturnInformation = ConvertFrom-JSON (Group-RepositoryFile -Files $RepositoryChange.Files `
+                                                                        -RepositoryInformation $RepositoryInformation)
             Foreach($RunbookFilePath in $ReturnInformation.ScriptFiles)
             {
                 Write-Verbose -Message "[$($RunbookFilePath)] Starting Processing"
