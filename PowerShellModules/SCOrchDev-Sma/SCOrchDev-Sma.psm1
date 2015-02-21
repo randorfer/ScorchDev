@@ -11,25 +11,25 @@ add-type @"
                 return true;
             }
         }
-"@
+"@ -Verbose:$False -Debug:$false
 <#
-.SYNOPSIS
-    Gets one or more SMA variable values from the given web service endpoint.
+    .SYNOPSIS
+        Gets one or more SMA variable values from the given web service endpoint.
 
-.DESCRIPTION
-    Get-BatchSMAVariable gets the value of each SMA variable given in $Name.
-    If $Prefix is set, "$Prefix-$Name" is looked up in SMA (helps keep the
-    list of variables in $Name concise).
+    .DESCRIPTION
+        Get-BatchSMAVariable gets the value of each SMA variable given in $Name.
+        If $Prefix is set, "$Prefix-$Name" is looked up in SMA (helps keep the
+        list of variables in $Name concise).
 
-.PARAMETER Name
-    A list of variable values to get from SMA.
+    .PARAMETER Name
+        A list of variable values to get from SMA.
 
-.PARAMETER WebServiceEndpoint
-    The SMA web service endpoint to query for variables.
+    .PARAMETER WebServiceEndpoint
+        The SMA web service endpoint to query for variables.
 
-.PARAMETER Prefix
-    A prefix to be applied to each variable name when performing the lookup
-    in SMA. A '-' is added to the end of $Prefix automatically.
+    .PARAMETER Prefix
+        A prefix to be applied to each variable name when performing the lookup
+        in SMA. A '-' is added to the end of $Prefix automatically.
 #>
 Function Get-BatchSMAVariable
 {
@@ -81,8 +81,8 @@ Function Get-BatchAutomationVariable
 }
 
 <#
-.SYNOPSIS
-    Returns $true if working in a development environment outside SMA, $false otherwise.
+    .SYNOPSIS
+        Returns $true if working in a development environment outside SMA, $false otherwise.
 #>
 function Test-LocalDevelopment
 {
@@ -95,8 +95,8 @@ function Test-LocalDevelopment
 }
 
 <#
-.SYNOPSIS
-    Returns a list of web service endpoints which represent the local system.
+    .SYNOPSIS
+        Returns a list of web service endpoints which represent the local system.
 #>
 function Get-LocalAutomationVariableEndpoint
 {
@@ -104,14 +104,8 @@ function Get-LocalAutomationVariableEndpoint
     return $LocalAutomationVariableEndpoints
 }
 <# 
- .Synopsis
-
- .Description
-
- .Parameter query
-
- .Example
-   
+    .Synopsis
+        Returns a filtered list off all jobs in a target status
 #>
 Function Get-SMAJobInStatus
 {
@@ -129,7 +123,10 @@ Function Get-SMAJobInStatus
 
     return $box
 }
-
+<# 
+    .Synopsis
+        Called internally by Get-SMAJobInStatus
+#>
 Function Get-SMAJobsInStatusInternal
 {
     Param( [Parameter(Mandatory=$true) ] [String]$JobsUri,
@@ -214,7 +211,10 @@ Function Start-SmaRunbookSync
     )
     return $jobOutput
 }
-
+<#
+    .Synopsis
+        Returns all SMA runbooks. Correctly pages through all pages of runbooks  
+#>
 Function Get-SMARunbookPaged
 {
     Param( [Parameter(Mandatory=$True)] [String]       $WebserviceEndpoint,
@@ -252,7 +252,10 @@ Function Get-SMARunbookPaged
     )
     return $box
 }
-
+<#
+    .Synopsis
+        Used to make SMA objects more friendly
+#>
 Function Format-SMAObject
 {
     Param([Parameter(Mandatory=$true)] $object)
@@ -270,7 +273,10 @@ Function Format-SMAObject
 
     (ConvertFrom-JSON (ConvertTo-Json $PropertyHT))
 }
-
+<#
+    .Synopsis
+        Sets the tag line on runbooks
+#>
 Function Set-SmaRunbookTags
 {
     Param([string]$RunbookID, 
