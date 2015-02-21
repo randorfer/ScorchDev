@@ -328,4 +328,34 @@ Function Set-SmaRunbookTags
         Write-Verbose -Message "Finished Set-SmaRunbookTags for $RunbookID"
     )
 }
+<#
+    .Synopsis
+        Returns all runbook workers in FQDN format. Expects that all runbook
+        workers are in the same domain as the worker that this command is run
+        from. If local development defaults to 'localhost'
+#>
+Function Get-SMARunbookWorker
+{
+    if(Test-LocalDevelopment)
+    {
+        return 'localhost'
+    }
+    else
+    {
+        if(([System.Net.Dns]::GetHostByName(($env:computerName))).HostName -match '^([^.]+)\.(.*)$')
+        {
+            $domain = $Matches[2]
+        }
+
+        $Workers = Get-SmaRunbookWorkerDeployment -WebServiceEndpoint (Get-LocalAutomationVariableEndpoint)[0]
+        foreach($Worker in $Workers.ComputerName)
+        {
+            if(-not $Worker.Contains($domain))
+            {
+                $Worker = "$($Worker).$($domain)"
+                Write-Output -InputObject $Worker
+            }
+        }
+    }
+}
 Export-ModuleMember -Function * -Verbose:$false -Debug:$False
