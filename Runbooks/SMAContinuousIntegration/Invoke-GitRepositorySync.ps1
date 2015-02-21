@@ -62,10 +62,12 @@ Workflow Invoke-GitRepositorySync
             if($ReturnInformation.CleanRunbooks)
             {
                 Remove-SmaOrphanRunbook -RepositoryName $RepositoryName
+                Checkpoint-Workflow
             }
             if($ReturnInformation.CleanAssets)
             {
                 Remove-SmaOrphanAsset -RepositoryName $RepositoryName
+                Checkpoint-Workflow
             }
             if($ReturnInformation.ModuleFiles)
             {
@@ -74,6 +76,7 @@ Workflow Invoke-GitRepositorySync
                 {
                     Add-PSEnvironmentPathLocation -Path $Using:RepositoryModulePath
                 } -PSComputerName $RunbookWorker -PSCredential $SMACred
+                Checkpoint-Workflow
             }
             $UpdatedRepositoryInformation = Set-SmaRepositoryInformationCommitVersion -RepositoryInformation $CIVariables.RepositoryInformation `
                                                                                       -RepositoryName $RepositoryName `
@@ -83,7 +86,7 @@ Workflow Invoke-GitRepositorySync
                             -WebServiceEndpoint $CIVariables.WebserviceEndpoint `
                             -Port $CIVariables.WebservicePort `
                             -Credential $SMACred
-
+            
             Write-Verbose -Message "Finished Processing [$($RepositoryInformation.CurrentCommit)..$($RepositoryChange.CurrentCommit)]"
         }
     }
