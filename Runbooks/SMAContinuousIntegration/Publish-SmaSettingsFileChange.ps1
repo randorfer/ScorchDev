@@ -17,7 +17,7 @@ Workflow Publish-SMASettingsFileChange
            [Parameter(Mandatory=$True)][String] $CurrentCommit,
            [Parameter(Mandatory=$True)][String] $RepositoryName)
     
-    Write-Verbose -Message "Starting [$WorkflowCommandName]"
+    Write-Verbose -Message "[$FilePath] Starting [$WorkflowCommandName]"
     $ErrorActionPreference = [System.Management.Automation.ActionPreference]::Stop
 
     $CIVariables = Get-BatchAutomationVariable -Name @('SMACredName',
@@ -181,5 +181,5 @@ Workflow Publish-SMASettingsFileChange
     {
         Write-Exception -Stream Warning -Exception $_
     }
-    Write-Verbose -Message "Finished [$WorkflowCommandName]"
+    Write-Verbose -Message "[$FilePath] Finished [$WorkflowCommandName]"
 }

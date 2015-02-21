@@ -41,22 +41,24 @@ Workflow Invoke-GitRepositorySync
                                                                         -RepositoryInformation $RepositoryInformation)
             Foreach($RunbookFilePath in $ReturnInformation.ScriptFiles)
             {
-                Write-Verbose -Message "[$($RunbookFilePath)] Starting Processing"
                 Publish-SMARunbookChange -FilePath $RunbookFilePath `
                                          -CurrentCommit $RepositoryChange.CurrentCommit `
                                          -RepositoryName $RepositoryName
-                Write-Verbose -Message "[$($RunbookFilePath)] Finished Processing"
+                Checkpoint-Workflow
             }
             Foreach($SettingsFilePath in $ReturnInformation.SettingsFiles)
             {
-                Write-Verbose -Message "[$($SettingsFilePath)] Starting Processing"
                 Publish-SMASettingsFileChange -FilePath $SettingsFilePath `
                                               -CurrentCommit $RepositoryChange.CurrentCommit `
                                               -RepositoryName $RepositoryName
-                Write-Verbose -Message "[$($SettingsFilePath)] Finished Processing"
+                Checkpoint-Workflow
             }
-            Checkpoint-Workflow
-
+            foreach($Module in $ReturnInformation.ModuleFiles)
+            {
+                Update-LocalModuleMetadata -ModuleName $Module
+                Checkpoint-Workflow
+            }
+            
             if($ReturnInformation.CleanRunbooks)
             {
                 Remove-SmaOrphanRunbook -RepositoryName $RepositoryName
@@ -65,9 +67,13 @@ Workflow Invoke-GitRepositorySync
             {
                 Remove-SmaOrphanAsset -RepositoryName $RepositoryName
             }
-            if($ReturnInformation.UpdatePSModules)
+            if($ReturnInformation.ModuleFiles)
             {
-                # Implement a mini version of discover all local modules
+                $RepositoryModulePath = "$($RepositoryInformation.Path)\$($RepositoryInformation.PowerShellModuleFolder)"
+                inlinescript
+                {
+                    Add-PSEnvironmentPathLocation -Path $Using:RepositoryModulePath
+                } -PSComputerName $RunbookWorker -PSCredential $SMACred
             }
             $UpdatedRepositoryInformation = Set-SmaRepositoryInformationCommitVersion -RepositoryInformation $CIVariables.RepositoryInformation `
                                                                                       -RepositoryName $RepositoryName `

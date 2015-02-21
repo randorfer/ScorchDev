@@ -212,9 +212,10 @@ Function Group-RepositoryFile
     $_Files = ConvertTo-Hashtable -InputObject $Files -KeyName FileExtension
     $ReturnObj = @{ 'ScriptFiles' = @() ;
                     'SettingsFiles' = @() ;
+                    'ModuleFiles' = @() ;
                     'CleanRunbooks' = $False ;
                     'CleanAssets' = $False ;
-                    'UpdatePSModules' = $False }
+                    'ModulesUpdated' = $False }
 
     # Process PS1 Files
     $PowerShellScriptFiles = ConvertTo-HashTable $_Files.'.ps1' -KeyName 'FileName'
@@ -271,7 +272,8 @@ Function Group-RepositoryFile
             {
                 if($Path -like "$($RepositoryInformation.Path)\$($RepositoryInformation.PowerShellModuleFolder)\*")
                 {
-                    $ReturnObj.UpdatePSModules = $True
+                    $ReturnObj.ModulesUpdated = $True
+                    $ReturnObj.ModuleFiles += $Path
                     break
                 }
             }

@@ -433,4 +433,23 @@ Function ConvertTo-UTF8
                                      'Content' = $content }
     }
 }
+<#
+    .Synopsis
+        Updates the local powershell environment path. Sets the target path as a part
+        of the environment path if it does not already exist there
+    
+    .Parameter Path
+        The path to add to the system environment variable 'path'. Only adds if it is not already there            
+#>
+Function Add-PSEnvironmentPathLocation
+{
+    Param([Parameter(Mandatory=$True)] $Path)
+    
+    $CurrentPSModulePath = [System.Environment]::GetEnvironmentVariable("PSModulePath")
+    if($CurrentPSModulePath.ToLower().Contains($Path.ToLower()))
+    {
+        Write-Verbose "The path [$Path] was not in the environment path [$CurrentPSModulePath]. Adding."
+        [Environment]::SetEnvironmentVariable( "PSModulePath", "$CurrentPSModulePath;$Path", [System.EnvironmentVariableTarget]::Machine )
+    }
+}
 Export-ModuleMember -Function * -Verbose:$false -Debug:$false
