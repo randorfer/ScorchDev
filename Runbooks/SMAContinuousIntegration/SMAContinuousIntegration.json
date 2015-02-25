@@ -19,7 +19,7 @@
                                                                              "isEncrypted":  false,
                                                                              "Description":  "",
                                                                              "Type":  "String",
-                                                                             "Value":  "{\"ContinuousIntegrationProject\":{\"Path\":\"C:\\\\git\\\\ScorchDev\",\"RepositoryPath\":\"https://github.com/randorfer/ScorchDev.git\",\"RunbookFolder\":\"Runbooks\",\"PowerShellModuleFolder\":\"PowerShellModules\",\"CurrentCommit\":\"84de715\",\"Branch\":\"Dev\"}}"
+                                                                             "Value":  "{\"ContinuousIntegrationProject\":{\"Path\":\"C:\\\\git\\\\ScorchDev\",\"RepositoryPath\":\"https://github.com/randorfer/ScorchDev.git\",\"RunbookFolder\":\"Runbooks\",\"PowerShellModuleFolder\":\"PowerShellModules\",\"CurrentCommit\":\"84de715\",\"Branch\":\"master\"}}"
                                                                          },
                       "SMAContinuousIntegration-SMACredName":  {
                                                                    "isEncrypted":  false,
