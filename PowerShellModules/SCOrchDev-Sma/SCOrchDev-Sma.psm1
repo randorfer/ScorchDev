@@ -381,7 +381,11 @@ Function Get-SmaRunbookWorkerJob
           [Parameter(Mandatory=$true) ][string]   $RunbookWorker,
           [Parameter(Mandatory=$false)][DateTime] $StartTime = (Get-Date).AddHours(-1),
           [Parameter(Mandatory=$false)][AllowNull()] $EndTime = $null,
-          [Parameter(Mandatory=$false)][AllowNull()] $JobStatus = $null)
+          [Parameter(Mandatory=$false)]
+          [ValidateSet('New', 'Activating', 'Running', 'Completed', 'Failed', 'Stopped',
+                       'Blocked', 'Suspended', 'Disconnected', 'Suspending', 'Stopping',
+                       'Resuming', 'Removing', 'All')]
+          $JobStatus = 'All')
 
     $SqlQuery = 'DECLARE @low INT, @high INT
                             SELECT @low = LowKey, @high = HighKey 
@@ -405,7 +409,7 @@ Function Get-SmaRunbookWorkerJob
         $Parameters.Add('end',$EndTime) | Out-Null
 
     }
-    if($JobStatus)
+    if($JobStatus -ne 'All')
     {
         $SqlQuery = "$($SqlQuery)`r`nand j.JobStatus = @JobStatus" 
         $Parameters.Add('JobStatus',$JobStatus) | Out-Null
