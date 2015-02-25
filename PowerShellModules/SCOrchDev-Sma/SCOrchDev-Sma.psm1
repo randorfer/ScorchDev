@@ -279,12 +279,12 @@ Function Format-SMAObject
 #>
 Function Set-SmaRunbookTags
 {
-    Param([string]$RunbookID, 
-          [string]$Tags=$null,
-          [string]$WebserviceEndpoint=$null,
-          [string]$TenantId='00000000-0000-0000-0000-000000000000',
-          [string]$port = "9090",
-          [pscredential]$Credential)
+    Param([Parameter(Mandatory=$true)][string]$RunbookID, 
+          [Parameter(Mandatory=$false)][string]$Tags=$null,
+          [Parameter(Mandatory=$true)][string]$WebserviceEndpoint=$null,
+          [Parameter(Mandatory=$false)][string]$TenantId='00000000-0000-0000-0000-000000000000',
+          [Parameter(Mandatory=$false)][string]$port = "9090",
+          [Parameter(Mandatory=$false)][pscredential]$Credential)
 
     $null = $(
         Write-Verbose -Message "Starting Set-SmaRunbookTags for [$RunbookID] Tags [$Tags]" 
@@ -357,5 +357,61 @@ Function Get-SMARunbookWorker
             }
         }
     }
+}
+<#
+    .Synopsis
+        Returns job data about a runbook worker for a given time window. Default time
+        window is the last hour
+    
+    .Parameter SqlServer
+        The name of the SQL server hosting the SMA database
+    
+    .Parameter Host
+        The Name of the runbook worker to return information for
+
+    .Parameter StartTime
+        The Start Time for the window of logs
+
+    .Parameter EndTime
+        The End Time for the window of logs
+#>
+Function Get-SmaRunbookWorkerJob
+{
+    Param([Parameter(Mandatory=$true) ][string]   $SqlServer,
+          [Parameter(Mandatory=$true) ][string]   $RunbookWorker,
+          [Parameter(Mandatory=$false)][DateTime] $StartTime = (Get-Date).AddHours(-1),
+          [Parameter(Mandatory=$false)][AllowNull()] $EndTime = $null,
+          [Parameter(Mandatory=$false)][AllowNull()] $JobStatus = $null)
+
+    $SqlQuery = 'DECLARE @low INT, @high INT
+                            SELECT @low = LowKey, @high = HighKey 
+                            FROM [SMA].[Queues].[Deployment]
+                            WHERE ComputerName = @RunbookWorker
+ 
+                            select r.*, 
+	                               j.*
+                            from sma.core.vwJobs as j
+                            inner join [SMA].[Core].[RunbookVersions] as v
+                            on j.RunbookVersionId = v.RunbookVersionId
+                            inner join [SMA].[Core].[Runbooks] as r 
+                            on v.RunbookKey = r.RunbookKey
+                            where PartitionId > @low and PartitionId < @high
+                            and StartTime >  @start'
+    $Parameters = @{'start' = $StartTime ;
+                    'RunbookWorker' = $RunbookWorker}
+    if($EndTime) 
+    { 
+        $SqlQuery = "$($SqlQuery)`r`nand StartTime < @end" 
+        $Parameters.Add('end',$EndTime) | Out-Null
+
+    }
+    if($JobStatus)
+    {
+        $SqlQuery = "$($SqlQuery)`r`nand j.JobStatus < @JobStatus" 
+        $Parameters.Add('JobStatus',$JobStatus) | Out-Null
+    }
+    Invoke-SqlQuery -query $SqlQuery `
+                    -parameters $Parameters `
+                    -connectionString "Data Source=$SqlServer;Initial Catalog=SMA;Integrated Security=True;"
 }
 Export-ModuleMember -Function * -Verbose:$false -Debug:$False
