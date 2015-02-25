@@ -407,7 +407,7 @@ Function Get-SmaRunbookWorkerJob
     }
     if($JobStatus)
     {
-        $SqlQuery = "$($SqlQuery)`r`nand j.JobStatus < @JobStatus" 
+        $SqlQuery = "$($SqlQuery)`r`nand j.JobStatus = @JobStatus" 
         $Parameters.Add('JobStatus',$JobStatus) | Out-Null
     }
     Invoke-SqlQuery -query $SqlQuery `
