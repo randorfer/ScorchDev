@@ -277,7 +277,7 @@ Function Set-LocalDevAutomationVariable
         default
         {
             $Type = 'String'
-            $Value = ConvertTo-JSON $Value
+            $Value = ConvertTo-JSON -InputObject $Value -Compress
         }
     }
 
