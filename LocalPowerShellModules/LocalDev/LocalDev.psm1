@@ -254,48 +254,28 @@ Function Set-LocalDevAutomationVariable
     }
 
     $SettingsVars = ConvertFrom-JSON -InputObject ((Get-Content -Path $SettingsFilePath) -as [String])
-    if(Test-IsNullOrEmpty $SettingsVars.Variables)
+    if(-not $SettingsVars) { $SettingsVars = @{} }
+    else
     {
-        Add-Member -InputObject $SettingsVars -MemberType NoteProperty -Value @() -Name Variables -Force
+        $SettingsVars = ConvertFrom-PSCustomObject $SettingsVars
+    }
+    if(-not $SettingsVars.ContainsKey('Variables'))
+    {
+        $SettingsVars.Add('Variables',@{}) | out-null
     }
 
-    $Type = $Value.GetType().Name
-    Switch($Type)
-    {
-        "Int32"
-        {
-                
-        }
-        "String"
-        {
-                
-        }
-        "DateTime"
-        {
-                
-        }
-        default
-        {
-            $Type = 'String'
-            $Value = ConvertTo-JSON -InputObject $Value -Compress
-        }
-    }
-
-    if(($SettingsVars.Variables | Get-Member -MemberType NoteProperty).Name -Contains $Name)
+    if($SettingsVars.Variables.GetType().name -eq 'PSCustomObject') { $SettingsVars.Variables = ConvertFrom-PSCustomObject $SettingsVars.Variables }
+    if($SettingsVars.Variables.ContainsKey($Name))
     {
         $SettingsVars.Variables."$Name".Value = $Value
-        $SettingsVars.Variables."$Name".Type = $Type
         if($Description) { $SettingsVars.Variables."$Name".Description = $Description }
         if($Encrypted)   { $SettingsVars.Variables."$Name".Encrypted   = $Encrypted   }
     }
     else
     {
-        Add-Member -InputObject $SettingsVars.Variables `
-                   -MemberType NoteProperty `
-                   -Value @{'Value' = $Value ;
-                            'Description' = $Description ;
-                            'isEncrypted' = $isEncrypted } `
-                            -Name $Name
+        $SettingsVars.Variables.Add($Name, @{ 'Value' = $Value ;
+                                                'Description' = $Description ;
+                                                'isEncrypted' = $isEncrypted })
     }
     
     Set-Content -Path $SettingsFilePath -Value (ConvertTo-JSON $SettingsVars)
@@ -348,13 +328,20 @@ Function Remove-LocalDevAutomationVariable
     }
 
     $SettingsVars = ConvertFrom-JSON -InputObject ((Get-Content -Path $SettingsFilePath) -as [String])
-    if(Test-IsNullOrEmpty $SettingsVars.Variables)
+    if(-not $SettingsVars) { $SettingsVars = @{} }
+    else
     {
-        Add-Member -InputObject $SettingsVars -MemberType NoteProperty -Value @() -Name Variables
+        $SettingsVars = ConvertFrom-PSCustomObject $SettingsVars
     }
-    if(($SettingsVars.Variables | Get-Member -MemberType NoteProperty).Name -Contains $Name)
+    if(-not $SettingsVars.ContainsKey('Variables'))
     {
-        $SettingsVars.Variables = $SettingsVars.Variables | Select-Object -Property * -ExcludeProperty $Name
+        $SettingsVars.Add('Variables',@{}) | out-null
+    }
+
+    if($SettingsVars.Variables.GetType().name -eq 'PSCustomObject') { $SettingsVars.Variables = ConvertFrom-PSCustomObject $SettingsVars.Variables }
+    if($SettingsVars.Variables.ContainsKey($Name))
+    {
+        $SettingsVars.Variables.Remove($Name)
         Set-Content -Path $SettingsFilePath -Value (ConvertTo-JSON $SettingsVars)
         Read-SmaJSONVariables $SettingsFilePath
     }
