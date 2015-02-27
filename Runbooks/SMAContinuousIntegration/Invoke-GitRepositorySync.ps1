@@ -36,6 +36,7 @@ Workflow Invoke-GitRepositorySync
 				    $ErrorActionPreference = [System.Management.Automation.ActionPreference]::Stop
                     
                     $RepositoryInformation = $Using:RepositoryInformation
+                    Import-Module -Name Posh-Git -Verbose:$false
                     Update-GitRepository -RepositoryInformation $RepositoryInformation
                 )
             }
