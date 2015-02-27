@@ -313,7 +313,7 @@ Function Group-RepositoryFile
 Function Group-SmaRunbooksByRepository
 {
     Param([Parameter(Mandatory=$True)] $InputObject)
-    ConvertTo-Hashtable -InputObject $SmaRunbook `
+    ConvertTo-Hashtable -InputObject $InputObject `
                         -KeyName 'Tags' `
                         -KeyFilterScript { 
                             Param($KeyName)
@@ -331,7 +331,7 @@ Function Group-SmaRunbooksByRepository
 Function Group-SmaAssetsByRepository
 {
     Param([Parameter(Mandatory=$True)] $InputObject)
-    ConvertTo-Hashtable -InputObject $SmaRunbook `
+    ConvertTo-Hashtable -InputObject $InputObject `
                         -KeyName 'Description' `
                         -KeyFilterScript { 
                             Param($KeyName)
