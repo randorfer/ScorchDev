@@ -1,0 +1,9 @@
+{
+    "Variables":  {
+                      "test-qwerty":  {
+                                          "isEncrypted":  false,
+                                          "Description":  "",
+                                          "Value":  "System.Collections.Hashtable"
+                                      }
+                  }
+}
