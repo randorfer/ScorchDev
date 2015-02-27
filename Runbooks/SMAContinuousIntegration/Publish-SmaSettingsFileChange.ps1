@@ -51,7 +51,7 @@ Workflow Publish-SMASettingsFileChange
                 $TagUpdate = ConvertFrom-JSON( New-SmaChangesetTagLine -TagLine $SmaVariable.Description`
                                                          -CurrentCommit $CurrentCommit `
                                                          -RepositoryName $RepositoryName )
-                $VariableDescription = "$($Variable.Description)`n`r$($TagUpdate.TagLine)"
+                $VariableDescription = "$($TagUpdate.TagLine)"
                 $NewVersion = $TagUpdate.NewVersion
             }
             if($NewVersion)
@@ -109,7 +109,7 @@ Workflow Publish-SMASettingsFileChange
                     $TagUpdate = ConvertFrom-JSON( New-SmaChangesetTagLine -TagLine $SmaVariable.Description`
                                                              -CurrentCommit $CurrentCommit `
                                                              -RepositoryName $RepositoryName )
-                    $ScheduleDescription = "$($Schedule.Description)`n`r$($TagUpdate.TagLine)"
+                    $ScheduleDescription = "$($TagUpdate.TagLine)"
                     $NewVersion = $TagUpdate.NewVersion
                 }
                 if($NewVersion)
