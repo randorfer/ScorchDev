@@ -37,7 +37,7 @@ Workflow Remove-SmaOrphanAsset
 
     if($SmaVariableTable."$RepositoryName")
     {
-        $VariableDifferences = Compare-Object -ReferenceObject $SmaVariables."$RepositoryName".Name `
+        $VariableDifferences = Compare-Object -ReferenceObject $SmaVariableTable."$RepositoryName".Name `
                                               -DifferenceObject $RepositoryAssets.Variable
         Foreach($Difference in $VariableDifferences)
         {
@@ -60,7 +60,7 @@ Workflow Remove-SmaOrphanAsset
 
     if($SmaScheduleTable."$RepositoryName")
     {
-        $ScheduleDifferences = Compare-Object -ReferenceObject $SmaSchedules."$RepositoryName".Name `
+        $ScheduleDifferences = Compare-Object -ReferenceObject $SmaScheduleTable."$RepositoryName".Name `
                                               -DifferenceObject $RepositoryAssets.Schedule
         Foreach($Difference in $ScheduleDifferences)
         {
