@@ -47,8 +47,10 @@ Workflow Invoke-GitRepositorySync
         {
             Write-Verbose -Message "Processing [$($RepositoryInformation.CurrentCommit)..$($RepositoryChange.CurrentCommit)]"
             Write-Verbose -Message "RepositoryChange [$RepositoryChangeJSON]"
-            $ReturnInformation = ConvertFrom-JSON (Group-RepositoryFile -Files $RepositoryChange.Files `
-                                                                        -RepositoryInformation $RepositoryInformation)
+            $ReturnInformationJSON = Group-RepositoryFile -Files $RepositoryChange.Files `
+                                                          -RepositoryInformation $RepositoryInformation
+            $ReturnInformation = ConvertFrom-JSON -InputObject $ReturnInformationJSON
+            Write-Verbose -Message "ReturnInformation [$ReturnInformationJSON]"
             Foreach($RunbookFilePath in $ReturnInformation.ScriptFiles)
             {
                 Publish-SMARunbookChange -FilePath $RunbookFilePath `
