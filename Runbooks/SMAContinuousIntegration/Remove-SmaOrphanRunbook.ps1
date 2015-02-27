@@ -23,11 +23,12 @@ Workflow Remove-SmaOrphanRunbook
 
     $RepositoryInformation = (ConvertFrom-JSON -InputObject $CIVariables.RepositoryInformation)."$RepositoryName"
 
-    $SmaRunbook = Get-SMARunbookPaged -WebserviceEndpoint $CIVariables.WebserviceEndpoint `
-                                      -Port $CIVariables.WebservicePort `
-                                      -Credential $SMACred
+    $RunbookList = Get-SMARunbookPaged -WebserviceEndpoint $CIVariables.WebserviceEndpoint `
+                                       -Port $CIVariables.WebservicePort `
+                                       -Credential $SMACred
     
-    $SmaRunbookTable = Group-SmaRunbooksByRepository -InputObject $SmaRunbook
+    Write-Verbose -Message "`$RunbookList [$(ConvertTo-JSON $RunbookList)]"
+    $SmaRunbookTable = Group-SmaRunbooksByRepository -InputObject $RunbookList
     Write-Verbose -Message "`$SmaRunbookTable [$(ConvertTo-JSON $SmaRunbookTable)]"
     $RepositoryWorkflows = Get-GitRepositoryWorkflowName -Path "$($RepositoryInformation.Path)\$($RepositoryInformation.RunbookFolder)"
     Write-Verbose -Message "`$RepositoryWorkflows [$(ConvertTo-JSON $RepositoryWorkflows)]"
