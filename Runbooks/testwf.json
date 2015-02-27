@@ -1,0 +1,9 @@
+{
+    "Variables":  {
+                      "testwf-testing3":  {
+                                              "isEncrypted":  false,
+                                              "Description":  "",
+                                              "Value":  123
+                                          }
+                  }
+}
