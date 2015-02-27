@@ -42,15 +42,17 @@ Workflow Invoke-GitRepositorySync
             }
         } -PSComputerName $RunbookWorker -PSCredential $SMACred
 
-        $RepositoryChange = ConvertFrom-JSON ( Find-GitRepositoryChange -RepositoryInformation $RepositoryInformation )
+        $RepositoryChangeJSON = Find-GitRepositoryChange -RepositoryInformation $RepositoryInformation
+        $RepositoryChange = ConvertFrom-JSON $RepositoryChangeJSON
         if("$($RepositoryChange.CurrentCommit)" -ne "$($RepositoryInformation.CurrentCommit)")
         {
             Write-Verbose -Message "Processing [$($RepositoryInformation.CurrentCommit)..$($RepositoryChange.CurrentCommit)]"
-            
+            Write-Verbose -Message "RepositoryChange [$RepositoryChangeJSON]"
             $ReturnInformation = ConvertFrom-JSON (Group-RepositoryFile -Files $RepositoryChange.Files `
                                                                         -RepositoryInformation $RepositoryInformation)
             Foreach($RunbookFilePath in $ReturnInformation.ScriptFiles)
             {
+                Write-Verbose -Message "Starting to publish runbook [$RunbookFilePath] [$($RepositoryChange.CurrentCommit)] [$RepositoryName]"
                 Publish-SMARunbookChange -FilePath $RunbookFilePath `
                                          -CurrentCommit $RepositoryChange.CurrentCommit `
                                          -RepositoryName $RepositoryName

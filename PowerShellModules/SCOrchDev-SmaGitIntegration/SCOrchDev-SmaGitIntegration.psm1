@@ -208,7 +208,7 @@ Function Group-RepositoryFile
 {
     Param([Parameter(Mandatory=$True)] $Files,
           [Parameter(Mandatory=$True)] $RepositoryInformation)
-
+    Write-Verbose -Message "Starting [Group-RepositoryFile]"
     $_Files = ConvertTo-Hashtable -InputObject $Files -KeyName FileExtension
     $ReturnObj = @{ 'ScriptFiles' = @() ;
                     'SettingsFiles' = @() ;
@@ -218,69 +218,91 @@ Function Group-RepositoryFile
                     'ModulesUpdated' = $False }
 
     # Process PS1 Files
-    $PowerShellScriptFiles = ConvertTo-HashTable $_Files.'.ps1' -KeyName 'FileName'
-    foreach($ScriptName in $PowerShellScriptFiles.Keys)
+    try
     {
-        if($PowerShellScriptFiles."$ScriptName".ChangeType -contains 'M' -or
-           $PowerShellScriptFiles."$ScriptName".ChangeType -contains 'A')
+        $PowerShellScriptFiles = ConvertTo-HashTable $_Files.'.ps1' -KeyName 'FileName'
+        Write-Verbose -Message "Found Powershell Files"
+        foreach($ScriptName in $PowerShellScriptFiles.Keys)
         {
-            foreach($Path in $PowerShellScriptFiles."$ScriptName".FullPath)
+            if($PowerShellScriptFiles."$ScriptName".ChangeType -contains 'M' -or
+               $PowerShellScriptFiles."$ScriptName".ChangeType -contains 'A')
             {
-                if($Path -like "$($RepositoryInformation.Path)\$($RepositoryInformation.RunbookFolder)\*")
+                foreach($Path in $PowerShellScriptFiles."$ScriptName".FullPath)
                 {
-                    $ReturnObj.ScriptFiles += $Path
-                    break
-                }
-            }            
-        }
-        else
-        {
-            $ReturnObj.CleanRunbooks = $True
-        }
-    }
-
-    # Process Settings Files
-    $SettingsFiles = ConvertTo-HashTable $_Files.'.json' -KeyName 'FileName'
-    foreach($SettingsFileName in $SettingsFiles.Keys)
-    {
-        if($SettingsFiles."$SettingsFileName".ChangeType -contains 'M' -or
-           $SettingsFiles."$SettingsFileName".ChangeType -contains 'A')
-        {
-            foreach($Path in $SettingsFiles."$SettingsFileName".FullPath)
+                    if($Path -like "$($RepositoryInformation.Path)\$($RepositoryInformation.RunbookFolder)\*")
+                    {
+                        $ReturnObj.ScriptFiles += $Path
+                        break
+                    }
+                }            
+            }
+            else
             {
-                if($Path -like "$($RepositoryInformation.Path)\$($RepositoryInformation.RunbookFolder)\*")
-                {
-                    $ReturnObj.CleanAssets = $True
-                    $ReturnObj.SettingsFiles += $Path
-                    break
-                }
+                $ReturnObj.CleanRunbooks = $True
             }
         }
-        else
-        {
-            $ReturnObj.CleanAssets = $True
-        }
     }
-
-    $PSModuleFiles = ConvertTo-HashTable $_Files.'.psd1' -KeyName 'FileName'
-    foreach($PSModuleName in $PSModuleFiles.Keys)
+    catch
     {
-        if($PSModuleFiles."$PSModuleName".ChangeType -contains 'M' -or
-           $PSModuleFiles."$PSModuleName".ChangeType -contains 'A')
+        Write-Verbose -Message "No Powershell Files found"
+    }
+    try
+    {
+        # Process Settings Files
+        $SettingsFiles = ConvertTo-HashTable $_Files.'.json' -KeyName 'FileName'
+        Write-Verbose -Message "Found Settings Files"
+        foreach($SettingsFileName in $SettingsFiles.Keys)
         {
-            foreach($Path in $PSModuleFiles."$PSModuleName".FullPath)
+            if($SettingsFiles."$SettingsFileName".ChangeType -contains 'M' -or
+               $SettingsFiles."$SettingsFileName".ChangeType -contains 'A')
             {
-                if($Path -like "$($RepositoryInformation.Path)\$($RepositoryInformation.PowerShellModuleFolder)\*")
+                foreach($Path in $SettingsFiles."$SettingsFileName".FullPath)
                 {
-                    $ReturnObj.ModulesUpdated = $True
-                    $ReturnObj.ModuleFiles += $Path
-                    break
+                    if($Path -like "$($RepositoryInformation.Path)\$($RepositoryInformation.RunbookFolder)\*")
+                    {
+                        $ReturnObj.CleanAssets = $True
+                        $ReturnObj.SettingsFiles += $Path
+                        break
+                    }
                 }
             }
+            else
+            {
+                $ReturnObj.CleanAssets = $True
+            }
         }
-        if($ReturnObj.UpdatePSModules) { break }
     }
-
+    catch
+    {
+        Write-Verbose -Message "No Settings Files found"
+    }
+    try
+    {
+        $PSModuleFiles = ConvertTo-HashTable $_Files.'.psd1' -KeyName 'FileName'
+        Write-Verbose -Message "Found Powershell Module Files"
+        foreach($PSModuleName in $PSModuleFiles.Keys)
+        {
+            if($PSModuleFiles."$PSModuleName".ChangeType -contains 'M' -or
+               $PSModuleFiles."$PSModuleName".ChangeType -contains 'A')
+            {
+                foreach($Path in $PSModuleFiles."$PSModuleName".FullPath)
+                {
+                    if($Path -like "$($RepositoryInformation.Path)\$($RepositoryInformation.PowerShellModuleFolder)\*")
+                    {
+                        $ReturnObj.ModulesUpdated = $True
+                        $ReturnObj.ModuleFiles += $Path
+                        break
+                    }
+                }
+            }
+            if($ReturnObj.UpdatePSModules) { break }
+        }
+    }
+    catch
+    {
+        Write-Verbose -Message "No Powershell Module Files found"
+    }
+    Write-Verbose -Message "Finished [Group-RepositoryFile]"
     Return (ConvertTo-JSON $ReturnObj)
 }
 Export-ModuleMember -Function * -Verbose:$false -Debug:$False
