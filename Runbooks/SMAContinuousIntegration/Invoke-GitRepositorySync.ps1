@@ -44,7 +44,7 @@ Workflow Invoke-GitRepositorySync
         $RepositoryChange = ConvertFrom-JSON ( Find-GitRepositoryChange -RepositoryInformation $RepositoryInformation )
         if("$($RepositoryChange.CurrentCommit)" -ne "$($RepositoryInformation.CurrentCommit)")
         {
-            Write-Verbose -Message "Processing [$($RepositoryInformation.CurrentCommit)..$($RepositoryInformation.CurrentCommit)]"
+            Write-Verbose -Message "Processing [$($RepositoryInformation.CurrentCommit)..$($RepositoryChange.CurrentCommit)]"
             
             $ReturnInformation = ConvertFrom-JSON (Group-RepositoryFile -Files $RepositoryChange.Files `
                                                                         -RepositoryInformation $RepositoryInformation)
@@ -90,11 +90,13 @@ Workflow Invoke-GitRepositorySync
             $UpdatedRepositoryInformation = Set-SmaRepositoryInformationCommitVersion -RepositoryInformation $CIVariables.RepositoryInformation `
                                                                                       -RepositoryName $RepositoryName `
                                                                                       -Commit $RepositoryChange.CurrentCommit
-            Set-SmaVariable -Name 'SMAContinuousIntegration-RepositoryInformation' `
-                            -Value $UpdatedRepositoryInformation `
-                            -WebServiceEndpoint $CIVariables.WebserviceEndpoint `
-                            -Port $CIVariables.WebservicePort `
-                            -Credential $SMACred
+            $VariableUpdate = Set-SmaVariable -Name 'SMAContinuousIntegration-RepositoryInformation' `
+                                              -Value $UpdatedRepositoryInformation `
+                                              -WebServiceEndpoint $CIVariables.WebserviceEndpoint `
+                                              -Port $CIVariables.WebservicePort `
+                                              -Credential $SMACred
+
+            Write-Verbose -Message "Updated Variable [$VariableUpdate]"
             
             Write-Verbose -Message "Finished Processing [$($RepositoryInformation.CurrentCommit)..$($RepositoryChange.CurrentCommit)]"
         }
