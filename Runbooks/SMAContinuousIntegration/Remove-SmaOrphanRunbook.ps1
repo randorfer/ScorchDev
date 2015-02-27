@@ -28,8 +28,9 @@ Workflow Remove-SmaOrphanRunbook
                                       -Credential $SMACred
     
     $SmaRunbookTable = Group-SmaRunbooksByRepository -InputObject $SmaRunbook
-    
+    Write-Verbose -Message "`$SmaRunbookTable [$(ConvertTo-JSON $SmaRunbookTable)]"
     $RepositoryWorkflows = Get-GitRepositoryWorkflowName -Path "$($RepositoryInformation.Path)\$($RepositoryInformation.RunbookFolder)"
+    Write-Verbose -Message "`$RepositoryWorkflows [$(ConvertTo-JSON $RepositoryWorkflows)]"
     $Differences = Compare-Object -ReferenceObject $SmaRunbookTable.$RepositoryName.RunbookName `
                                   -DifferenceObject $RepositoryWorkflows
     
