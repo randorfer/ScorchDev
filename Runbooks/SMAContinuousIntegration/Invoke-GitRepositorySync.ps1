@@ -28,8 +28,17 @@ Workflow Invoke-GitRepositorySync
         # Update the repository on all SMA Workers
         InlineScript
         {
-            $RepositoryInformation = $Using:RepositoryInformation
-            Update-GitRepository -RepositoryInformation $RepositoryInformation
+            $ErrorActionPreference = [System.Management.Automation.ActionPreference]::Continue
+		    & {
+			    $null = $(
+				    $DebugPreference       = [System.Management.Automation.ActionPreference]$Using:DebugPreference
+				    $VerbosePreference     = [System.Management.Automation.ActionPreference]$Using:VerbosePreference
+				    $ErrorActionPreference = [System.Management.Automation.ActionPreference]::Stop
+                    
+                    $RepositoryInformation = $Using:RepositoryInformation
+                    Update-GitRepository -RepositoryInformation $RepositoryInformation
+                )
+            }
         } -PSComputerName $RunbookWorker -PSCredential $SMACred
 
         $RepositoryChange = ConvertFrom-JSON ( Find-GitRepositoryChange -RepositoryInformation $RepositoryInformation )
