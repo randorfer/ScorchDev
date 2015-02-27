@@ -327,6 +327,11 @@ Function Remove-LocalDevAutomationVariable
         $Name = "$($Prefix)-$($Name)"
     }
 
+    if($Value.GetType().Name -notin @('Int32','String','DateTime'))
+    {
+        $Value = ConvertTo-JSON $Value
+    }
+
     $SettingsVars = ConvertFrom-JSON -InputObject ((Get-Content -Path $SettingsFilePath) -as [String])
     if(-not $SettingsVars) { $SettingsVars = @{} }
     else
