@@ -86,6 +86,7 @@ Function Update-GitRepository
     {
         if($LASTEXITCODE -ne -1)
         {
+            Write-Verbose -Message "`$LASTEXITCODE [$LASTEXITCODE]"
             Write-Exception -Stream Error -Exception $_
         }
         else
