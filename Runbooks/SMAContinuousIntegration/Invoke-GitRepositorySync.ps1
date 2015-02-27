@@ -31,12 +31,11 @@ Workflow Invoke-GitRepositorySync
             $ErrorActionPreference = [System.Management.Automation.ActionPreference]::Continue
 		    & {
 			    $null = $(
-				    $DebugPreference       = [System.Management.Automation.ActionPreference]$Using:DebugPreference
-				    $VerbosePreference     = [System.Management.Automation.ActionPreference]$Using:VerbosePreference
+				    $DebugPreference       = [System.Management.Automation.ActionPreference]::SilentlyContinue
+				    $VerbosePreference     = [System.Management.Automation.ActionPreference]::SilentlyContinue
 				    $ErrorActionPreference = [System.Management.Automation.ActionPreference]::Stop
                     
                     $RepositoryInformation = $Using:RepositoryInformation
-                    Import-Module -Name Posh-Git -Verbose:$false
                     Update-GitRepository -RepositoryInformation $RepositoryInformation
                 )
             }
