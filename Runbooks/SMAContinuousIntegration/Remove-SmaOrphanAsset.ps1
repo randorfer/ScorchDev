@@ -23,17 +23,19 @@ Workflow Remove-SmaOrphanAsset
 
     $RepositoryInformation = (ConvertFrom-JSON -InputObject $CIVariables.RepositoryInformation)."$RepositoryName"
 
-    $SmaVariables = Group-SmaAssetsByRepository -InputObject ( Get-SmaVariable -WebServiceEndpoint $CIVariables.WebserviceEndpoint `
-                                                                       -Port $CIVariables.WebservicePort `
-                                                                       -Credential $SMACred )
+    $SmaVariables = Get-SmaVariable -WebServiceEndpoint $CIVariables.WebserviceEndpoint `
+                                    -Port $CIVariables.WebservicePort `
+                                    -Credential $SMACred
+    if($SmaVariables) { $SmaVariableTable = Group-SmaAssetsByRepository -InputObject $SmaVariables }
 
-    $SmaSchedules = Group-SmaAssetsByRepository -InputObject ( Get-SmaSchedule -WebServiceEndpoint $CIVariables.WebserviceEndpoint `
-                                                                       -Port $CIVariables.WebservicePort `
-                                                                       -Credential $SMACred )
+    $SmaSchedules = Get-SmaSchedule -WebServiceEndpoint $CIVariables.WebserviceEndpoint `
+                                    -Port $CIVariables.WebservicePort `
+                                    -Credential $SMACred
+    if($SmaSchedules) { $SmaScheduleTable = Group-SmaAssetsByRepository -InputObject $SmaSchedules }
 
     $RepositoryAssets = Get-GitRepositoryAssetName -Path "$($RepositoryInformation.Path)\$($RepositoryInformation.RunbookFolder)"
 
-    if($SmaVariables."$RepositoryName")
+    if($SmaVariableTable."$RepositoryName")
     {
         $VariableDifferences = Compare-Object -ReferenceObject $SmaVariables."$RepositoryName".Name `
                                               -DifferenceObject $RepositoryAssets.Variable
@@ -56,7 +58,7 @@ Workflow Remove-SmaOrphanAsset
                       -WarningAction Continue
     }
 
-    if($SmaSchedules."$RepositoryName")
+    if($SmaScheduleTable."$RepositoryName")
     {
         $ScheduleDifferences = Compare-Object -ReferenceObject $SmaSchedules."$RepositoryName".Name `
                                               -DifferenceObject $RepositoryAssets.Schedule
