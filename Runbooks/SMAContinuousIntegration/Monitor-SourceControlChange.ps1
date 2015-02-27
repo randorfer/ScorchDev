@@ -25,7 +25,15 @@ workflow Monitor-SourceControlChange
 		try
 		{
             $RepositoryInformation = ConvertFrom-JSON $CIVariables.RepositoryInformation
-            foreach($RepositoryName in (ConvertFrom-PSCustomObject $RepositoryInformation).Keys )
+            foreach($RepositoryName in (ConvertFrom-PSCustomObject -InputObject $RepositoryInformation `
+                                                                   -KeyFilterScript {
+                                                                        Param($KeyName)
+                                                                        if($KeyName -notin ('PSComputerName',
+                                                                                            'PSShowComputerName',
+                                                                                            'PSSourceJobInstanceId'))
+                                                                        {
+                                                                            $KeyName
+                                                                        }}).Keys )
             {
                 Write-Verbose -Message "[$RepositoryName] Starting Processing"
                 Invoke-GitRepositorySync -RepositoryName $RepositoryName
