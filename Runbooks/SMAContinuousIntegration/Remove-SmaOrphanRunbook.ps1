@@ -27,7 +27,6 @@ Workflow Remove-SmaOrphanRunbook
                                        -Port $CIVariables.WebservicePort `
                                        -Credential $SMACred
     
-    
     $SmaRunbookTable = Group-SmaRunbooksByRepository -InputObject $RunbookList
     $RepositoryWorkflows = Get-GitRepositoryWorkflowName -Path "$($RepositoryInformation.Path)\$($RepositoryInformation.RunbookFolder)"
     $Differences = Compare-Object -ReferenceObject $SmaRunbookTable.$RepositoryName.RunbookName `
