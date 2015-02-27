@@ -48,4 +48,3 @@ Workflow Remove-SmaOrphanRunbook
 
     Write-Verbose -Message "Finished [$WorkflowCommandName]"
 }
-Remove-SmaOrphanRunbook -RepositoryName $repositoryname
