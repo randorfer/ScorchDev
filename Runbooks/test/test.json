@@ -1,14 +1,5 @@
 {
     "Variables":  {
-                      "test-qwerty":  {
-                                          "isEncrypted":  false,
-                                          "Description":  "",
-                                          "Value":  "{\"a\":\"coolstuff2\"}"
-                                      },
-                      "test-qwerty2":  {
-                                           "isEncrypted":  false,
-                                           "Description":  "",
-                                           "Value":  "{\"a\":\"coolstuff\"}"
-                                       }
+
                   }
 }
