@@ -66,6 +66,6 @@ workflow Monitor-SourceControlChange
     }
 	#  Relaunch this monitor
 	Write-Verbose -Message "Reached end of monitor lifespan. Relaunching this monitor [$WorkflowCommandName]."
-	#$Launch = Start-SmaRunbook -Name $WorkflowCommandName `
-#							   -WebServiceEndpoint $WebServiceEndpoint
+	$Launch = Start-SmaRunbook -Name $WorkflowCommandName `
+     						   -WebServiceEndpoint $WebServiceEndpoint
 }
