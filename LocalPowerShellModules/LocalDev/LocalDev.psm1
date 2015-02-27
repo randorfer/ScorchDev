@@ -263,6 +263,11 @@ Function Set-LocalDevAutomationVariable
     {
         $SettingsVars.Add('Variables',@{}) | out-null
     }
+    
+    if($Value.GetType().Name -notin @('Int32','String','DateTime'))
+    {
+        $Value = ConvertTo-JSON $Value -Compress
+    }
 
     if($SettingsVars.Variables.GetType().name -eq 'PSCustomObject') { $SettingsVars.Variables = ConvertFrom-PSCustomObject $SettingsVars.Variables }
     if($SettingsVars.Variables.ContainsKey($Name))
@@ -326,12 +331,7 @@ Function Remove-LocalDevAutomationVariable
     {
         $Name = "$($Prefix)-$($Name)"
     }
-
-    if($Value.GetType().Name -notin @('Int32','String','DateTime'))
-    {
-        $Value = ConvertTo-JSON $Value
-    }
-
+    
     $SettingsVars = ConvertFrom-JSON -InputObject ((Get-Content -Path $SettingsFilePath) -as [String])
     if(-not $SettingsVars) { $SettingsVars = @{} }
     else
