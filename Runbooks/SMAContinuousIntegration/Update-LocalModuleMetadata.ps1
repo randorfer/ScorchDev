@@ -13,7 +13,7 @@ Workflow Update-LocalModuleMetadata
     {
         $commandNames = InlineScript
         {                
-            Import-Module -Name $using:ModuleName -WarningAction SilentlyContinue
+            Import-Module -Name $using:ModuleName -Force -WarningAction SilentlyContinue
             $commands = Get-Command -Module $using:ModuleName
 
             $commands.Name
