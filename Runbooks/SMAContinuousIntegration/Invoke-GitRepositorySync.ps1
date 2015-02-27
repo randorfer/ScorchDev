@@ -42,7 +42,7 @@ Workflow Invoke-GitRepositorySync
         } -PSComputerName $RunbookWorker -PSCredential $SMACred
 
         $RepositoryChange = ConvertFrom-JSON ( Find-GitRepositoryChange -RepositoryInformation $RepositoryInformation )
-        if($RepositoryChange.CurrentCommit -ne $RepositoryInformation.CurrentCommit)
+        if("$($RepositoryChange.CurrentCommit)" -ne "$($RepositoryInformation.CurrentCommit)")
         {
             Write-Verbose -Message "Processing [$($RepositoryInformation.CurrentCommit)..$($RepositoryInformation.CurrentCommit)]"
             
