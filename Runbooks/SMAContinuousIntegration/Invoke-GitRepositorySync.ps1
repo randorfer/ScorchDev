@@ -52,7 +52,6 @@ Workflow Invoke-GitRepositorySync
                                                                         -RepositoryInformation $RepositoryInformation)
             Foreach($RunbookFilePath in $ReturnInformation.ScriptFiles)
             {
-                Write-Verbose -Message "Starting to publish runbook [$RunbookFilePath] [$($RepositoryChange.CurrentCommit)] [$RepositoryName]"
                 Publish-SMARunbookChange -FilePath $RunbookFilePath `
                                          -CurrentCommit $RepositoryChange.CurrentCommit `
                                          -RepositoryName $RepositoryName
