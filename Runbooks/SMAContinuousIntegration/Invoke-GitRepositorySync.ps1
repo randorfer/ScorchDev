@@ -96,8 +96,6 @@ Workflow Invoke-GitRepositorySync
                                               -WebServiceEndpoint $CIVariables.WebserviceEndpoint `
                                               -Port $CIVariables.WebservicePort `
                                               -Credential $SMACred
-
-            Write-Verbose -Message "Updated Variable [$VariableUpdate]"
             
             Write-Verbose -Message "Finished Processing [$($RepositoryInformation.CurrentCommit)..$($RepositoryChange.CurrentCommit)]"
         }
