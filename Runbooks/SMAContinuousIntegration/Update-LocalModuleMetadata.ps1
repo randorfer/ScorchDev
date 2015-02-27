@@ -11,7 +11,17 @@ Workflow Update-LocalModuleMetadata
 
     try 
     {
-		Set-AutomationActivityMetadata -ModuleName $ModuleName -ModuleVersion 1 -ListOfCommands (Get-Command -Module $ModuleName).Name
+        $commandNames = InlineScript
+        {                
+            Import-Module -Name $using:ModuleName -WarningAction SilentlyContinue
+            $commands = Get-Command -Module $using:ModuleName
+
+            $commands.Name
+        }
+        $hashtable = @{}
+        $commandNames | ForEach-Object -Process { $hashtable.Add($_, "") }
+
+		Set-AutomationActivityMetadata -ModuleName $module.Name -ModuleVersion 1 -ListOfCommands $hashtable.Keys
 	} 
 	catch 
     {
