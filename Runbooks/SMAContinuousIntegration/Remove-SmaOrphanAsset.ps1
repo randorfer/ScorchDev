@@ -23,29 +23,13 @@ Workflow Remove-SmaOrphanAsset
 
     $RepositoryInformation = (ConvertFrom-JSON -InputObject $CIVariables.RepositoryInformation)."$RepositoryName"
 
-    $SmaVariables = ConvertTo-Hashtable -InputObject ( Get-SmaVariable -WebServiceEndpoint $CIVariables.WebserviceEndpoint `
+    $SmaVariables = Group-SmaAssetsByRepository -InputObject ( Get-SmaVariable -WebServiceEndpoint $CIVariables.WebserviceEndpoint `
                                                                        -Port $CIVariables.WebservicePort `
-                                                                       -Credential $SMACred ) `
-                                        -KeyName 'Description' `
-                                        -KeyFilterScript {
-                                                            Param($KeyName)
-                                                            if($KeyName -match 'RepositoryName:([^;]+);')
-                                                            {
-                                                                $Matches[1]
-                                                            }
-                                                         }
+                                                                       -Credential $SMACred )
 
-    $SmaSchedules = ConvertTo-Hashtable -InputObject ( Get-SmaSchedule -WebServiceEndpoint $CIVariables.WebserviceEndpoint `
+    $SmaSchedules = Group-SmaAssetsByRepository -InputObject ( Get-SmaSchedule -WebServiceEndpoint $CIVariables.WebserviceEndpoint `
                                                                        -Port $CIVariables.WebservicePort `
-                                                                       -Credential $SMACred ) `
-                                        -KeyName 'Description' `
-                                        -KeyFilterScript {
-                                                            Param($KeyName)
-                                                            if($KeyName -match 'RepositoryName:([^;]+);')
-                                                            {
-                                                                $Matches[1]
-                                                            }
-                                                         }
+                                                                       -Credential $SMACred )
 
     $RepositoryAssets = Get-GitRepositoryAssetName -Path "$($RepositoryInformation.Path)\$($RepositoryInformation.RunbookFolder)"
 

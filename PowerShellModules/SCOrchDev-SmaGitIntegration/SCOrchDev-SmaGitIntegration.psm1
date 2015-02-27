@@ -305,4 +305,40 @@ Function Group-RepositoryFile
     Write-Verbose -Message "Finished [Group-RepositoryFile]"
     Return (ConvertTo-JSON $ReturnObj)
 }
+<#
+    .Synopsis
+        Groups a list of SmaRunbooks by the RepositoryName from the
+        tag line
+#>
+Function Group-SmaRunbooksByRepository
+{
+    Param([Parameter(Mandatory=$True)] $InputObject)
+    ConvertTo-Hashtable -InputObject $SmaRunbook `
+                        -KeyName 'Tags' `
+                        -KeyFilterScript { 
+                            Param($KeyName)
+                            if($KeyName -match 'RepositoryName:([^;]+);')
+                            {
+                                $Matches[1]
+                            }
+                        }
+}
+<#
+    .Synopsis
+        Groups a list of SmaRunbooks by the RepositoryName from the
+        tag line
+#>
+Function Group-SmaAssetsByRepository
+{
+    Param([Parameter(Mandatory=$True)] $InputObject)
+    ConvertTo-Hashtable -InputObject $SmaRunbook `
+                        -KeyName 'Description' `
+                        -KeyFilterScript { 
+                            Param($KeyName)
+                            if($KeyName -match 'RepositoryName:([^;]+);')
+                            {
+                                $Matches[1]
+                            }
+                        }
+}
 Export-ModuleMember -Function * -Verbose:$false -Debug:$False
