@@ -89,9 +89,9 @@ Workflow Invoke-GitRepositorySync
                 } -PSComputerName $RunbookWorker -PSCredential $SMACred
                 Checkpoint-Workflow
             }
-            $UpdatedRepositoryInformation = Set-SmaRepositoryInformationCommitVersion -RepositoryInformation $CIVariables.RepositoryInformation `
+            $UpdatedRepositoryInformation = (Set-SmaRepositoryInformationCommitVersion -RepositoryInformation $CIVariables.RepositoryInformation `
                                                                                       -RepositoryName $RepositoryName `
-                                                                                      -Commit $RepositoryChange.CurrentCommit
+                                                                                      -Commit $RepositoryChange.CurrentCommit) -as [string]
             $VariableUpdate = Set-SmaVariable -Name 'SMAContinuousIntegration-RepositoryInformation' `
                                               -Value $UpdatedRepositoryInformation `
                                               -WebServiceEndpoint $CIVariables.WebserviceEndpoint `
