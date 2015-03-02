@@ -33,7 +33,6 @@ Workflow Remove-SmaOrphanAsset
                                     -Credential $SMACred
     if($SmaSchedules) { $SmaScheduleTable = Group-SmaAssetsByRepository -InputObject $SmaSchedules }
 
-    # TODO: If this is null we won't clean up
     $RepositoryAssets = Get-GitRepositoryAssetName -Path "$($RepositoryInformation.Path)\$($RepositoryInformation.RunbookFolder)"
 
     if($SmaVariableTable."$RepositoryName")
