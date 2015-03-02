@@ -418,4 +418,46 @@ Function Get-SmaRunbookWorkerJob
                     -parameters $Parameters `
                     -connectionString "Data Source=$SqlServer;Initial Catalog=SMA;Integrated Security=True;"
 }
+<#
+    .Synopsis
+        Starts a SMA runbook. Uses invoke-restmethod instead of Start-SMARunbook.
+    
+    .Parameter RunbookId
+        The GUID of the runbook to start
+
+    .Parameter WebserviceEndpoint
+        The url for the SMA webservice
+
+    .Parameter WebservicePort
+        The port that the SMA webservice is running on.
+
+    .Parameter TenantID
+        The ID of the target tenant
+
+    .Parameter Credential
+        A credential object to use for the request. If not passed this method will use
+        the default credential
+#>
+Function Start-SmaRunbookREST
+{
+    Param([Parameter(Mandatory=$True)] [string]  $RunbookId,
+          [Parameter(Mandatory=$False)]          $Parameters = $null,
+          [Parameter(Mandatory=$False)][string]  $WebserviceEndpoint = 'https://localhost',
+          [Parameter(Mandatory=$False)][string]  $WebservicePort = '9090',
+          [Parameter(Mandatory=$False)][string]  $TenantID = '00000000-0000-0000-0000-000000000000',
+          [Parameter(Mandatory=$False)][pscredential] $Credential)
+    
+    $null = $(
+        $RestMethodParameters  = @{ 'URI' = "$($WebserviceEndpoint):$($WebservicePort)/$($TenantID)/Runbooks(guid'$($RunbookId)')/Start" ;
+                                    'Body' =  ConvertTo-JSON @{'Parameters' = $Parameters} ;
+                                    'Method' = 'Post'
+                                    'ContentType' = 'application/json;odata=verbose' }
+                                    
+        if($Credential) { $RestMethodParameters.Add('Credential',$Credential) }
+        else { $RestMethodParameters.Add('UseDefaultCredentials', $True) }
+
+        $Result = Invoke-RestMethod @RestMethodParameters
+    )
+    return $Result
+}
 Export-ModuleMember -Function * -Verbose:$false -Debug:$False
