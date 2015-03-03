@@ -206,8 +206,10 @@ Function Start-SmaRunbookSync
         }
         
         $SerializedOutput = (Get-SmaJobOutput -Id $jobId -WebServiceEndpoint $WebserviceEndpoint -Stream Output -Credential $Credential)
-        $jobOutput = [System.Management.Automation.PSSerializer]::Deserialize($SerializedOutput.StreamText)
-        if(Test-IsNullOrEmpty $jobOutput) { $jobOutput = $jobOutput.StreamText.Trim() }
+        if($SerializedOutput)
+        {
+            $jobOutput = ($SerializedOutput.StreamText -as [string]).Trim()
+        }
     )
     return $jobOutput
 }
