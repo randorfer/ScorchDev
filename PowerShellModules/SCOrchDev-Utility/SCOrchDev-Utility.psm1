@@ -452,4 +452,84 @@ Function Add-PSEnvironmentPathLocation
         [Environment]::SetEnvironmentVariable( "PSModulePath", "$CurrentPSModulePath;$Path", [System.EnvironmentVariableTarget]::Machine )
     }
 }
+<#
+    .SYNOPSIS
+        Enables PowerShell Remoting on a remote computer. Requires that the machine
+        responds to WMI requests, and that its operating system is Windows Vista or
+        later.
+
+        Adapted from http://www.davidaiken.com/2011/01/12/enable-powershell-remoting-on-windows-azure/
+          From Windows PowerShell Cookbook (O'Reilly)
+          by Lee Holmes (http://www.leeholmes.com/guide)
+          
+    .EXAMPLE
+        Enable-RemotePsRemoting -ComputerName <Computer> -Credential <Credential>
+
+
+#>
+Function Enable-RemotePsRemoting
+{
+    param( [Parameter(Mandatory=$True)][String] $Computername,
+           [Parameter(Mandatory=$True)][PSCredential]$Credential )
+
+    Set-StrictMode -Version Latest
+    $VerbosePreference = [System.Management.Automation.ActionPreference]::Continue
+
+    $username = $credential.Username
+    $password = $credential.GetNetworkCredential().Password
+    $script = @"
+`$log = Join-Path `$env:TEMP Enable-RemotePsRemoting.output.txt
+Remove-Item -Force `$log -ErrorAction SilentlyContinue
+Start-Transcript -Path `$log
+
+## Create a task that will run with full network privileges.
+## In this task, we call Enable-PsRemoting
+
+schtasks /CREATE /TN 'Enable Remoting' /SC WEEKLY /RL HIGHEST ``
+         /RU $username /RP $password ``
+         /TR "powershell -noprofile -command Enable-PsRemoting -Force" /F |
+         Out-String
+
+schtasks /RUN /TN 'Enable Remoting' | Out-String
+`$securePass = ConvertTo-SecureString $password -AsPlainText -Force
+`$credential = New-Object Management.Automation.PsCredential $username,`$securepass
+
+## Wait for the remoting changes to come into effect
+for(`$count = 1; `$count -le 10; `$count++)
+{
+    `$output = Invoke-Command localhost { 1 } -Cred `$credential ``
+                              -ErrorAction SilentlyContinue
+    if(`$output -eq 1) { break; }
+
+    "Attempt `$count : Not ready yet."
+    Sleep 5
+}
+
+## Delete the temporary task
+schtasks /DELETE /TN 'Enable Remoting' /F | Out-String
+Stop-Transcript
+"@
+
+    $commandBytes = [System.Text.Encoding]::Unicode.GetBytes($script)
+    $encoded = [Convert]::ToBase64String($commandBytes)
+
+    Write-Verbose "Configuring $computername"
+    $command = "powershell -NoProfile -EncodedCommand $encoded"
+    $null = Invoke-WmiMethod -Computer $computername -Credential $credential `
+    Win32_Process Create -Args $command
+    Write-Verbose "Testing connection"
+    try 
+    { 
+        $output = Invoke-Command $computername { Get-WmiObject Win32_ComputerSystem } -Credential $credential
+        Write-Verbose -Message 'Success'
+    }
+    catch
+    {
+        Throw-Exception -Type 'FailedToConfigurePSRemoting' `
+                        -Message 'Failed to configure PS remoting on the target box' `
+                        -Property @{ 'ComputerName' = $Computername ;
+                                     'Credential' = $Credential.UserName ;
+                                     'ErrorMessage' = Convert-ExceptionToString -Exception $_ }
+    }
+}
 Export-ModuleMember -Function * -Verbose:$false -Debug:$false
