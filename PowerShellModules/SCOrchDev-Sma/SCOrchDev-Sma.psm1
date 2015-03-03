@@ -448,11 +448,22 @@ Function Start-SmaRunbookREST
           [Parameter(Mandatory=$False)][pscredential] $Credential)
     
     $null = $(
-        $RestMethodParameters  = @{ 'URI' = "$($WebserviceEndpoint):$($WebservicePort)/$($TenantID)/Runbooks(guid'$($RunbookId)')/Start" ;
-                                    'Body' =  ConvertTo-JSON @{'Parameters' = $Parameters} ;
+        $RestMethodParameters = @{ 'URI' = "$($WebserviceEndpoint):$($WebservicePort)/$($TenantID)/Runbooks(guid'$($RunbookId)')/Start" ;
                                     'Method' = 'Post'
                                     'ContentType' = 'application/json;odata=verbose' }
-                                    
+        if(-not $Parameters) { $_Parameters = @{ 'Parameters' = $null } }
+        else
+        {
+            $_Parameters = @{'Parameters' = @()}
+            foreach($key in $Parameters.Keys)
+            {
+                $Parameter = @{'__metadata' = @{ 'type' = 'Orchestrator.ResourceModel.NameValuePair' } ;
+                               'name' = $key ;
+                               'value' = $Parameters."$key" }
+                $_Parameters.Parameters += ($Parameter)
+            }
+        }
+        $RestMethodParameters.Add('Body', (ConvertTo-Json -Depth 3 -InputObject $_Parameters))                      
         if($Credential) { $RestMethodParameters.Add('Credential',$Credential) }
         else { $RestMethodParameters.Add('UseDefaultCredentials', $True) }
 
