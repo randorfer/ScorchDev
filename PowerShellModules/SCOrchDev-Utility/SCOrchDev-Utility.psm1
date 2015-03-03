@@ -518,18 +518,33 @@ Stop-Transcript
     $null = Invoke-WmiMethod -Computer $computername -Credential $credential `
     Win32_Process Create -Args $command
     Write-Verbose "Testing connection"
-    try 
-    { 
-        $output = Invoke-Command $computername { Get-WmiObject Win32_ComputerSystem } -Credential $credential
-        Write-Verbose -Message 'Success'
-    }
-    catch
+
+    $attempts = 0
+    do
     {
-        Throw-Exception -Type 'FailedToConfigurePSRemoting' `
-                        -Message 'Failed to configure PS remoting on the target box' `
-                        -Property @{ 'ComputerName' = $Computername ;
-                                     'Credential' = $Credential.UserName ;
-                                     'ErrorMessage' = Convert-ExceptionToString -Exception $_ }
-    }
+        try 
+        {
+            $output = Invoke-Command $computername { Get-WmiObject Win32_ComputerSystem } -Credential $credential
+            $status = 'Success'
+        }
+        catch
+        {
+            if($attempts -ge 10)
+            {
+                Throw-Exception -Type 'FailedToConfigurePSRemoting' `
+                                -Message 'Failed to configure PS remoting on the target box' `
+                                -Property @{ 'ComputerName' = $Computername ;
+                                             'Credential' = $Credential.UserName ;
+                                             'ErrorMessage' = Convert-ExceptionToString -Exception $_ }
+            }
+            else
+            {
+                Write-Verbose -Message 'Not yet configured'
+                $attempts = $attempts + 1
+                sleep -Seconds 5
+            }
+        }
+    } while($status -ne 'Success')
+    Write-Verbose -Message 'Success'
 }
 Export-ModuleMember -Function * -Verbose:$false -Debug:$false
