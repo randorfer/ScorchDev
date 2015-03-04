@@ -71,8 +71,9 @@ Function New-SmaChangesetTagLine
         $TagLine = "RepositoryName:$($RepositoryName);$($TagLine)"
         $NewVersion = $True
     }
-    return ConvertTo-JSON @{'TagLine' = $TagLine ;
-                            'NewVersion' = $NewVersion }
+    return (ConvertTo-JSON -InputObject @{'TagLine' = $TagLine ;
+                                          'NewVersion' = $NewVersion } `
+                           -Compress)
 }
 <#
     .Synopsis
@@ -131,7 +132,7 @@ Function Get-SmaGlobalFromFile
         Write-Exception -Exception $_ -Stream Warning
     }
 
-    return (ConvertTo-JSON $ReturnInformation)
+    return (ConvertTo-JSON $ReturnInformation -Compress)
 }
 <#
     .Synopsis
@@ -156,7 +157,7 @@ Function Set-SmaRepositoryInformationCommitVersion
     $_RepositoryInformation = (ConvertFrom-JSON $RepositoryInformation)
     $_RepositoryInformation."$RepositoryName".CurrentCommit = $Commit
 
-    return (ConvertTo-Json $_RepositoryInformation)
+    return (ConvertTo-Json $_RepositoryInformation -Compress)
 }
 Function Get-GitRepositoryWorkflowName
 {
@@ -328,7 +329,7 @@ Function Group-RepositoryFile
         Write-Verbose -Message "No Powershell Module Files found"
     }
     Write-Verbose -Message "Finished [Group-RepositoryFile]"
-    Return (ConvertTo-JSON $ReturnObj)
+    Return (ConvertTo-JSON $ReturnObj -Compress)
 }
 <#
     .Synopsis
