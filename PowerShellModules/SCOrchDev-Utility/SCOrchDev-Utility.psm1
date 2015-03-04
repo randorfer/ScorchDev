@@ -543,6 +543,7 @@ Stop-Transcript
                 $attempts = $attempts + 1
                 sleep -Seconds 5
             }
+            $status = 'Failure'
         }
     } while($status -ne 'Success')
     Write-Verbose -Message 'Success'
