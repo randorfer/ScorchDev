@@ -12,7 +12,7 @@
 RootModule = '.\SCOrchDev-SmaGitIntegration.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.0.0'
+ModuleVersion = '1.0.1'
 
 # ID used to uniquely identify this module
 GUID = '41dffffe-32f0-42e5-a5b0-43eac3336fca'
