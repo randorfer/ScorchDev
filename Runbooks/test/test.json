@@ -1,0 +1,9 @@
+{
+    "Variables":  {
+                      "test-a":  {
+                                     "isEncrypted":  false,
+                                     "Description":  "",
+                                     "Value":  "b"
+                                 }
+                  }
+}
