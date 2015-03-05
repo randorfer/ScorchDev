@@ -67,7 +67,8 @@ Workflow Invoke-GitRepositorySync
             }
             foreach($Module in $ReturnInformation.ModuleFiles)
             {
-                $PowerShellModuleInformation = Import-SmaPowerShellModule -ModuleName $Module `
+                $ModuleName = (Test-ModuleManifest -Path $Module).Name
+                $PowerShellModuleInformation = Import-SmaPowerShellModule -ModuleName $ModuleName `
                                                                           -WebserviceEndpoint $CIVariables.WebserviceEndpoint `
                                                                           -WebservicePort $CIVariables.WebservicePort `
                                                                           -Credential $SMACred
