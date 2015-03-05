@@ -28,7 +28,7 @@ Workflow Publish-SMASettingsFileChange
 
     Try
     {
-        $Variables = ConvertFrom-PSCustomObject (ConvertFrom-JSON (Get-SmaVariablesFromFile -FilePath $FilePath))
+        $Variables = ConvertFrom-PSCustomObject (ConvertFrom-JSON (Get-SmaGlobalFromFile -FilePath $FilePath -GlobalType Variables))
         foreach($VariableName in $Variables.Keys)
         {
             Write-Verbose -Message "[$VariableName] Updating"
@@ -84,7 +84,7 @@ Workflow Publish-SMASettingsFileChange
             Write-Verbose -Message "[$($VariableName)] Finished Updating"
         }
 
-        $Schedules = ConvertFrom-PSCustomObject ( ConvertFrom-JSON (Get-SmaSchedulesFromFile -FilePath $FilePath) )
+        $Schedules = ConvertFrom-PSCustomObject (ConvertFrom-JSON (Get-SmaGlobalFromFile -FilePath $FilePath -GlobalType Schedules))
         foreach($ScheduleName in $Schedules.Keys)
         {
             Write-Verbose -Message "[$ScheduleName] Updating"
