@@ -521,4 +521,47 @@ Function Get-SmaModuleREST
     )
     return $outputArray
 }
+<#
+    .Synopsis
+        Imports a PowerShell module into SMA. Module must be deployed locally
+        and a part of the PSModulePath
+    
+    .Parameter ModuleName
+        The name of the module
+
+    .Parameter WebservicePort
+        The port that the SMA webservice is running on.
+
+    .Parameter Credential
+        A credential object to use for the request. If not passed this method will use
+        the default credential
+#>
+Function Import-SmaPowerShellModule
+{
+    Param([Parameter(Mandatory=$True) ][string]  $ModuleName,
+          [Parameter(Mandatory=$False)][string]  $WebserviceEndpoint = 'https://localhost',
+          [Parameter(Mandatory=$False)][string]  $WebservicePort = '9090',
+          [Parameter(Mandatory=$False)][pscredential] $Credential)
+    
+    $Module = Get-Module -ListAvailable -Name $ModuleName -Refresh
+    $ModuleFolderPath = (Get-Item -Path $Module.Path).Directory.FullName
+
+    $TempDirectory = New-TempDirectory
+    try
+    {
+        $ZipFile = "$TempDirectory\$($ModuleName).zip"
+        New-ZipFile -SourceDir $ModuleFolderPath `
+                    -ZipFilePath $ZipFile `
+                    -OverwriteExisting $True
+        Import-SmaModule -Path $ZipFile `
+                         -WebServiceEndpoint $WebserviceEndpoint `
+                         -Port $WebservicePort `
+                         -Credential $Credential
+    }
+    finally
+    {
+        Remove-Item $TempDirectory -Force -Recurse
+    }
+}
+
 Export-ModuleMember -Function * -Verbose:$false -Debug:$False
