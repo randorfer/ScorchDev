@@ -1,9 +1,0 @@
-{
-    "Variables":  {
-                      "test-temp123":  {
-                                           "isEncrypted":  false,
-                                           "Description":  "",
-                                           "Value":  1
-                                       }
-                  }
-}
