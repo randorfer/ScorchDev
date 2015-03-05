@@ -1,6 +1,6 @@
 ﻿<#
     .Synopsis
-        Foo Bar
+        Foo Bar!
 #>
 Function foo
 {
