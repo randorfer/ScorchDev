@@ -67,11 +67,12 @@ Workflow Invoke-GitRepositorySync
             }
             foreach($Module in $ReturnInformation.ModuleFiles)
             {
-                Import-SmaPowerShellModule -ModuleName $Module `
-                                           -WebserviceEndpoint $CIVariables.WebserviceEndpoint `
-                                           -WebservicePort $CIVariables.WebservicePort `
-                                           -Credential $SMACred
-                Update-LocalModuleMetadata -ModuleName $Module
+                $PowerShellModuleInformation = Import-SmaPowerShellModule -ModuleName $Module `
+                                                                          -WebserviceEndpoint $CIVariables.WebserviceEndpoint `
+                                                                          -WebservicePort $CIVariables.WebservicePort `
+                                                                          -Credential $SMACred
+                SetAutomationModuleActivityMetadata -ModuleName $PowerShellModuleInformation.ModuleName `
+                                                    -ModuleVersion $PowerShellModuleInformation.Version
                 Checkpoint-Workflow
             }
             
