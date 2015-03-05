@@ -87,6 +87,17 @@ Workflow Invoke-GitRepositorySync
                 Remove-SmaOrphanAsset -RepositoryName $RepositoryName
                 Checkpoint-Workflow
             }
+            <#
+            TODO: Implement Clean PowerShell modules
+                  how do we determine what modules to remove?
+                    Check everything is PSModulePath and remove anything not there from
+                    SMA?
+            if($ReturnInformation.CleanModules)
+            {
+                Remove-SmaOrphanModule -RepositoryName $RepositoryName
+                Checkpoint-Workflow
+            }
+            #>
             if($ReturnInformation.ModuleFiles)
             {
                 $RepositoryModulePath = "$($RepositoryInformation.Path)\$($RepositoryInformation.PowerShellModuleFolder)"
