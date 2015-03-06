@@ -34,10 +34,14 @@ Workflow Remove-SmaOrphanModule
             if($Difference.SideIndicator -eq '<=')
             {
                 Write-Verbose -Message "[$($Difference.InputObject)] Does not exist in Source Control"
+                <#
+                TODO: Investigate / Test before uncommenting. Potential to brick an environment
+
                 Remove-SmaModule -Name $Difference.InputObject `
                                  -WebServiceEndpoint $CIVariables.WebserviceEndpoint `
                                  -Port $CIVariables.WebservicePort `
                                  -Credential $SMACred
+                #>
                 Write-Verbose -Message "[$($Difference.InputObject)] Removed from SMA"
             }
         }
