@@ -241,6 +241,7 @@ Function Group-RepositoryFile
                     'ModuleFiles' = @() ;
                     'CleanRunbooks' = $False ;
                     'CleanAssets' = $False ;
+                    'CleanModules' = $False ;
                     'ModulesUpdated' = $False }
 
     # Process PS1 Files
@@ -321,7 +322,10 @@ Function Group-RepositoryFile
                     }
                 }
             }
-            if($ReturnObj.UpdatePSModules) { break }
+            else
+            {
+                $ReturnObj.CleanModules = $True
+            }
         }
     }
     catch
