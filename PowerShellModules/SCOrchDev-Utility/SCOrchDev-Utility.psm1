@@ -548,4 +548,27 @@ Stop-Transcript
     } while($status -ne 'Success')
     Write-Verbose -Message 'Success'
 }
+<#
+    .Synopsis
+        Takes a passed item path and creates the container if it does not already exist
+    
+    .Parameter FileItemPath
+        The path to the file who's container object will be created if it does not already exist
+#>
+Function New-FileItemContainer
+{
+    Param([Parameter(Mandatory=$True)] $FileItemPath)
+    
+    $ContainerPath = $FileItemPath -replace '[^\\]+$',''
+    if(-Not (Test-Path -Path $ContainerPath))
+    {
+        Write-Verbose -Message 'Creating Directory'
+        New-Item -ItemType Directory $ContainerPath
+    }
+    else
+    {
+        Write-Verbose -Message 'Directory Existed'
+        Get-Item $ContainerPath
+    }
+}
 Export-ModuleMember -Function * -Verbose:$false -Debug:$false

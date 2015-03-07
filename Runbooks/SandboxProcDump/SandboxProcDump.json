@@ -1,29 +1,34 @@
-﻿{
+{
     "Variables":  {
                       "SandboxProcDump-AccessCredName":  {
                                                              "isEncrypted":  false,
                                                              "Description":  "",
                                                              "Value":  "SCORCHDev\\SMA"
                                                          },
-                      "SandboxProcDump-DumpPath":  {
-                                                       "isEncrypted":  false,
-                                                       "Description":  "",
-                                                       "Value":  "c:\\procDumps"
-                                                   },
-                      "SandboxProcDump-ProcDumpExePath":  {
-                                                              "isEncrypted":  false,
-                                                              "Description":  "",
-                                                              "Value":  "c:\\ProcDump\\procdump.exe"
-                                                          },
+                      "SandboxProcDump-ProcDumpDownloadPath":  {
+                                                                   "isEncrypted":  false,
+                                                                   "Description":  "",
+                                                                   "Value":  "http://live.sysinternals.com/tools/procdump.exe"
+                                                               },
+                      "SandboxProcDump-WebServicePort":  {
+                                                             "isEncrypted":  false,
+                                                             "Description":  "",
+                                                             "Value":  9090
+                                                         },
                       "SandboxProcDump-WebServiceEndpoint":  {
                                                                  "isEncrypted":  false,
                                                                  "Description":  "",
                                                                  "Value":  "https://scorchsma01.scorchdev.com"
                                                              },
-                      "SandboxProcDump-WebServicePort":  {
-                                                             "isEncrypted":  false,
-                                                             "Description":  "",
-                                                             "Value":  9090
-                                                         }
+                      "SandboxProcDump-ProcDumpExePath":  {
+                                                              "isEncrypted":  false,
+                                                              "Description":  "",
+                                                              "Value":  "c:\\ProcDump\\procdump.exe"
+                                                          },
+                      "SandboxProcDump-DumpPath":  {
+                                                       "isEncrypted":  false,
+                                                       "Description":  "",
+                                                       "Value":  "c:\\procDumps"
+                                                   }
                   }
 }
