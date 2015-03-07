@@ -11,9 +11,6 @@
 
     .Parameter AccessCred
         The pscredential to use when connecting to the runbook worker
-
-    .Return
-        Returns either 'Healthy' or 'Unhealthy'
 #>
 
 Workflow Test-SmaRunbookWorker
