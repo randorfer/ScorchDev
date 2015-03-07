@@ -59,11 +59,11 @@ Workflow Invoke-RemoteProcDump
     inlinescript
     {
         $ErrorActionPreference = [System.Management.Automation.ActionPreference]::Continue
-		& {
-			$null = $(
-				$DebugPreference       = [System.Management.Automation.ActionPreference]$Using:DebugPreference
-				$VerbosePreference     = [System.Management.Automation.ActionPreference]$Using:VerbosePreference
-				$ErrorActionPreference = [System.Management.Automation.ActionPreference]::Stop
+        & {
+            $null = $(
+                $DebugPreference       = [System.Management.Automation.ActionPreference]$Using:DebugPreference
+                $VerbosePreference     = [System.Management.Automation.ActionPreference]$Using:VerbosePreference
+                $ErrorActionPreference = [System.Management.Automation.ActionPreference]::Stop
 
                 $RemoteProcDumpVars = $Using:RemoteProcDumpVars
                 $DumpPath           = $Using:DumpPath
