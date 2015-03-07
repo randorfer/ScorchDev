@@ -1,0 +1,44 @@
+{
+    "Variables":  {
+                      "SmaRunbookWorker-WebserviceEndpoint":  {
+                                                                  "isEncrypted":  false,
+                                                                  "Description":  "",
+                                                                  "Value":  "https://scorchsma01.scorchdev.com"
+                                                              },
+                      "SmaRunbookWorker-WebServicePort":  {
+                                                              "isEncrypted":  false,
+                                                              "Description":  "",
+                                                              "Value":  9090
+                                                          },
+                      "SmaRunbookWorker-MinimumPercentFreeMemory":  {
+                                                                        "isEncrypted":  false,
+                                                                        "Description":  "",
+                                                                        "Value":  5
+                                                                    },
+                      "SmaRunbookWorker-MinimumProcDumpPerDay":  {
+                                                                     "isEncrypted":  false,
+                                                                     "Description":  "",
+                                                                     "Value":  1
+                                                                 },
+                      "SmaRunbookWorker-AccessCredName":  {
+                                                              "isEncrypted":  false,
+                                                              "Description":  "",
+                                                              "Value":  "SCORCHDev\\SMA"
+                                                          },
+                      "SmaRunbookWorker-ProcessesToDumpJSON":  {
+                                                                   "isEncrypted":  false,
+                                                                   "Description":  "",
+                                                                   "Value":  "\"Orchestrator.Sandbox\""
+                                                               },
+                      "SmaRunbookWorker-ProcDumpPath":  {
+                                                            "isEncrypted":  false,
+                                                            "Description":  "",
+                                                            "Value":  "c:\\ProcDumpOutput"
+                                                        },
+                      "SmaRunbookWorker-DaysToKeepProcDump":  {
+                                                                  "isEncrypted":  false,
+                                                                  "Description":  "",
+                                                                  "Value":  1
+                                                              }
+                  }
+}
