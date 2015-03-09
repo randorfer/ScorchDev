@@ -36,13 +36,11 @@ Workflow Test-SmaRunbookWorker
                 Write-Verbose "[$($Env:ComputerName)] % Free Memory [$($CurrentPercentFreeMemory)%]"
                 if($CurrentPercentFreeMemory -le $MinimumPercentFreeMemory)
                 {
-                    Write-Warning -Message "[$($Env:ComputerName)] % Free Memory [$($CurrentPercentFreeMemory)%]"
                     Write-Warning -Message "[$($Env:ComputerName)] is below free memory threshold of [$($MinimumPercentFreeMemory)%]"
                     $ReturnStatus = 'Unhealthy'
                 }
                 else
                 {
-                    Write-Verbose "[$($Env:ComputerName)] % Free Memory [$($CurrentPercentFreeMemory)%]"
                     Write-Verbose -Message "[$($Env:ComputerName)] is above free memory threshold of [$($MinimumPercentFreeMemory)%]"
                     $ReturnStatus = 'Healthy'
                 }
