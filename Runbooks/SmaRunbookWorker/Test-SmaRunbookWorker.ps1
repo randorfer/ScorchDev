@@ -19,6 +19,9 @@ Workflow Test-SmaRunbookWorker
           [Parameter(Mandatory=$False)][int]          $MinimumPercentFreeMemory = 5,
           [Parameter(Mandatory=$True) ][pscredential] $AccessCred)
 
+    $SmaRunbookWorkerVars = Get-BatchAutomationVariable -Name @('MinimumPercentFreeMemory') `
+                                                        -Prefix 'SmaRunbookWorker'
+
     InlineScript
     {
         $ErrorActionPreference = [System.Management.Automation.ActionPreference]::Continue
@@ -28,20 +31,20 @@ Workflow Test-SmaRunbookWorker
                 $VerbosePreference     = [System.Management.Automation.ActionPreference]$Using:VerbosePreference
                 $ErrorActionPreference = [System.Management.Automation.ActionPreference]::Stop
 
-                $MinimumPercentFreeMemory = $Using:MinimumPercentFreeMemory
+                $SmaRunbookWorkerVars = $Using:SmaRunbookWorkerVars
 
                 $Win32OperatingSystem = Get-WmiObject -Class win32_OperatingSystem
                 $CurrentPercentFreeMemory = [int](($Win32OperatingSystem.FreePhysicalMemory / $Win32OperatingSystem.TotalVisibleMemorySize) * 100)
 
                 Write-Verbose "[$($Env:ComputerName)] % Free Memory [$($CurrentPercentFreeMemory)%]"
-                if($CurrentPercentFreeMemory -le $MinimumPercentFreeMemory)
+                if($CurrentPercentFreeMemory -le $SmaRunbookWorkerVars.$MinimumPercentFreeMemory)
                 {
-                    Write-Warning -Message "[$($Env:ComputerName)] is below free memory threshold of [$($MinimumPercentFreeMemory)%]"
+                    Write-Warning -Message "[$($Env:ComputerName)] is below free memory threshold of [$($SmaRunbookWorkerVars.MinimumPercentFreeMemory)%]"
                     $ReturnStatus = 'Unhealthy'
                 }
                 else
                 {
-                    Write-Verbose -Message "[$($Env:ComputerName)] is above free memory threshold of [$($MinimumPercentFreeMemory)%]"
+                    Write-Verbose -Message "[$($Env:ComputerName)] is above free memory threshold of [$($SmaRunbookWorkerVars.MinimumPercentFreeMemory)%]"
                     $ReturnStatus = 'Healthy'
                 }
             )
