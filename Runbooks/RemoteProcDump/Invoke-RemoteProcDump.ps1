@@ -26,6 +26,9 @@
     invoke the remoting to the computer passed in the ComputerName property. If not passed
     the default user name specified in RemoteProcDump-AccessCredName will be used.
 
+.Parameter AuthenticationMechanism
+    The Authentication mechanism for PS Remoting. Default is Default.
+
 .Example
     Workflow Test-InvokeRemoteProcDump
     {
@@ -41,10 +44,25 @@
 #>
 Workflow Invoke-RemoteProcDump
 {
-    Param([Parameter(Mandatory = $True) ][String] $ComputerName,
-          [Parameter(Mandatory = $True) ][String] $DumpPath,
-          [Parameter(Mandatory = $True) ][String] $ProcessList,
-          [Parameter(Mandatory = $False)][String] $AccessCredName)
+    Param([Parameter(Mandatory = $True) ]
+          [String]
+          $ComputerName,
+          
+          [Parameter(Mandatory = $True) ]
+          [String] 
+          $DumpPath,
+          
+          [Parameter(Mandatory = $True)]
+          [String]
+          $ProcessList,
+          
+          [Parameter(Mandatory = $False)]
+          [String]
+          $AccessCredName,
+          
+          [Parameter(Mandatory = $False)]
+          [ValidateSet('Basic','CredSSP','Default','Digest','Kerberos','Negotiate','NegotiateWithImplicitCredential')]
+          $AuthenticationMechanism = 'Default')
 
     Write-Verbose -Message "Starting [$WorkflowCommandName]"
     $ErrorActionPreference = [System.Management.Automation.ActionPreference]::Stop
@@ -55,7 +73,7 @@ Workflow Invoke-RemoteProcDump
                                                       -Prefix 'RemoteProcDump'
     
     $AccessCred = Get-AutomationPSCredential -Name (Select-FirstValid -Value @($AccessCredName, 
-    $RemoteProcDumpVars.AccessCredName))
+                                                                               $RemoteProcDumpVars.AccessCredName))
     inlinescript
     {
         $ErrorActionPreference = [System.Management.Automation.ActionPreference]::Continue
@@ -103,7 +121,30 @@ Workflow Invoke-RemoteProcDump
                 }
             )
         }
-    } -PSComputerName $ComputerName -PSCredential $AccessCred -PSAuthentication CredSSP
+    } -PSComputerName $ComputerName -PSCredential $AccessCred -PSAuthentication $AuthenticationMechanism
 
     Write-Verbose -Message "Finished [$WorkflowCommandName]"
 }
+# SIG # Begin signature block
+# MIID1QYJKoZIhvcNAQcCoIIDxjCCA8ICAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
+# gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUfnBqGwcUOUlHnwEQ17EAdG98
+# R5egggH3MIIB8zCCAVygAwIBAgIQEdV66iePd65C1wmJ28XdGTANBgkqhkiG9w0B
+# AQUFADAUMRIwEAYDVQQDDAlTQ09yY2hEZXYwHhcNMTUwMzA5MTQxOTIxWhcNMTkw
+# MzA5MDAwMDAwWjAUMRIwEAYDVQQDDAlTQ09yY2hEZXYwgZ8wDQYJKoZIhvcNAQEB
+# BQADgY0AMIGJAoGBANbZ1OGvnyPKFcCw7nDfRgAxgMXt4YPxpX/3rNVR9++v9rAi
+# pY8Btj4pW9uavnDgHdBckD6HBmFCLA90TefpKYWarmlwHHMZsNKiCqiNvazhBm6T
+# XyB9oyPVXLDSdid4Bcp9Z6fZIjqyHpDV2vas11hMdURzyMJZj+ibqBWc3dAZAgMB
+# AAGjRjBEMBMGA1UdJQQMMAoGCCsGAQUFBwMDMB0GA1UdDgQWBBQ75WLz6WgzJ8GD
+# ty2pMj8+MRAFTTAOBgNVHQ8BAf8EBAMCB4AwDQYJKoZIhvcNAQEFBQADgYEAoK7K
+# SmNLQ++VkzdvS8Vp5JcpUi0GsfEX2AGWZ/NTxnMpyYmwEkzxAveH1jVHgk7zqglS
+# OfwX2eiu0gvxz3mz9Vh55XuVJbODMfxYXuwjMjBV89jL0vE/YgbRAcU05HaWQu2z
+# nkvaq1yD5SJIRBooP7KkC/zCfCWRTnXKWVTw7hwxggFIMIIBRAIBATAoMBQxEjAQ
+# BgNVBAMMCVNDT3JjaERldgIQEdV66iePd65C1wmJ28XdGTAJBgUrDgMCGgUAoHgw
+# GAYKKwYBBAGCNwIBDDEKMAigAoAAoQKAADAZBgkqhkiG9w0BCQMxDAYKKwYBBAGC
+# NwIBBDAcBgorBgEEAYI3AgELMQ4wDAYKKwYBBAGCNwIBFTAjBgkqhkiG9w0BCQQx
+# FgQU94SJ7of9LNZMuIY9J5/F07Fu5v0wDQYJKoZIhvcNAQEBBQAEgYCsbJEcphUF
+# xH3jWur1uWvt+TsNQ+uWrB34uQd+JA6LglnowBSESbDxnW7Uir1cCpMagL/yJSxd
+# MqreW4LqmNzYyKIRkvqpKLlmRPRKn4Ca1E74nDgA5X3FO1B17UIqdKFpaZ63+tM8
+# DK5WtAJVlv3LCePvcl+LLiiTOu2pUGPk7A==
+# SIG # End signature block
