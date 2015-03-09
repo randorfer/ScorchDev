@@ -1,61 +1,61 @@
 ﻿<#
-    .Synopsis
-        Starts Procdump on a target machine.
+.Synopsis
+    Starts Procdump on a target machine.
     
-    .Description
-        Invokes proc dump on a target machine and creates dumps to a target location. Will create
-        dumps of all instances of the passed process names.
+.Description
+    Invokes proc dump on a target machine and creates dumps to a target location. Will create
+    dumps of all instances of the passed process names.
 
-        Uses PSAuthentication CredSSP to be able to write the dumps out to a network share.
-        Expectes procdump to be at the location specified in the RemoteProcDump-ProcDumpExePath
-        location. If it is not found there it will attempt to download online from the url specified
-        in RemoteProcDump-ProcDumpDownloadURI.
+    Uses PSAuthentication CredSSP to be able to write the dumps out to a network share.
+    Expectes procdump to be at the location specified in the RemoteProcDump-ProcDumpExePath
+    location. If it is not found there it will attempt to download online from the url specified
+    in RemoteProcDump-ProcDumpDownloadURI.
 
-    .Parameter ComputerName
-        The remote computer to run procdump on.
+.Parameter ComputerName
+    The remote computer to run procdump on.
 
-    .Parameter ProcessList
-        A JSON array of processes to capture a procdump for.
+.Parameter ProcessList
+    A JSON array of processes to capture a procdump for.
     
-    .Parameter DumpPath
-        A string representing the location to save the procdump to.
+.Parameter DumpPath
+    A string representing the location to save the procdump to.
 
-    .Parameter AccessCredName
-        A String representing the name of a powershell credential stored in the SMA environment.
-        This string will be used to retrieve the corresponding credential which will be used to
-        invoke the remoting to the computer passed in the ComputerName property. If not passed
-        the default user name specified in RemoteProcDump-AccessCredName will be used.
+.Parameter AccessCredName
+    A String representing the name of a powershell credential stored in the SMA environment.
+    This string will be used to retrieve the corresponding credential which will be used to
+    invoke the remoting to the computer passed in the ComputerName property. If not passed
+    the default user name specified in RemoteProcDump-AccessCredName will be used.
 
-    .Example
-        Workflow Test-InvokeRemoteProcDump
+.Example
+    Workflow Test-InvokeRemoteProcDump
+    {
+        $RunbookWorker = Get-SMARunbookWorker
+        $ProcessList = @('Orchestrator.Sandbox','W3WP') | ConvertTo-JSON -Compress
+        Foreach -Parallel ($ComputerName in $RunbookWorker)
         {
-            $RunbookWorker = Get-SMARunbookWorker
-            $ProcessList = @('Orchestrator.Sandbox','W3WP') | ConvertTo-JSON -Compress
-            Foreach -Parallel ($ComputerName in $RunbookWorker)
-            {
-                Invoke-RemoteProcDump -ComputerName $ComputerName `
-                                      -ProcessList $ProcessList
-            }
+            Invoke-RemoteProcDump -ComputerName $ComputerName `
+            -ProcessList $ProcessList
         }
-        Test-InvokeRemoteProcDump
+    }
+    Test-InvokeRemoteProcDump
 #>
 Workflow Invoke-RemoteProcDump
 {
-    Param([Parameter(Mandatory=$True) ][String] $ComputerName,
-          [Parameter(Mandatory=$True) ][String] $DumpPath,
-          [Parameter(Mandatory=$True) ][String] $ProcessList,
-          [Parameter(Mandatory=$False)][String] $AccessCredName)
+    Param([Parameter(Mandatory = $True) ][String] $ComputerName,
+          [Parameter(Mandatory = $True) ][String] $DumpPath,
+          [Parameter(Mandatory = $True) ][String] $ProcessList,
+          [Parameter(Mandatory = $False)][String] $AccessCredName)
 
     Write-Verbose -Message "Starting [$WorkflowCommandName]"
     $ErrorActionPreference = [System.Management.Automation.ActionPreference]::Stop
     
-    $RemoteProcDumpVars = Get-BatchAutomationVariable -Name @('AccessCredName',
-                                                              'ProcDumpExePath',
+    $RemoteProcDumpVars = Get-BatchAutomationVariable -Name @('AccessCredName', 
+                                                              'ProcDumpExePath', 
                                                               'ProcDumpDownloadURI') `
                                                       -Prefix 'RemoteProcDump'
     
     $AccessCred = Get-AutomationPSCredential -Name (Select-FirstValid -Value @($AccessCredName, 
-                                                                               $RemoteProcDumpVars.AccessCredName))
+    $RemoteProcDumpVars.AccessCredName))
     inlinescript
     {
         $ErrorActionPreference = [System.Management.Automation.ActionPreference]::Continue
@@ -69,17 +69,19 @@ Workflow Invoke-RemoteProcDump
                 $DumpPath           = $Using:DumpPath
                 $ProcessList        = $Using:ProcessList
 
-                if(-not (Test-Path $RemoteProcDumpVars.ProcDumpExePath))
+                if(-not (Test-Path -Path $RemoteProcDumpVars.ProcDumpExePath))
                 {
                     Write-Warning -Message (New-Exception -Type 'ProcDumpExeNotFound' `
                                                           -Message 'Could not find the procdump.exe executable. Attempting download' `
-                                                          -Property @{ 'ProcDumpExePath'     = $RemoteProcDumpVars.ProcDumpExePath ;
-                                                                       'ComputerName'        = $Env:ComputerName ;
-                                                                       'ProcDumpDownloadURI' = $RemoteProcDumpVars.ProcDumpDownloadURI })
+                                                          -Property @{
+                                                                       'ProcDumpExePath'   = $RemoteProcDumpVars.ProcDumpExePath
+                                                                       'ComputerName'      = $Env:ComputerName
+                                                                       'ProcDumpDownloadURI' = $RemoteProcDumpVars.ProcDumpDownloadURI
+                                            })
                    
-                   New-FileItemContainer -FileItemPath $RemoteProcDumpVars.ProcDumpExePath
-                   Invoke-WebRequest -Uri $RemoteProcDumpVars.ProcDumpDownloadURI -OutFile $RemoteProcDumpVars.ProcDumpExePath
-                   Unblock-File -Path $RemoteProcDumpVars.ProcDumpExePath
+                    New-FileItemContainer -FileItemPath $RemoteProcDumpVars.ProcDumpExePath
+                    Invoke-WebRequest -Uri $RemoteProcDumpVars.ProcDumpDownloadURI -OutFile $RemoteProcDumpVars.ProcDumpExePath
+                    Unblock-File -Path $RemoteProcDumpVars.ProcDumpExePath
                 }
                     
                 if(-not (Test-Path -Path $DumpPath))
