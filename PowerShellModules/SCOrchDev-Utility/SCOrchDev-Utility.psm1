@@ -571,4 +571,83 @@ Function New-FileItemContainer
         Get-Item $ContainerPath
     }
 }
+<#
+.Synopsis
+    returns the default webservice endpoint  
+#>
+Function Get-WebserviceEndpoint
+{
+    [OutputType([string])]
+    Param()
+    Return 'https://localhost'
+}
+<#
+.Synopsis
+    returns the default webservice port  
+#>
+Function Get-WebservicePort
+{
+    [OutputType([int])]
+    Param()
+    Return 9090
+}
+<#
+.SYNOPSIS
+    Returns a hashtable containing parameters to be passed it Invoke-Command if you
+    want to optionally perform remoting.
+
+.DESCRIPTION
+    Returns parameters suitable for passing to Invoke-Command that will optionally
+    perform PowerShell remoting.
+
+    If $ComputerName and $Credential are $null, no remoting will be performed. If
+    only $ComputerName is $null, Get-RemotingComputer will be be called to retrieve
+    an acceptable computer to use for "local" remoting.
+
+.PARAMETER ComputerName
+    The name of the computer to remote to.
+
+.PARAMETER Credential
+    The credential to use for remoting.
+
+.PARAMETER Authentication
+    The authentication mechanism to use with the credential.
+#>
+Function Get-OptionalRemotingParameter
+{
+    [OutputType([hashtable])]
+    param(
+        [Parameter(Mandatory=$False)]
+        [String] 
+        $ComputerName,
+
+        [Parameter(Mandatory=$False)]
+        [PSCredential]
+        $Credential,
+
+        [Parameter(Mandatory=$False)]
+        [ValidateSet('Basic','Credssp', 'Default', 'Digest', 'Kerberos', 'Negotiate', 'NegotiateWithImplicitCredential')]
+        [String]
+        $Authentication = 'CredSSP'
+    )
+
+    $InvokeCommandParameters = @{}
+    if(-not (Test-IsNullOrEmpty -String $ComputerName))
+    {
+        $InvokeCommandParameters['ComputerName'] = $ComputerName
+    }
+    if($Credential -ne $null)
+    {
+        $InvokeCommandParameters['Credential'] = $Credential
+        $InvokeCommandParameters['Authentication'] = $Authentication
+        # If a credential is provided, we must specify a computer name.
+        if($InvokeCommandParameters['ComputerName'] -eq $null)
+        {
+            $InvokeCommandParameters['ComputerName'] = Get-RemotingComputer
+        }
+    }
+    return $InvokeCommandParameters
+}
+
+
 Export-ModuleMember -Function * -Verbose:$false -Debug:$false

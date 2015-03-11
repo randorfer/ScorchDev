@@ -15,9 +15,18 @@
 
 Workflow Test-SmaRunbookWorker
 {
-    Param([Parameter(Mandatory=$True) ][string]       $RunbookWorker,
-          [Parameter(Mandatory=$False)][int]          $MinimumPercentFreeMemory = 5,
-          [Parameter(Mandatory=$True) ][pscredential] $AccessCred)
+    [OutputType([string])]
+    Param([Parameter(Mandatory=$True) ]
+          [string]
+          $RunbookWorker,
+
+          [Parameter(Mandatory=$False)]
+          [int]
+          $MinimumPercentFreeMemory = 5,
+          
+          [Parameter(Mandatory=$True)]
+          [pscredential]
+          $AccessCred)
 
     $SmaRunbookWorkerVars = Get-BatchAutomationVariable -Name @('MinimumPercentFreeMemory') `
                                                         -Prefix 'SmaRunbookWorker'

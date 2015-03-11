@@ -1,44 +1,39 @@
 {
     "Variables":  {
-                      "SmaRunbookWorker-WebserviceEndpoint":  {
-                                                                  "isEncrypted":  false,
-                                                                  "Description":  "",
-                                                                  "Value":  "https://scorchsma01.scorchdev.com"
-                                                              },
-                      "SmaRunbookWorker-WebServicePort":  {
-                                                              "isEncrypted":  false,
-                                                              "Description":  "",
-                                                              "Value":  9090
-                                                          },
+                      "SmaRunbookWorker-ProcDumpPath":  {
+                                                            "isEncrypted":  false,
+                                                            "Description":  "",
+                                                            "Value":  "c:\\ProcDumpOutput"
+                                                        },
                       "SmaRunbookWorker-MinimumPercentFreeMemory":  {
                                                                         "isEncrypted":  false,
                                                                         "Description":  "",
                                                                         "Value":  5
                                                                     },
-                      "SmaRunbookWorker-MinimumProcDumpPerDay":  {
-                                                                     "isEncrypted":  false,
-                                                                     "Description":  "",
-                                                                     "Value":  1
-                                                                 },
+                      "SmaRunbookWorker-DelayCycle":  {
+                                                          "isEncrypted":  false,
+                                                          "Description":  "",
+                                                          "Value":  300
+                                                      },
                       "SmaRunbookWorker-AccessCredName":  {
                                                               "isEncrypted":  false,
                                                               "Description":  "",
-                                                              "Value":  "SCORCHDev\\SMA"
+                                                              "Value":  "SCOrchDev\\SMA"
                                                           },
                       "SmaRunbookWorker-ProcessesToDumpJSON":  {
                                                                    "isEncrypted":  false,
                                                                    "Description":  "",
                                                                    "Value":  "\"Orchestrator.Sandbox\""
                                                                },
-                      "SmaRunbookWorker-ProcDumpPath":  {
-                                                            "isEncrypted":  false,
-                                                            "Description":  "",
-                                                            "Value":  "c:\\ProcDumpOutput"
-                                                        },
+                      "SmaRunbookWorker-MonitorLifeSpan":  {
+                                                               "isEncrypted":  false,
+                                                               "Description":  "",
+                                                               "Value":  300
+                                                           },
                       "SmaRunbookWorker-DaysToKeepProcDump":  {
                                                                   "isEncrypted":  false,
                                                                   "Description":  "",
-                                                                  "Value":  1
+                                                                  "Value":  7
                                                               }
                   }
 }

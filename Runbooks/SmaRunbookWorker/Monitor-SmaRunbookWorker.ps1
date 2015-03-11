@@ -9,53 +9,69 @@ Workflow Monitor-SmaRunbookWorker
     Write-Verbose -Message "Starting [$WorkflowCommandName]"
     $ErrorActionPreference = [System.Management.Automation.ActionPreference]::Stop
 
-    $SmaRunbookWorkerVars = Get-BatchAutomationVariable -Name @('WebServiceEndpoint', 
-                                                                'WebServicePort', 
-                                                                'AccessCredName', 
-                                                                'MinimumPercentFreeMemory', 
-                                                                'MinimumProcDumpPerDay', 
-                                                                'DaysToKeepProcDump', 
+    $SmaRunbookWorkerVars = Get-BatchAutomationVariable -Name @('AccessCredName', 
                                                                 'ProcDumpPath', 
-                                                                'ProcessesToDumpJSON') `
+                                                                'ProcessesToDumpJSON'
+                                                                'DaysToKeepProcDump',
+                                                                'MonitorLifeSpan',
+                                                                'DaysToKeepDumps') `
                                                         -Prefix 'SmaRunbookWorker'
     $AccessCred = Get-AutomationPSCredential -Name $SmaRunbookWorkerVars.AccessCredName
-    $Worker = Get-SMARunbookWorker
 
+    $MonitorRefreshTime = (Get-Date).AddMinutes($SmaRunbookWorkerVars.MonitorLifeSpan)
     Do
     {
+        $NextRun = (Get-Date).AddSeconds($SmaRunbookWorkerVars.DelayCycle)
+
         Foreach -Parallel ($Worker in (Get-SMARunbookWorker))
         {
             $DumpPath = "$($SmaRunbookWorkerVars.ProcDumpPath)\$(Get-Date -Format MM-d-yyyy)\$($env:COMPUTERNAME)"
             $WorkerStatus = Test-SmaRunbookWorker -RunbookWorker $Worker `
                                                   -AccessCred $AccessCred
         
-            if($WorkerStatus -eq 'Healthy')
+            if($WorkerStatus -ne 'Healthy')
             {
                 
-            }
-            else
-            {
                 Invoke-RemoteProcDump -ComputerName $Worker `
                                       -DumpPath $DumpPath `
                                       -ProcessList $SmaRunbookWorkerVars.ProcessesToDumpJSON `
                                       -AccessCredName $SmaRunbookWorkerVars.AccessCredName
             }
-
-            # Cleanup old process dumps
-            # Implement Delay Cycle
         }
+
+        Foreach($Worker in (Get-SMARunbookWorker))
+        {
+            Remove-OldFile -Path $SmaRunbookWorkerVars.ProcDumpPath `
+                           -Computer $Worker `
+                           -CredentialName $SmaRunbookWorkerVars.AccessCredName `
+                           -MaxAgeInDays $SmaRunbookWorkerVars.DaysToKeepProcDump `
+                           -Recurse 
+        }
+
+        Write-Verbose -Message "Sleeping until next monitor run at $NextRun"
+        do
+        {
+            Start-Sleep -Seconds 5
+            Checkpoint-Workflow
+            $Sleeping = (Get-Date) -lt $NextRun
+        } while($Sleeping)
+        $MonitorActive = (Get-Date) -lt $MonitorRefreshTime
+        Checkpoint-Workflow
     }
     While($MonitorActive)
 
-    Start-SmaRunbook -Name $WorkflowCommandName
+    if(-not (Test-LocalDevelopment))
+    {
+        Start-SmaRunbook -Name $WorkflowCommandName -WebServiceEndpoint (Get-WebServiceEndpoint) -Port (Get-WebservicePort)
+    }
     Write-Verbose -Message "Finished [$WorkflowCommandName]"
 }
 
 # SIG # Begin signature block
 # MIID1QYJKoZIhvcNAQcCoIIDxjCCA8ICAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUjChza7CkpM+LyVXTrAm6RLsZ
-# 7rWgggH3MIIB8zCCAVygAwIBAgIQEdV66iePd65C1wmJ28XdGTANBgkqhkiG9w0B
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQU3GQuzVMOUU7S9iey+AVSJuzJ
+# iuOgggH3MIIB8zCCAVygAwIBAgIQEdV66iePd65C1wmJ28XdGTANBgkqhkiG9w0B
 # AQUFADAUMRIwEAYDVQQDDAlTQ09yY2hEZXYwHhcNMTUwMzA5MTQxOTIxWhcNMTkw
 # MzA5MDAwMDAwWjAUMRIwEAYDVQQDDAlTQ09yY2hEZXYwgZ8wDQYJKoZIhvcNAQEB
 # BQADgY0AMIGJAoGBANbZ1OGvnyPKFcCw7nDfRgAxgMXt4YPxpX/3rNVR9++v9rAi
@@ -69,8 +85,8 @@ Workflow Monitor-SmaRunbookWorker
 # BgNVBAMMCVNDT3JjaERldgIQEdV66iePd65C1wmJ28XdGTAJBgUrDgMCGgUAoHgw
 # GAYKKwYBBAGCNwIBDDEKMAigAoAAoQKAADAZBgkqhkiG9w0BCQMxDAYKKwYBBAGC
 # NwIBBDAcBgorBgEEAYI3AgELMQ4wDAYKKwYBBAGCNwIBFTAjBgkqhkiG9w0BCQQx
-# FgQUjuRY2fEizsKKBP0pYbXomfec+hswDQYJKoZIhvcNAQEBBQAEgYAfB+BuarKW
-# D3hf7+9JghTihst0/s78K5YioOcTfhAanDx1WNCLvNYRvWFkqxMmDg1F+XUQVeq1
-# Q8OSiN3PH5CP5cVqHW/kd9zy5C/ht98IpnYeBS6k2T+IoOzIyLGkJ21PUpy+H393
-# Sdjus1KOud1h5F0ZtYGcRZhLOJStnRdlDw==
+# FgQU/rZFK4Pf9J6dtQoPLTK0170hNXkwDQYJKoZIhvcNAQEBBQAEgYCNwhtt92Pu
+# JpIWXodM6AU6ThvgX0WWhSim8zSXINKDJHThNJ86hcZMswL3m3HT9FZu1fDbRr77
+# bYWS0sPIEjYC/MN7BEb9Lztu2En9L6zyLW5ZGsZPuhevGBHy+XslVBELyoVK0uEJ
+# t4c5pszJUH/PO3h7xsQdfFxWmlZ0K79eCg==
 # SIG # End signature block
