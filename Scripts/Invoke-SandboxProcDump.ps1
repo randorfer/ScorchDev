@@ -1,20 +1,16 @@
-﻿$DumpPath = "C:\ProcDump\$(Get-Date -Format 'mm-dd-yyyy-hh-mm-ss')"
-$ProcDumpExePath = 'c:\ProcDump\ProcDump.exe'
+﻿$DumpPath = "D:\ProcDump\$(Get-Date -Format 'MM-dd-yyyy-hh-mm-ss')"
+$ProcDumpExeFolder = 'D:\ProcDump'
+$ProcDumpExePath = "$ProcDumpExeFolder\ProcDump.exe"
 $ProcDumpDownloadURI = 'http://live.sysinternals.com/tools/procdump.exe'
 $ProcessList = @('Orchestrator.Sandbox')
+$LogmanDataCollectorSetName = 'LowMemoryDetection'
+
+Invoke-Expression "Logman.exe Stop $LogmanDataCollectorSetName"
 if(-not (Test-Path -Path $ProcDumpExePath))
 {
-    Write-Warning -Message (New-Exception -Type 'ProcDumpExeNotFound' `
-                                          -Message 'Could not find the procdump.exe executable. Attempting download' `
-                                          -Property @{
-                                                        'ProcDumpExePath'   = $ProcDumpExePath
-                                                        'ComputerName'      = $Env:ComputerName
-                                                        'ProcDumpDownloadURI' = $ProcDumpDownloadURI
-                            })
-                   
-    New-FileItemContainer -FileItemPath $RemoteProcDumpVars.ProcDumpExePath
-    Invoke-WebRequest -Uri $RemoteProcDumpVars.ProcDumpDownloadURI -OutFile $RemoteProcDumpVars.ProcDumpExePath
-    Unblock-File -Path $RemoteProcDumpVars.ProcDumpExePath
+    New-Item -ItemType Directory -Path $ProcDumpExeFolder -Force
+    Invoke-WebRequest -Uri $ProcDumpDownloadURI -OutFile $ProcDumpExePath
+    Unblock-File -Path $ProcDumpExePath
 }
                     
 if(-not (Test-Path -Path $DumpPath))
@@ -36,8 +32,8 @@ foreach($ProcessName in $ProcessList)
 # SIG # Begin signature block
 # MIID1QYJKoZIhvcNAQcCoIIDxjCCA8ICAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQU/JbbyTqXZaRc9TBzQME/afcn
-# g7+gggH3MIIB8zCCAVygAwIBAgIQEdV66iePd65C1wmJ28XdGTANBgkqhkiG9w0B
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUj7XdgfInWCXs9/lWe/EWKH5N
+# C/KgggH3MIIB8zCCAVygAwIBAgIQEdV66iePd65C1wmJ28XdGTANBgkqhkiG9w0B
 # AQUFADAUMRIwEAYDVQQDDAlTQ09yY2hEZXYwHhcNMTUwMzA5MTQxOTIxWhcNMTkw
 # MzA5MDAwMDAwWjAUMRIwEAYDVQQDDAlTQ09yY2hEZXYwgZ8wDQYJKoZIhvcNAQEB
 # BQADgY0AMIGJAoGBANbZ1OGvnyPKFcCw7nDfRgAxgMXt4YPxpX/3rNVR9++v9rAi
@@ -51,8 +47,8 @@ foreach($ProcessName in $ProcessList)
 # BgNVBAMMCVNDT3JjaERldgIQEdV66iePd65C1wmJ28XdGTAJBgUrDgMCGgUAoHgw
 # GAYKKwYBBAGCNwIBDDEKMAigAoAAoQKAADAZBgkqhkiG9w0BCQMxDAYKKwYBBAGC
 # NwIBBDAcBgorBgEEAYI3AgELMQ4wDAYKKwYBBAGCNwIBFTAjBgkqhkiG9w0BCQQx
-# FgQUDJBw1q1iTiu3yiijg4nt9ZpA7WIwDQYJKoZIhvcNAQEBBQAEgYDVKQQLC3Ui
-# k4y5qrnkbiw+xlQrgKDcnijC+AgW442rRg6ZFt4gSACf+Zh7SehNr8VzRf7m9Sk6
-# xqsDrBCUn/wM45wa1L+j1Q4ym7gWGNHKZz58O2joXQxofBuu6FhBsrAhJ88L3ThY
-# KwWURiMLozUlvJyTPrUVkZxaTfDpnOlDYg==
+# FgQUs83O3eVmdw2KoZr/d6Khsj0clpIwDQYJKoZIhvcNAQEBBQAEgYBithzGiwK+
+# PeHD1iFqanAgDm8GkngzzDxjq+NIIWZdzcJHEizGsMIpAjmDedsF39xqitH7uXA/
+# QqkT86hRJT/xgeKb6HQ5ZdCrjmuq5qemdo+C0JjdIOMCsFrkWwXUvzel5vU/2Fwp
+# MKzQJluAbRK/+6gZaGP0WPlAPGp0Fh+8aQ==
 # SIG # End signature block
