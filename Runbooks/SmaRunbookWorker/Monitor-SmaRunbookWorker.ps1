@@ -14,7 +14,7 @@ Workflow Monitor-SmaRunbookWorker
                                                                 'ProcessesToDumpJSON'
                                                                 'DaysToKeepProcDump',
                                                                 'MonitorLifeSpan',
-                                                                'DaysToKeepDumps') `
+                                                                'MinimumPercentFreeMemory') `
                                                         -Prefix 'SmaRunbookWorker'
     $AccessCred = Get-AutomationPSCredential -Name $SmaRunbookWorkerVars.AccessCredName
 
@@ -27,6 +27,7 @@ Workflow Monitor-SmaRunbookWorker
         {
             $DumpPath = "$($SmaRunbookWorkerVars.ProcDumpPath)\$(Get-Date -Format MM-d-yyyy)\$($env:COMPUTERNAME)"
             $WorkerStatus = Test-SmaRunbookWorker -RunbookWorker $Worker `
+                                                  -MinimumPercentFreeMemory $SmaRunbookWorkerVars.MinimumPercentFreeMemory `
                                                   -AccessCred $AccessCred
         
             if($WorkerStatus -ne 'Healthy')
@@ -70,8 +71,8 @@ Workflow Monitor-SmaRunbookWorker
 # SIG # Begin signature block
 # MIID1QYJKoZIhvcNAQcCoIIDxjCCA8ICAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQU3GQuzVMOUU7S9iey+AVSJuzJ
-# iuOgggH3MIIB8zCCAVygAwIBAgIQEdV66iePd65C1wmJ28XdGTANBgkqhkiG9w0B
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQU3aN6IHSu6hHNkGDi2shsBQWx
+# GP2gggH3MIIB8zCCAVygAwIBAgIQEdV66iePd65C1wmJ28XdGTANBgkqhkiG9w0B
 # AQUFADAUMRIwEAYDVQQDDAlTQ09yY2hEZXYwHhcNMTUwMzA5MTQxOTIxWhcNMTkw
 # MzA5MDAwMDAwWjAUMRIwEAYDVQQDDAlTQ09yY2hEZXYwgZ8wDQYJKoZIhvcNAQEB
 # BQADgY0AMIGJAoGBANbZ1OGvnyPKFcCw7nDfRgAxgMXt4YPxpX/3rNVR9++v9rAi
@@ -85,8 +86,8 @@ Workflow Monitor-SmaRunbookWorker
 # BgNVBAMMCVNDT3JjaERldgIQEdV66iePd65C1wmJ28XdGTAJBgUrDgMCGgUAoHgw
 # GAYKKwYBBAGCNwIBDDEKMAigAoAAoQKAADAZBgkqhkiG9w0BCQMxDAYKKwYBBAGC
 # NwIBBDAcBgorBgEEAYI3AgELMQ4wDAYKKwYBBAGCNwIBFTAjBgkqhkiG9w0BCQQx
-# FgQU/rZFK4Pf9J6dtQoPLTK0170hNXkwDQYJKoZIhvcNAQEBBQAEgYCNwhtt92Pu
-# JpIWXodM6AU6ThvgX0WWhSim8zSXINKDJHThNJ86hcZMswL3m3HT9FZu1fDbRr77
-# bYWS0sPIEjYC/MN7BEb9Lztu2En9L6zyLW5ZGsZPuhevGBHy+XslVBELyoVK0uEJ
-# t4c5pszJUH/PO3h7xsQdfFxWmlZ0K79eCg==
+# FgQUnAt7pUlHqfVJO/7DJRlphQ1DxDowDQYJKoZIhvcNAQEBBQAEgYBp7OQVuiZN
+# YDDxYZGUVueTL5HQekco+VQNg+3HKUrlWsk5+CD2CQ9gjMDSbonwSghS3jZgIHNv
+# 4z8m4diHPXMSwsNckdONeuW2zj263dLuoPUCHLW0hgUDT/SJ7M1V67RZJHJk4Pja
+# hLlbFh+CBJau/BVqRcdRe66XYpNi87WH1Q==
 # SIG # End signature block

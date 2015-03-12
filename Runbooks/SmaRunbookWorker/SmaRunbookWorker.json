@@ -8,7 +8,7 @@
                       "SmaRunbookWorker-MinimumPercentFreeMemory":  {
                                                                         "isEncrypted":  false,
                                                                         "Description":  "",
-                                                                        "Value":  5
+                                                                        "Value":  10
                                                                     },
                       "SmaRunbookWorker-DelayCycle":  {
                                                           "isEncrypted":  false,
