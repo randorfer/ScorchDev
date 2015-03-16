@@ -17,7 +17,7 @@ Function Format-ObjectDump
 {
     [CmdletBinding()]
     Param([Parameter(Position=0, Mandatory=$True,ValueFromPipeline=$True)] [Object]$InputObject,
-          [Parameter(Position=1, Mandatory=$False)] [string[]] $Property=@("*"))
+          [Parameter(Position=1, Mandatory=$False)] [string[]] $Property=@('*'))
     $typeInfo = $inputObject.GetType() | Out-String;
     $objList = $inputObject | Format-List -Property $property | Out-String;
 
@@ -314,7 +314,7 @@ Function New-ZipFile
           [Parameter(Mandatory=$false)][bool]   $OverwriteExisting = $true)
             
     $null = $(
-        Write-Verbose -Message "Starting New-ZipFile"
+        Write-Verbose -Message 'Starting [New-ZipFile]'
         Write-Verbose -Message "`$SourceDir [$SourceDir]"
         Write-Verbose -Message "`$ZipFilePath [$ZipFilePath]"
                 
@@ -337,7 +337,7 @@ Function New-ZipFile
         Add-Type -Assembly System.IO.Compression.FileSystem
         $CompressionLevel = [System.IO.Compression.CompressionLevel]::Optimal
         [System.IO.Compression.ZipFile]::CreateFromDirectory($SourceDir, $ZipFilePath, $CompressionLevel, $false)
-        Write-Verbose -Message "Finished New-ZipFile"
+        Write-Verbose -Message 'Finished [New-ZipFile]'
     )
 }
 <#
@@ -349,7 +349,7 @@ Function New-ZipFile
 #>
 Function New-TempDirectory
 {
-    Param([Parameter(Mandatory=$false) ][string] $SourceDir = "C:\")
+    Param([Parameter(Mandatory=$false) ][string] $SourceDir = 'C:\')
     
     do
     {
@@ -445,11 +445,11 @@ Function Add-PSEnvironmentPathLocation
 {
     Param([Parameter(Mandatory=$True)] $Path)
     
-    $CurrentPSModulePath = [System.Environment]::GetEnvironmentVariable("PSModulePath")
+    $CurrentPSModulePath = [System.Environment]::GetEnvironmentVariable('PSModulePath')
     if($CurrentPSModulePath.ToLower().Contains($Path.ToLower()))
     {
         Write-Verbose "The path [$Path] was not in the environment path [$CurrentPSModulePath]. Adding."
-        [Environment]::SetEnvironmentVariable( "PSModulePath", "$CurrentPSModulePath;$Path", [System.EnvironmentVariableTarget]::Machine )
+        [Environment]::SetEnvironmentVariable( 'PSModulePath', "$CurrentPSModulePath;$Path", [System.EnvironmentVariableTarget]::Machine )
     }
 }
 <#
@@ -517,7 +517,7 @@ Stop-Transcript
     $command = "powershell -NoProfile -EncodedCommand $encoded"
     $null = Invoke-WmiMethod -Computer $computername -Credential $credential `
     Win32_Process Create -Args $command
-    Write-Verbose "Testing connection"
+    Write-Verbose 'Testing connection'
 
     $attempts = 0
     do
@@ -541,7 +541,7 @@ Stop-Transcript
             {
                 Write-Verbose -Message 'Not yet configured'
                 $attempts = $attempts + 1
-                sleep -Seconds 5
+                Start-Sleep -Seconds 5
             }
             $status = 'Failure'
         }
@@ -649,5 +649,84 @@ Function Get-OptionalRemotingParameter
     return $InvokeCommandParameters
 }
 
-
 Export-ModuleMember -Function * -Verbose:$false -Debug:$false
+# SIG # Begin signature block
+# MIIOfQYJKoZIhvcNAQcCoIIObjCCDmoCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
+# gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUQHLdTjoZUQqrSMDzrtjK9858
+# ufygggqQMIIB8zCCAVygAwIBAgIQEdV66iePd65C1wmJ28XdGTANBgkqhkiG9w0B
+# AQUFADAUMRIwEAYDVQQDDAlTQ09yY2hEZXYwHhcNMTUwMzA5MTQxOTIxWhcNMTkw
+# MzA5MDAwMDAwWjAUMRIwEAYDVQQDDAlTQ09yY2hEZXYwgZ8wDQYJKoZIhvcNAQEB
+# BQADgY0AMIGJAoGBANbZ1OGvnyPKFcCw7nDfRgAxgMXt4YPxpX/3rNVR9++v9rAi
+# pY8Btj4pW9uavnDgHdBckD6HBmFCLA90TefpKYWarmlwHHMZsNKiCqiNvazhBm6T
+# XyB9oyPVXLDSdid4Bcp9Z6fZIjqyHpDV2vas11hMdURzyMJZj+ibqBWc3dAZAgMB
+# AAGjRjBEMBMGA1UdJQQMMAoGCCsGAQUFBwMDMB0GA1UdDgQWBBQ75WLz6WgzJ8GD
+# ty2pMj8+MRAFTTAOBgNVHQ8BAf8EBAMCB4AwDQYJKoZIhvcNAQEFBQADgYEAoK7K
+# SmNLQ++VkzdvS8Vp5JcpUi0GsfEX2AGWZ/NTxnMpyYmwEkzxAveH1jVHgk7zqglS
+# OfwX2eiu0gvxz3mz9Vh55XuVJbODMfxYXuwjMjBV89jL0vE/YgbRAcU05HaWQu2z
+# nkvaq1yD5SJIRBooP7KkC/zCfCWRTnXKWVTw7hwwggPuMIIDV6ADAgECAhB+k+v7
+# fMZOWepLmnfUBvw7MA0GCSqGSIb3DQEBBQUAMIGLMQswCQYDVQQGEwJaQTEVMBMG
+# A1UECBMMV2VzdGVybiBDYXBlMRQwEgYDVQQHEwtEdXJiYW52aWxsZTEPMA0GA1UE
+# ChMGVGhhd3RlMR0wGwYDVQQLExRUaGF3dGUgQ2VydGlmaWNhdGlvbjEfMB0GA1UE
+# AxMWVGhhd3RlIFRpbWVzdGFtcGluZyBDQTAeFw0xMjEyMjEwMDAwMDBaFw0yMDEy
+# MzAyMzU5NTlaMF4xCzAJBgNVBAYTAlVTMR0wGwYDVQQKExRTeW1hbnRlYyBDb3Jw
+# b3JhdGlvbjEwMC4GA1UEAxMnU3ltYW50ZWMgVGltZSBTdGFtcGluZyBTZXJ2aWNl
+# cyBDQSAtIEcyMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAsayzSVRL
+# lxwSCtgleZEiVypv3LgmxENza8K/LlBa+xTCdo5DASVDtKHiRfTot3vDdMwi17SU
+# AAL3Te2/tLdEJGvNX0U70UTOQxJzF4KLabQry5kerHIbJk1xH7Ex3ftRYQJTpqr1
+# SSwFeEWlL4nO55nn/oziVz89xpLcSvh7M+R5CvvwdYhBnP/FA1GZqtdsn5Nph2Up
+# g4XCYBTEyMk7FNrAgfAfDXTekiKryvf7dHwn5vdKG3+nw54trorqpuaqJxZ9YfeY
+# cRG84lChS+Vd+uUOpyyfqmUg09iW6Mh8pU5IRP8Z4kQHkgvXaISAXWp4ZEXNYEZ+
+# VMETfMV58cnBcQIDAQABo4H6MIH3MB0GA1UdDgQWBBRfmvVuXMzMdJrU3X3vP9vs
+# TIAu3TAyBggrBgEFBQcBAQQmMCQwIgYIKwYBBQUHMAGGFmh0dHA6Ly9vY3NwLnRo
+# YXd0ZS5jb20wEgYDVR0TAQH/BAgwBgEB/wIBADA/BgNVHR8EODA2MDSgMqAwhi5o
+# dHRwOi8vY3JsLnRoYXd0ZS5jb20vVGhhd3RlVGltZXN0YW1waW5nQ0EuY3JsMBMG
+# A1UdJQQMMAoGCCsGAQUFBwMIMA4GA1UdDwEB/wQEAwIBBjAoBgNVHREEITAfpB0w
+# GzEZMBcGA1UEAxMQVGltZVN0YW1wLTIwNDgtMTANBgkqhkiG9w0BAQUFAAOBgQAD
+# CZuPee9/WTCq72i1+uMJHbtPggZdN1+mUp8WjeockglEbvVt61h8MOj5aY0jcwsS
+# b0eprjkR+Cqxm7Aaw47rWZYArc4MTbLQMaYIXCp6/OJ6HVdMqGUY6XlAYiWWbsfH
+# N2qDIQiOQerd2Vc/HXdJhyoWBl6mOGoiEqNRGYN+tjCCBKMwggOLoAMCAQICEA7P
+# 9DjI/r81bgTYapgbGlAwDQYJKoZIhvcNAQEFBQAwXjELMAkGA1UEBhMCVVMxHTAb
+# BgNVBAoTFFN5bWFudGVjIENvcnBvcmF0aW9uMTAwLgYDVQQDEydTeW1hbnRlYyBU
+# aW1lIFN0YW1waW5nIFNlcnZpY2VzIENBIC0gRzIwHhcNMTIxMDE4MDAwMDAwWhcN
+# MjAxMjI5MjM1OTU5WjBiMQswCQYDVQQGEwJVUzEdMBsGA1UEChMUU3ltYW50ZWMg
+# Q29ycG9yYXRpb24xNDAyBgNVBAMTK1N5bWFudGVjIFRpbWUgU3RhbXBpbmcgU2Vy
+# dmljZXMgU2lnbmVyIC0gRzQwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIB
+# AQCiYws5RLi7I6dESbsO/6HwYQpTk7CY260sD0rFbv+GPFNVDxXOBD8r/amWltm+
+# YXkLW8lMhnbl4ENLIpXuwitDwZ/YaLSOQE/uhTi5EcUj8mRY8BUyb05Xoa6IpALX
+# Kh7NS+HdY9UXiTJbsF6ZWqidKFAOF+6W22E7RVEdzxJWC5JH/Kuu9mY9R6xwcueS
+# 51/NELnEg2SUGb0lgOHo0iKl0LoCeqF3k1tlw+4XdLxBhircCEyMkoyRLZ53RB9o
+# 1qh0d9sOWzKLVoszvdljyEmdOsXF6jML0vGjG/SLvtmzV4s73gSneiKyJK4ux3DF
+# vk6DJgj7C72pT5kI4RAocqrNAgMBAAGjggFXMIIBUzAMBgNVHRMBAf8EAjAAMBYG
+# A1UdJQEB/wQMMAoGCCsGAQUFBwMIMA4GA1UdDwEB/wQEAwIHgDBzBggrBgEFBQcB
+# AQRnMGUwKgYIKwYBBQUHMAGGHmh0dHA6Ly90cy1vY3NwLndzLnN5bWFudGVjLmNv
+# bTA3BggrBgEFBQcwAoYraHR0cDovL3RzLWFpYS53cy5zeW1hbnRlYy5jb20vdHNz
+# LWNhLWcyLmNlcjA8BgNVHR8ENTAzMDGgL6AthitodHRwOi8vdHMtY3JsLndzLnN5
+# bWFudGVjLmNvbS90c3MtY2EtZzIuY3JsMCgGA1UdEQQhMB+kHTAbMRkwFwYDVQQD
+# ExBUaW1lU3RhbXAtMjA0OC0yMB0GA1UdDgQWBBRGxmmjDkoUHtVM2lJjFz9eNrwN
+# 5jAfBgNVHSMEGDAWgBRfmvVuXMzMdJrU3X3vP9vsTIAu3TANBgkqhkiG9w0BAQUF
+# AAOCAQEAeDu0kSoATPCPYjA3eKOEJwdvGLLeJdyg1JQDqoZOJZ+aQAMc3c7jecsh
+# aAbatjK0bb/0LCZjM+RJZG0N5sNnDvcFpDVsfIkWxumy37Lp3SDGcQ/NlXTctlze
+# vTcfQ3jmeLXNKAQgo6rxS8SIKZEOgNER/N1cdm5PXg5FRkFuDbDqOJqxOtoJcRD8
+# HHm0gHusafT9nLYMFivxf1sJPZtb4hbKE4FtAC44DagpjyzhsvRaqQGvFZwsL0kb
+# 2yK7w/54lFHDhrGCiF3wPbRRoXkzKy57udwgCRNx62oZW8/opTBXLIlJP7nPf8m/
+# PiJoY1OavWl0rMUdPH+S4MO8HNgEdTGCA1cwggNTAgEBMCgwFDESMBAGA1UEAwwJ
+# U0NPcmNoRGV2AhAR1XrqJ493rkLXCYnbxd0ZMAkGBSsOAwIaBQCgeDAYBgorBgEE
+# AYI3AgEMMQowCKACgAChAoAAMBkGCSqGSIb3DQEJAzEMBgorBgEEAYI3AgEEMBwG
+# CisGAQQBgjcCAQsxDjAMBgorBgEEAYI3AgEVMCMGCSqGSIb3DQEJBDEWBBQs2CQI
+# //QdPT4uajfOzDWPP4AkLzANBgkqhkiG9w0BAQEFAASBgBobsEigjMWdDXbg9U+h
+# u+jdCBa5yOdj50bZv4QR/TJYtyPsVzbmlcUEwYPKomxhEMy1VgM3Ckf4QZaUwDAb
+# elqgRShNkJ5VmLbPxEt/PW+k6L8DYwAZCCPrpgS6Jsw62k64UyuGRAUqyyRfBVjU
+# /E+EurmkaOGl7fh2Yz+u2u5WoYICCzCCAgcGCSqGSIb3DQEJBjGCAfgwggH0AgEB
+# MHIwXjELMAkGA1UEBhMCVVMxHTAbBgNVBAoTFFN5bWFudGVjIENvcnBvcmF0aW9u
+# MTAwLgYDVQQDEydTeW1hbnRlYyBUaW1lIFN0YW1waW5nIFNlcnZpY2VzIENBIC0g
+# RzICEA7P9DjI/r81bgTYapgbGlAwCQYFKw4DAhoFAKBdMBgGCSqGSIb3DQEJAzEL
+# BgkqhkiG9w0BBwEwHAYJKoZIhvcNAQkFMQ8XDTE1MDMxNjIwMTIyOVowIwYJKoZI
+# hvcNAQkEMRYEFFN+IpYTea6dbKeqwFNG5GIQevJsMA0GCSqGSIb3DQEBAQUABIIB
+# ACNtq+duyWhTvL3oYBQLtEU40sSs8DaaPadWMemv3/tcrhWWyM9JCzDWAsasAP8A
+# 0gDbV0x1r12qLeAcPKruVzR1DyU2LmiOmefgPFoWxaZ6zrsDOd7VnKuTn0CsBilK
+# vE1yo8KBxJ8IhkNb7TEtxIiELo6MD5m5lTslzW0PKAQGWepP4X4qS0wcAhw17yLy
+# ZKNTVfz9HfhQAZVmA0wmAbYPHXJTl6yYfaiD0LDhJXRZ0wzYEYKhXOYoZswXskVR
+# vjQeqZkTFEFOk0ZpKcjgg2aTblwXP7xwKQgQkguJG8DYWyftGyOVX0ativnl6uc8
+# 5J/eWi1vQcoxYATQ1x4b3d4=
+# SIG # End signature block
