@@ -1,5 +1,5 @@
 ﻿$LocalAutomationVariableEndpoints = @('https://localhost', 'http://localhost', 'localhost')
-add-type @"
+Add-Type -TypeDefinition @"
         using System.Net;
         using System.Security.Cryptography.X509Certificates;
 
@@ -11,36 +11,38 @@ add-type @"
                 return true;
             }
         }
-"@ -Verbose:$False -Debug:$false
+"@ -Verbose:$False -Debug:$False
 <#
-    .SYNOPSIS
-        Gets one or more SMA variable values from the given web service endpoint.
+.SYNOPSIS
+    Gets one or more SMA variable values from the given web service endpoint.
 
-    .DESCRIPTION
-        Get-BatchSMAVariable gets the value of each SMA variable given in $Name.
-        If $Prefix is set, "$Prefix-$Name" is looked up in SMA (helps keep the
-        list of variables in $Name concise).
+.DESCRIPTION
+    Get-BatchSMAVariable gets the value of each SMA variable given in $Name.
+    If $Prefix is set, "$Prefix-$Name" is looked up in SMA (helps keep the
+    list of variables in $Name concise).
 
-    .PARAMETER Name
-        A list of variable values to get from SMA.
+.PARAMETER Name
+    A list of variable values to get from SMA.
 
-    .PARAMETER WebServiceEndpoint
-        The SMA web service endpoint to query for variables.
+.PARAMETER WebServiceEndpoint
+    The SMA web service endpoint to query for variables.
 
-    .PARAMETER Prefix
-        A prefix to be applied to each variable name when performing the lookup
-        in SMA. A '-' is added to the end of $Prefix automatically.
+.PARAMETER Prefix
+    A prefix to be applied to each variable name when performing the lookup
+    in SMA. A '-' is added to the end of $Prefix automatically.
 #>
 Function Get-BatchSMAVariable
 {
     Param(
-        [Parameter(Mandatory=$True)]  [String[]] $Name,
-        [Parameter(Mandatory=$True)]  [String]   $WebServiceEndpoint,
-        [Parameter(Mandatory=$False)] [AllowNull()] [String] $Prefix = $Null
+        [Parameter(Mandatory = $True)]  [String[]] $Name,
+        [Parameter(Mandatory = $True)]  [String]   $WebServiceEndpoint,
+        [Parameter(Mandatory = $False)] [AllowNull()] [String] $Prefix = $Null
     )
     $Variables = @{}
     $VarCommand = (Get-Command -Name 'Get-SMAVariable')
-    $VarParams = @{'WebServiceEndpoint' = $WebServiceEndpoint}
+    $VarParams = @{
+        'WebServiceEndpoint' = $WebServiceEndpoint
+    }
     # We can't call Get-AutomationVariable in SMA from a function, so we have to determine if we
     # are developing locally. If we are, we can call Get-AutomationVariable. If not, we'll call
     # Get-SMAVariable and pass it an endpoint representing localhost.
@@ -73,8 +75,8 @@ Function Get-BatchSMAVariable
 Function Get-BatchAutomationVariable
 {
     Param(
-        [Parameter(Mandatory=$True)]  $Name,
-        [Parameter(Mandatory=$False)] $Prefix = $Null
+        [Parameter(Mandatory = $True)]  $Name,
+        [Parameter(Mandatory = $False)] $Prefix = $Null
     )
 
     Return (Get-BatchSMAVariable -Prefix $Prefix -Name $Name -WebServiceEndpoint (Get-LocalAutomationVariableEndpoint)[0])
@@ -82,21 +84,21 @@ Function Get-BatchAutomationVariable
 
 <#
     .SYNOPSIS
-        Returns $true if working in a development environment outside SMA, $false otherwise.
+    Returns $true if working in a development environment outside SMA, $false otherwise.
 #>
 function Test-LocalDevelopment
 {
     $LocalDevModule = Get-Module -ListAvailable -Name 'LocalDev' -Verbose:$False -ErrorAction 'SilentlyContinue' -WarningAction 'SilentlyContinue'
-    if($LocalDevModule -ne $null)
+    if($LocalDevModule -ne $Null)
     {
-        return $true
+        return $True
     }
-    return $false
+    return $False
 }
 
 <#
     .SYNOPSIS
-        Returns a list of web service endpoints which represent the local system.
+    Returns a list of web service endpoints which represent the local system.
 #>
 function Get-LocalAutomationVariableEndpoint
 {
@@ -105,17 +107,17 @@ function Get-LocalAutomationVariableEndpoint
 }
 <# 
     .Synopsis
-        Returns a filtered list off all jobs in a target status
+    Returns a filtered list off all jobs in a target status
 #>
 Function Get-SMAJobInStatus
 {
-    Param(  [Parameter(Mandatory=$true) ] [String]$WebserviceEndpoint,
-            [Parameter(Mandatory=$false)] [String]$Port="9090",
-            [Parameter(Mandatory=$false)] [String]$tenantID = "00000000-0000-0000-0000-000000000000",
-            [Parameter(Mandatory=$true) ] [String]$JobStatus,
-            [Parameter(Mandatory=$false)] [PSCredential]$Credential)
+    Param(  [Parameter(Mandatory = $True) ] [String]$WebServiceEndpoint,
+        [Parameter(Mandatory = $False)] [String]$Port = '9090',
+        [Parameter(Mandatory = $False)] [String]$tenantID = '00000000-0000-0000-0000-000000000000',
+        [Parameter(Mandatory = $True) ] [String]$JobStatus,
+    [Parameter(Mandatory = $False)] [PSCredential]$Credential)
 
-    $BaseUri = "$WebserviceEndpoint`:$Port/$tenantID"
+    $BaseUri = "$WebServiceEndpoint`:$Port/$tenantID"
     
     $JobsUri = "$BaseUri/Jobs?`$filter=JobStatus eq '$JobStatus'"
 
@@ -125,87 +127,114 @@ Function Get-SMAJobInStatus
 }
 <# 
     .Synopsis
-        Called internally by Get-SMAJobInStatus
+    Called internally by Get-SMAJobInStatus
 #>
 Function Get-SMAJobsInStatusInternal
 {
-    Param( [Parameter(Mandatory=$true) ] [String]$JobsUri,
-           [Parameter(Mandatory=$false)] [PSCredential]$Credential )
+    Param( [Parameter(Mandatory = $True) ] [String]$JobsUri,
+    [Parameter(Mandatory = $False)] [PSCredential]$Credential )
 
-    [System.Net.ServicePointManager]::CertificatePolicy = new-object IDontCarePolicy
+    [System.Net.ServicePointManager]::CertificatePolicy = New-Object -TypeName IDontCarePolicy
 
-    $null = $(
-        if ($Credential) { $jobs = Invoke-RestMethod -Uri $JobsUri -Credential $Credential }
-        else             { $jobs = Invoke-RestMethod -Uri $JobsUri -UseDefaultCredentials }
+    $Null = $(
+        if ($Credential) 
+        {
+            $jobs = Invoke-RestMethod -Uri $JobsUri -Credential $Credential 
+        }
+        else             
+        {
+            $jobs = Invoke-RestMethod -Uri $JobsUri -UseDefaultCredentials 
+        }
 
-        $addedToBox = $false
+        $addedToBox = $False
 
-        $box = New-Object System.Collections.ArrayList
+        $box = New-Object -TypeName System.Collections.ArrayList
         foreach ($j in $jobs) 
         {
-            $box.Add((Format-SMAObject $j)) | Out-Null
+            $Null = $box.Add((Format-SMAObject $j))
         }
     )
     return $box
 }
 
 <# 
- .Synopsis
+    .Synopsis
     Runs an SMA runbook using Start-SMARunbook. Waits for completion and returns all output  
 #>
 Function Start-SmaRunbookSync
 {
-    Param([Parameter(Mandatory=$True) ][string]                         $Name,
-          [Parameter(Mandatory=$False)][System.Collections.IDictionary] $Parameters = @{},
-          [Parameter(Mandatory=$False)][string]                         $WebserviceEndpoint = 'https://localhost',
-          [Parameter(Mandatory=$False)][int]                            $Timeout = 900,
-          [Parameter(Mandatory=$False)][pscredential]                   $Credential)
+    Param(
+        [Parameter(Mandatory = $True)]
+        [string]
+        $Name,
+        
+        [Parameter(Mandatory = $False)]
+        [System.Collections.IDictionary]
+        $Parameters = @{},
+
+        [Parameter(Mandatory = $False)]
+        [string]$WebServiceEndpoint = 'https://localhost',
+
+        [Parameter(Mandatory = $False)]
+        [int]
+        $Timeout = 900,
+    
+        [Parameter(Mandatory = $False)]
+        [pscredential]
+        $Credential
+    )
     
     $ErrorActionPreference = [System.Management.Automation.ActionPreference]::Stop
-	[System.Net.ServicePointManager]::CertificatePolicy = new-object IDontCarePolicy
+    [System.Net.ServicePointManager]::CertificatePolicy = New-Object -TypeName IDontCarePolicy
     $SleepTime = 5
     $startTime = Get-Date
-    $RunningStates = @('New',
-                       'Activating',
-                       'Running')
+    $RunningStates = @('New', 
+        'Activating', 
+    'Running')
 
-    $null = $(
+    $Null = $(
         $jobId = Start-SmaRunbook -Name $Name `
                                   -Parameters $Parameters `
-                                  -WebServiceEndpoint $WebserviceEndpoint `
+                                  -WebServiceEndpoint $WebServiceEndpoint `
                                   -Credential $Credential
         
         if(-not $jobId)
         {
-            Throw-Exception -Type "Failed to start runbook" `
-                            -Message "The target runbook did not start properly" `
-                            -Property @{ 'Name' = $Name ;
-                                         'Parameters' = $Parameters ;
-                                         'WebserviceEnpoint' = $WebserviceEndpoint ;
-                                         'Timeout' = $Timeout ;
-                                         'CredentialName' = $Credential.UserName  }
+            Throw-Exception -Type 'Failed to start runbook' `
+                            -Message 'The target runbook did not start properly' `
+                            -Property @{
+                                           'Name' = $Name
+                                            'Parameters' = $Parameters
+                                            'WebserviceEnpoint' = $WebServiceEndpoint
+                                            'Timeout' = $Timeout
+                                            'CredentialName' = $Credential.UserName
+                                        }
         }
         while($startTime.AddSeconds($Timeout) -gt (Get-Date) -and 
-             (Get-SmaJob -Id $jobId -WebServiceEndpoint $WebserviceEndpoint -Credential $Credential).JobStatus -in $RunningStates)
+        (Get-SmaJob -Id $jobId -WebServiceEndpoint $WebServiceEndpoint -Credential $Credential).JobStatus -in $RunningStates)
         {
             Start-Sleep -Seconds 5
         }
-        $jobStatus = (Get-SmaJob -Id $jobId -WebServiceEndpoint $WebserviceEndpoint -Credential $Credential).JobStatus
+        $JobStatus = (Get-SmaJob -Id $jobId -WebServiceEndpoint $WebServiceEndpoint -Credential $Credential).JobStatus
 
         if($JobStatus -ne 'Completed')
         {
-            Throw-Exception -Type "Job did not complete successfully" `
-                            -Message "The job encountered an error and did not complete" `
-                            -Property @{ 'Input Parameters' = @{ 'Name' = $Name ;
-                                                                 'Parameters' = $Parameters ;
-                                                                 'WebserviceEndpoint' = $WebserviceEndpoint ;
-                                                                 'Timeout' = $Timeout ;
-                                                                 'CredentialName' = $Credential.UserName } ;
-                                         'Timeout' = (-not ($startTime.AddSeconds($Timeout) -gt (Get-Date))) ;
-                                         'Job' = (Get-SmaJob -Id $jobId -WebServiceEndpoint $WebserviceEndpoint -Credential $Credential) }
+            Throw-Exception -Type 'Job did not complete successfully' `
+            -Message 'The job encountered an error and did not complete' `
+            -Property @{
+                'Input Parameters' = @{
+                    'Name'             = $Name
+                    'Parameters'       = $Parameters
+                    'WebserviceEndpoint' = $WebServiceEndpoint
+                    'Timeout'          = $Timeout
+                    'CredentialName'   = $Credential.UserName
+                }
+                'Timeout'        = (-not ($startTime.AddSeconds($Timeout) -gt (Get-Date)))
+                'Job'            = (Get-SmaJob -Id $jobId -WebServiceEndpoint $WebServiceEndpoint -Credential $Credential)
+            }
         }
         
-        $SerializedOutput = (Get-SmaJobOutput -Id $jobId -WebServiceEndpoint $WebserviceEndpoint -Stream Output -Credential $Credential)
+        $SerializedOutput = (Get-SmaJobOutput -Id $jobId -WebServiceEndpoint $WebServiceEndpoint -Stream Output -Credential $Credential)
         if($SerializedOutput)
         {
             $jobOutput = ($SerializedOutput.StreamText -as [string]).Trim()
@@ -215,39 +244,53 @@ Function Start-SmaRunbookSync
 }
 <#
     .Synopsis
-        Returns all SMA runbooks. Correctly pages through all pages of runbooks  
+    Returns all SMA runbooks. Correctly pages through all pages of runbooks  
 #>
 Function Get-SMARunbookPaged
 {
-    Param( [Parameter(Mandatory=$True)] [String]       $WebserviceEndpoint,
-           [Parameter(Mandatory=$False)][PSCredential] $Credential,
-           [Parameter(Mandatory=$false)][String]       $tenantID = "00000000-0000-0000-0000-000000000000",
-           [Parameter(Mandatory=$False)][String]       $Port = '9090')
+    Param( 
+        [Parameter(Mandatory = $True)] [String]       $WebServiceEndpoint,
+        [Parameter(Mandatory = $False)][PSCredential] $Credential,
+        [Parameter(Mandatory = $False)][String]       $tenantID = '00000000-0000-0000-0000-000000000000',
+        [Parameter(Mandatory = $False)][String]       $Port = '9090'
+    )
     
-    [System.Net.ServicePointManager]::CertificatePolicy = new-object IDontCarePolicy
+    [System.Net.ServicePointManager]::CertificatePolicy = New-Object -TypeName IDontCarePolicy
 
-    Write-Verbose -Message "Starting"
-    $RunbookUri = "$($webserviceendpoint):$($Port)/$($tenantID)/Runbooks"
-    $null = $(
-        if ($Credential) { $Runbooks = Invoke-RestMethod -Uri $RunbookUri -Credential $Credential }
-        else             { $Runbooks = Invoke-RestMethod -Uri $RunbookUri -UseDefaultCredentials }
+    Write-Verbose -Message 'Starting'
+    $RunbookUri = "$($WebServiceEndpoint):$($Port)/$($tenantID)/Runbooks"
+    $Null = $(
+        if ($Credential) 
+        {
+            $Runbooks = Invoke-RestMethod -Uri $RunbookUri -Credential $Credential 
+        }
+        else             
+        {
+            $Runbooks = Invoke-RestMethod -Uri $RunbookUri -UseDefaultCredentials 
+        }
 
-		$box = New-Object System.Collections.ArrayList
+        $box = New-Object -TypeName System.Collections.ArrayList
         do
         {
-            $addedToBox = $false
+            $addedToBox = $False
 
             foreach ($Runbook in $Runbooks) 
             { 
-                $box.Add((Format-SMAObject -Object $Runbook)) | Out-Null
-                $addedToBox = $true
+                $Null = $box.Add((Format-SMAObject -Object $Runbook))
+                $addedToBox = $True
             }
             if($addedToBox)
             {
                 $SkipURL = "$($RunbookUri)?$`skiptoken=guid'$($box[-1].RunbookID)'"
                 Write-Verbose -Message "`$SkipURL [$SkipURL]"
-                if ($Credential) { $Runbooks = Invoke-RestMethod -Uri $SkipURL -Credential $Credential }
-                else             { $Runbooks = Invoke-RestMethod -Uri $SkipURL -UseDefaultCredentials }
+                if ($Credential) 
+                {
+                    $Runbooks = Invoke-RestMethod -Uri $SkipURL -Credential $Credential 
+                }
+                else             
+                {
+                    $Runbooks = Invoke-RestMethod -Uri $SkipURL -UseDefaultCredentials 
+                }
             }
         }
         while($addedToBox)
@@ -256,11 +299,11 @@ Function Get-SMARunbookPaged
 }
 <#
     .Synopsis
-        Used to make SMA objects more friendly
+    Used to make SMA objects more friendly
 #>
 Function Format-SMAObject
 {
-    Param([Parameter(Mandatory=$true)] $object)
+    Param([Parameter(Mandatory = $True)] $object)
     
     $PropertyHT = @{}
     $PropertyHT.Add('Id', $object.id)
@@ -273,24 +316,26 @@ Function Format-SMAObject
         $PropertyHT.Add($Property.LocalName, $Property.FirstChild.Value)
     }
 
-    (ConvertFrom-JSON (ConvertTo-Json $PropertyHT))
+    (ConvertFrom-Json -InputObject (ConvertTo-Json $PropertyHT))
 }
 <#
     .Synopsis
-        Sets the tag line on runbooks
+    Sets the tag line on runbooks
 #>
 Function Set-SmaRunbookTags
 {
-    Param([Parameter(Mandatory=$true)][string]$RunbookID, 
-          [Parameter(Mandatory=$false)][string]$Tags=$null,
-          [Parameter(Mandatory=$true)][string]$WebserviceEndpoint=$null,
-          [Parameter(Mandatory=$false)][string]$TenantId='00000000-0000-0000-0000-000000000000',
-          [Parameter(Mandatory=$false)][string]$port = "9090",
-          [Parameter(Mandatory=$false)][pscredential]$Credential)
+    Param(
+        [Parameter(Mandatory = $True)][string]$RunbookID, 
+        [Parameter(Mandatory = $False)][string]$Tags = $Null,
+        [Parameter(Mandatory = $True)][string]$WebServiceEndpoint = $Null,
+        [Parameter(Mandatory = $False)][string]$tenantID = '00000000-0000-0000-0000-000000000000',
+        [Parameter(Mandatory = $False)][string]$Port = '9090',
+        [Parameter(Mandatory = $False)][pscredential]$Credential
+    )
 
-    $null = $(
+    $Null = $(
         Write-Verbose -Message "Starting Set-SmaRunbookTags for [$RunbookID] Tags [$Tags]" 
-        $RunbookURI = "$($WebserviceEndpoint):$($port)/$($TenantId)/Runbooks(guid'$($RunbookID)')"
+        $RunbookUri = "$($WebServiceEndpoint):$($Port)/$($tenantID)/Runbooks(guid'$($RunbookID)')"
         [xml]$baseXML = @'
 <?xml version="1.0" encoding="utf-8"?>
 <entry xmlns="http://www.w3.org/2005/Atom" xmlns:d="http://schemas.microsoft.com/ado/2007/08/dataservices" xmlns:m="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata">
@@ -308,33 +353,34 @@ Function Set-SmaRunbookTags
     </content>
 </entry>
 '@
-        $baseXML.Entry.id                      = $RunbookURI
+        $baseXML.Entry.id                      = $RunbookUri
         $baseXML.Entry.Content.Properties.Tags = [string]$Tags
+
+        $MergeParameters = @{
+            'Method' = 'Merge' ;
+            'Uri' = $RunbookUri ;
+            'Body' = $baseXML ;
+            'Credential' = $Credential ;
+            'ContentType' = 'application/atom+xml' ;
+        }
 
         if($Credential)
         {
-            $output = Invoke-RestMethod -Method Merge `
-                                        -Uri $RunbookURI `
-                                        -Body $baseXML `
-                                        -Credential $Credential `
-                                        -ContentType 'application/atom+xml'
+            $MergeParameters.Add('Credential', $Credential) | Out-Null
         }
         else
         {
-            $output = Invoke-RestMethod -Method Merge `
-                                        -Uri $RunbookURI `
-                                        -Body $baseXML `
-                                        -UseDefaultCredentials `
-                                        -ContentType 'application/atom+xml'
+            $MergeParameters.Add('UseDefaultCredentials', $True) | Out-Null
         }
+        $output = Invoke-RestMethod @MergeParameters
         Write-Verbose -Message "Finished Set-SmaRunbookTags for $RunbookID"
     )
 }
 <#
-    .Synopsis
-        Returns all runbook workers in FQDN format. Expects that all runbook
-        workers are in the same domain as the worker that this command is run
-        from. If local development defaults to 'localhost'
+.Synopsis
+    Returns all runbook workers in FQDN format. Expects that all runbook
+    workers are in the same domain as the worker that this command is run
+    from. If local development defaults to 'localhost'
 #>
 Function Get-SMARunbookWorker
 {
@@ -361,187 +407,237 @@ Function Get-SMARunbookWorker
     }
 }
 <#
-    .Synopsis
-        Returns job data about a runbook worker for a given time window. Default time
-        window is the last hour
+.Synopsis
+    Returns job data about a runbook worker for a given time window. Default time
+    window is the last hour
     
-    .Parameter SqlServer
-        The name of the SQL server hosting the SMA database
+.Parameter SqlServer
+    The name of the SQL server hosting the SMA database
     
-    .Parameter Host
-        The Name of the runbook worker to return information for
+.Parameter Host
+    The Name of the runbook worker to return information for
 
-    .Parameter StartTime
-        The Start Time for the window of logs
+.Parameter StartTime
+    The Start Time for the window of logs
 
-    .Parameter EndTime
-        The End Time for the window of logs
+.Parameter EndTime
+    The End Time for the window of logs
 #>
 Function Get-SmaRunbookWorkerJob
 {
-    Param([Parameter(Mandatory=$true) ][string]   $SqlServer,
-          [Parameter(Mandatory=$true) ][string]   $RunbookWorker,
-          [Parameter(Mandatory=$false)][DateTime] $StartTime = (Get-Date).AddHours(-1),
-          [Parameter(Mandatory=$false)][AllowNull()] $EndTime = $null,
-          [Parameter(Mandatory=$false)]
-          [ValidateSet('New', 'Activating', 'Running', 'Completed', 'Failed', 'Stopped',
-                       'Blocked', 'Suspended', 'Disconnected', 'Suspending', 'Stopping',
-                       'Resuming', 'Removing', 'All')]
-          $JobStatus = 'All')
+    Param(
+        [Parameter(Mandatory = $True)]
+        [string]
+        $SqlServer,
+
+        [Parameter(Mandatory = $True)]
+        [string]
+        $RunbookWorker,
+
+        [Parameter(Mandatory = $False)]
+        [DateTime]
+        $startTime = (Get-Date).AddHours(-1),
+
+        [Parameter(Mandatory = $False)]
+        [AllowNull()]
+        $EndTime = $Null,
+
+        [Parameter(Mandatory = $False)]
+        [ValidateSet('New', 'Activating', 'Running', 'Completed', 'Failed', 'Stopped',
+                     'Blocked', 'Suspended', 'Disconnected', 'Suspending', 'Stopping',
+                     'Resuming', 'Removing', 'All')]
+        $JobStatus = 'All'
+    )
 
     $SqlQuery = 'DECLARE @low INT, @high INT
-                            SELECT @low = LowKey, @high = HighKey 
-                            FROM [SMA].[Queues].[Deployment]
-                            WHERE ComputerName = @RunbookWorker
- 
-                            select r.*, 
-	                               j.*
-                            from sma.core.vwJobs as j
-                            inner join [SMA].[Core].[RunbookVersions] as v
-                            on j.RunbookVersionId = v.RunbookVersionId
-                            inner join [SMA].[Core].[Runbooks] as r 
-                            on v.RunbookKey = r.RunbookKey
-                            where PartitionId > @low and PartitionId < @high
-                            and StartTime >  @start'
-    $Parameters = @{'start' = $StartTime ;
-                    'RunbookWorker' = $RunbookWorker}
+                 SELECT @low = LowKey, @high = HighKey 
+                 FROM [SMA].[Queues].[Deployment]
+                 WHERE ComputerName = @RunbookWorker
+
+                 select r.*, 
+                 j.*
+                 from sma.core.vwJobs as j
+                 inner join [SMA].[Core].[RunbookVersions] as v
+                 on j.RunbookVersionId = v.RunbookVersionId
+                 inner join [SMA].[Core].[Runbooks] as r 
+                 on v.RunbookKey = r.RunbookKey
+                 where PartitionId > @low and PartitionId < @high
+                 and StartTime >  @StartTime'
+    $Parameters = @{
+        'StartTime' = $startTime
+        'RunbookWorker' = $RunbookWorker
+    }
     if($EndTime) 
     { 
-        $SqlQuery = "$($SqlQuery)`r`nand StartTime < @end" 
-        $Parameters.Add('end',$EndTime) | Out-Null
-
+        $SqlQuery = "$($SqlQuery)`r`nand StartTime < @EndTime" 
+        $Null = $Parameters.Add('EndTime',$EndTime)
     }
     if($JobStatus -ne 'All')
     {
         $SqlQuery = "$($SqlQuery)`r`nand j.JobStatus = @JobStatus" 
-        $Parameters.Add('JobStatus',$JobStatus) | Out-Null
+        $Null = $Parameters.Add('JobStatus',$JobStatus)
     }
     Invoke-SqlQuery -query $SqlQuery `
                     -parameters $Parameters `
                     -connectionString "Data Source=$SqlServer;Initial Catalog=SMA;Integrated Security=True;"
 }
 <#
-    .Synopsis
-        Starts a SMA runbook. Uses invoke-restmethod instead of Start-SMARunbook.
+.Synopsis
+    Starts a SMA runbook. Uses invoke-restmethod instead of Start-SMARunbook.
     
-    .Parameter RunbookId
-        The GUID of the runbook to start
+.Parameter RunbookId
+    The GUID of the runbook to start
 
-    .Parameter WebserviceEndpoint
-        The url for the SMA webservice
+.Parameter WebserviceEndpoint
+    The url for the SMA webservice
 
-    .Parameter WebservicePort
-        The port that the SMA webservice is running on.
+.Parameter WebservicePort
+    The port that the SMA webservice is running on.
 
-    .Parameter TenantID
-        The ID of the target tenant
+.Parameter TenantID
+    The ID of the target tenant
 
-    .Parameter Credential
-        A credential object to use for the request. If not passed this method will use
-        the default credential
+.Parameter Credential
+    A credential object to use for the request. If not passed this method will use
+    the default credential
 #>
 Function Start-SmaRunbookREST
 {
-    Param([Parameter(Mandatory=$True)] [string]  $RunbookId,
-          [Parameter(Mandatory=$False)]          $Parameters = $null,
-          [Parameter(Mandatory=$False)][string]  $WebserviceEndpoint = 'https://localhost',
-          [Parameter(Mandatory=$False)][string]  $WebservicePort = '9090',
-          [Parameter(Mandatory=$False)][string]  $TenantID = '00000000-0000-0000-0000-000000000000',
-          [Parameter(Mandatory=$False)][pscredential] $Credential)
+    Param(
+        [Parameter(Mandatory = $True)] [string]  $RunbookID,
+        [Parameter(Mandatory = $False)]          $Parameters = $Null,
+        [Parameter(Mandatory = $False)][string]  $WebServiceEndpoint = 'https://localhost',
+        [Parameter(Mandatory = $False)][string]  $WebservicePort = '9090',
+        [Parameter(Mandatory = $False)][string]  $tenantID = '00000000-0000-0000-0000-000000000000',
+        [Parameter(Mandatory = $False)][pscredential] $Credential
+    )
     
-    $null = $(
-        [System.Net.ServicePointManager]::CertificatePolicy = new-object IDontCarePolicy
-        $RestMethodParameters = @{ 'URI' = "$($WebserviceEndpoint):$($WebservicePort)/$($TenantID)/Runbooks(guid'$($RunbookId)')/Start" ;
-                                    'Method' = 'Post'
-                                    'ContentType' = 'application/json;odata=verbose' }
-        if(-not $Parameters) { $_Parameters = @{ 'parameters' = $null } }
+    $Null = $(
+        [System.Net.ServicePointManager]::CertificatePolicy = New-Object -TypeName IDontCarePolicy
+        $RestMethodParameters = @{
+            'URI'       = "$($WebServiceEndpoint):$($WebservicePort)/$($tenantID)/Runbooks(guid'$($RunbookID)')/Start"
+            'Method'    = 'Post'
+            'ContentType' = 'application/json;odata=verbose'
+        }
+        if(-not $Parameters) 
+        {
+            $_Parameters = @{
+                'parameters' = $Null
+            }
+        }
         else
         {
-            $_Parameters = @{'parameters' = @()}
+            $_Parameters = @{
+                'parameters' = @()
+            }
             foreach($key in $Parameters.Keys)
             {
-                $Parameter = @{'__metadata' = @{ 'type' = 'Orchestrator.ResourceModel.NameValuePair' } ;
-                               'Name' = $key ;
-                               'Value' = $Parameters."$key" }
+                $Parameter = @{
+                    '__metadata' = @{
+                        'type' = 'Orchestrator.ResourceModel.NameValuePair'
+                    }
+                    'Name'     = $key
+                    'Value'    = $Parameters."$key"
+                }
                 $_Parameters.Parameters += ($Parameter)
             }
         }
         $RestMethodParameters.Add('Body', (ConvertTo-Json -Depth 3 -InputObject $_Parameters -Compress))                      
-        if($Credential) { $RestMethodParameters.Add('Credential',$Credential) }
-        else { $RestMethodParameters.Add('UseDefaultCredentials', $True) }
+        if($Credential) 
+        {
+            $RestMethodParameters.Add('Credential',$Credential) 
+        }
+        else 
+        {
+            $RestMethodParameters.Add('UseDefaultCredentials', $True) 
+        }
 
         $Result = Invoke-RestMethod @RestMethodParameters
     )
     return $Result
 }
 <#
-    .Synopsis
-        Returns modules from a target SMA environment
+.Synopsis
+    Returns modules from a target SMA environment
     
-    .Parameter WebserviceEndpoint
-        The url for the SMA webservice
+.Parameter WebserviceEndpoint
+    The url for the SMA webservice
 
-    .Parameter WebservicePort
-        The port that the SMA webservice is running on.
+.Parameter WebservicePort
+    The port that the SMA webservice is running on.
 
-    .Parameter TenantID
-        The ID of the target tenant
+.Parameter TenantID
+    The ID of the target tenant
 
-    .Parameter Credential
-        A credential object to use for the request. If not passed this method will use
-        the default credential
+.Parameter Credential
+    A credential object to use for the request. If not passed this method will use
+    the default credential
 #>
 Function Get-SmaModuleREST
 {
-    Param([Parameter(Mandatory=$False)][string]  $WebserviceEndpoint = 'https://localhost',
-          [Parameter(Mandatory=$False)][string]  $WebservicePort = '9090',
-          [Parameter(Mandatory=$False)][string]  $TenantID = '00000000-0000-0000-0000-000000000000',
-          [Parameter(Mandatory=$False)][pscredential] $Credential)
+    Param(
+        [Parameter(Mandatory = $False)][string]  $WebServiceEndpoint = 'https://localhost',
+        [Parameter(Mandatory = $False)][string]  $WebservicePort = '9090',
+        [Parameter(Mandatory = $False)][string]  $tenantID = '00000000-0000-0000-0000-000000000000',
+        [Parameter(Mandatory = $False)][pscredential] $Credential
+    )
     
-    $null = $(
-        [System.Net.ServicePointManager]::CertificatePolicy = new-object IDontCarePolicy
-        $RestMethodParameters = @{ 'URI' = "$($WebserviceEndpoint):$($WebservicePort)/$($TenantID)/Modules" ;
-                                   'Method' = 'Get'
-                                   'ContentType' = 'application/json;odata=verbose' }
+    $Null = $(
+        [System.Net.ServicePointManager]::CertificatePolicy = New-Object IDontCarePolicy
+        $RestMethodParameters = @{
+            'URI'       = "$($WebServiceEndpoint):$($WebservicePort)/$($tenantID)/Modules"
+            'Method'    = 'Get'
+            'ContentType' = 'application/json;odata=verbose'
+        }
        
-        if($Credential) { $RestMethodParameters.Add('Credential',$Credential) }
-        else { $RestMethodParameters.Add('UseDefaultCredentials', $True) }
+        if($Credential) 
+        {
+            $RestMethodParameters.Add('Credential',$Credential) 
+        }
+        else 
+        {
+            $RestMethodParameters.Add('UseDefaultCredentials', $True) 
+        }
 
         $Result = Invoke-RestMethod @RestMethodParameters
         $outputArray = @()
         foreach($object in $Result)
         {
-            $o = @{ 'ModuleId' = $object.properties.ModuleID.'#text' -as [guid] ;
-                    'CreationTime' = $object.properties.CreationTime.'#text' -as [datetime] ;
-                    'Version' = $object.properties.Version.'#text' -as [int32] ;
-                    'LastModifiedTime' = $object.properties.LastModifiedTime.'#text' -as [datetime] ;
-                    'ModuleName' = $object.properties.ModuleName -as [string] ; }
+            $o = @{
+                'ModuleId'       = $object.properties.ModuleID.'#text' -as [guid]
+                'CreationTime'   = $object.properties.CreationTime.'#text' -as [datetime]
+                'Version'        = $object.properties.Version.'#text' -as [int32]
+                'LastModifiedTime' = $object.properties.LastModifiedTime.'#text' -as [datetime]
+                'ModuleName'     = $object.properties.ModuleName -as [string]
+            }
             $outputArray += $o
         }
     )
     return $outputArray
 }
 <#
-    .Synopsis
-        Imports a PowerShell module into SMA. Module must be deployed locally
-        and a part of the PSModulePath
+.Synopsis
+    Imports a PowerShell module into SMA. Module must be deployed locally
+    and a part of the PSModulePath
     
-    .Parameter ModuleName
-        The name of the module
+.Parameter ModuleName
+    The name of the module
 
-    .Parameter WebservicePort
-        The port that the SMA webservice is running on.
+.Parameter WebservicePort
+    The port that the SMA webservice is running on.
 
-    .Parameter Credential
-        A credential object to use for the request. If not passed this method will use
-        the default credential
+.Parameter Credential
+    A credential object to use for the request. If not passed this method will use
+    the default credential
 #>
 Function Import-SmaPowerShellModule
 {
-    Param([Parameter(Mandatory=$True) ][string]  $ModuleName,
-          [Parameter(Mandatory=$False)][string]  $WebserviceEndpoint = 'https://localhost',
-          [Parameter(Mandatory=$False)][string]  $WebservicePort = '9090',
-          [Parameter(Mandatory=$False)][pscredential] $Credential)
+    Param(
+        [Parameter(Mandatory = $True) ][string]  $ModuleName,
+        [Parameter(Mandatory = $False)][string]  $WebServiceEndpoint = 'https://localhost',
+        [Parameter(Mandatory = $False)][string]  $WebservicePort = '9090',
+        [Parameter(Mandatory = $False)][pscredential] $Credential
+    )
     
     $Module = Get-Module -ListAvailable -Name $ModuleName -Refresh
     $ModuleFolderPath = (Get-Item -Path $Module.Path).Directory.FullName
@@ -554,7 +650,7 @@ Function Import-SmaPowerShellModule
                     -ZipFilePath $ZipFile `
                     -OverwriteExisting $True
         Import-SmaModule -Path $ZipFile `
-                         -WebServiceEndpoint $WebserviceEndpoint `
+                         -WebServiceEndpoint $WebServiceEndpoint `
                          -Port $WebservicePort `
                          -Credential $Credential
     }
@@ -564,4 +660,48 @@ Function Import-SmaPowerShellModule
     }
 }
 
-Export-ModuleMember -Function * -Verbose:$false -Debug:$False
+<#
+    .Synopsis
+    returns the default webservice endpoint  
+#>
+Function Get-WebserviceEndpoint
+{
+    [OutputType([string])]
+    Param()
+    Return 'https://localhost'
+}
+<#
+    .Synopsis
+    returns the default webservice port  
+#>
+Function Get-WebservicePort
+{
+    [OutputType([int])]
+    Param()
+    Return 9090
+}
+s
+Export-ModuleMember -Function * -Verbose:$False -Debug:$False
+# SIG # Begin signature block
+# MIID1QYJKoZIhvcNAQcCoIIDxjCCA8ICAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
+# gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQU50Svy8I4apSQMx9risTCi2JI
+# 7pOgggH3MIIB8zCCAVygAwIBAgIQEdV66iePd65C1wmJ28XdGTANBgkqhkiG9w0B
+# AQUFADAUMRIwEAYDVQQDDAlTQ09yY2hEZXYwHhcNMTUwMzA5MTQxOTIxWhcNMTkw
+# MzA5MDAwMDAwWjAUMRIwEAYDVQQDDAlTQ09yY2hEZXYwgZ8wDQYJKoZIhvcNAQEB
+# BQADgY0AMIGJAoGBANbZ1OGvnyPKFcCw7nDfRgAxgMXt4YPxpX/3rNVR9++v9rAi
+# pY8Btj4pW9uavnDgHdBckD6HBmFCLA90TefpKYWarmlwHHMZsNKiCqiNvazhBm6T
+# XyB9oyPVXLDSdid4Bcp9Z6fZIjqyHpDV2vas11hMdURzyMJZj+ibqBWc3dAZAgMB
+# AAGjRjBEMBMGA1UdJQQMMAoGCCsGAQUFBwMDMB0GA1UdDgQWBBQ75WLz6WgzJ8GD
+# ty2pMj8+MRAFTTAOBgNVHQ8BAf8EBAMCB4AwDQYJKoZIhvcNAQEFBQADgYEAoK7K
+# SmNLQ++VkzdvS8Vp5JcpUi0GsfEX2AGWZ/NTxnMpyYmwEkzxAveH1jVHgk7zqglS
+# OfwX2eiu0gvxz3mz9Vh55XuVJbODMfxYXuwjMjBV89jL0vE/YgbRAcU05HaWQu2z
+# nkvaq1yD5SJIRBooP7KkC/zCfCWRTnXKWVTw7hwxggFIMIIBRAIBATAoMBQxEjAQ
+# BgNVBAMMCVNDT3JjaERldgIQEdV66iePd65C1wmJ28XdGTAJBgUrDgMCGgUAoHgw
+# GAYKKwYBBAGCNwIBDDEKMAigAoAAoQKAADAZBgkqhkiG9w0BCQMxDAYKKwYBBAGC
+# NwIBBDAcBgorBgEEAYI3AgELMQ4wDAYKKwYBBAGCNwIBFTAjBgkqhkiG9w0BCQQx
+# FgQUvFyNL+9GB71ioOqHjqk+CcC1AJ8wDQYJKoZIhvcNAQEBBQAEgYC+aUxjaVPp
+# UIpaz7v99yozVenl/RV+QrRrZp8H/sVDev4j0MT9FP0rvHQwv3tXlf0Iv8nEsEtj
+# TbOS81GPrDgfMiA27+kSPMzRMOKYgY3ge/nG5y0KNy4F5cCzLOZR30eVWDHNZ2j0
+# YMddx0IOkQQ6hWQqT3EeuIMhwGBdTg0hSg==
+# SIG # End signature block
