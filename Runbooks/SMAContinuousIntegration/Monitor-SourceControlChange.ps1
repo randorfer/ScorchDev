@@ -1,8 +1,8 @@
 ﻿<#
     .Synopsis
-        Monitors a local git repository for new commits from a centralized repository.
-        When a new commit is found a list of modified files is passed to Sync-CommitChanges
-        to update the SMA environment with those changes
+    Monitors a local git repository for new commits from a centralized repository.
+    When a new commit is found a list of modified files is passed to Sync-CommitChanges
+    to update the SMA environment with those changes
 #>
 workflow Monitor-SourceControlChange
 {
@@ -11,9 +11,9 @@ workflow Monitor-SourceControlChange
     Write-Verbose -Message "Starting [$WorkflowCommandName]"
     $ErrorActionPreference = [System.Management.Automation.ActionPreference]::Stop
 
-    $CIVariables = Get-BatchAutomationVariable -Name @('MonitorLifeSpan',
-                                                       'MonitorDelayCycle',
-                                                       'MonitorCheckpoint',
+    $CIVariables = Get-BatchAutomationVariable -Name @('MonitorLifeSpan', 
+                                                       'MonitorDelayCycle', 
+                                                       'MonitorCheckpoint', 
                                                        'RepositoryInformation') `
                                                -Prefix 'SMAContinuousIntegration'
 
@@ -22,18 +22,18 @@ workflow Monitor-SourceControlChange
     $LastCommit         = $CIVariables.GitCurrentCommit
     while($MonitorActive)
     {
-		try
-		{
-            $RepositoryInformation = ConvertFrom-JSON $CIVariables.RepositoryInformation
-            foreach($RepositoryName in (ConvertFrom-PSCustomObject -InputObject $RepositoryInformation `
-                                                                   -KeyFilterScript {
-                                                                        Param($KeyName)
-                                                                        if($KeyName -notin ('PSComputerName',
-                                                                                            'PSShowComputerName',
-                                                                                            'PSSourceJobInstanceId'))
-                                                                        {
-                                                                            $KeyName
-                                                                        }}).Keys )
+        try
+        {
+            $RepositoryInformation = ConvertFrom-Json -InputObject $CIVariables.RepositoryInformation
+            $RepositoryInformationKeys = (ConvertFrom-PSCustomObject -InputObject $RepositoryInformation -KeyFilterScript {
+                    Param($KeyName)
+                    if($KeyName -notin @('PSComputerName', 'PSShowComputerName', 'PSSourceJobInstanceId'))
+                    {
+                        $KeyName
+                    }
+                }
+            ).Keys
+            foreach($RepositoryName in $RepositoryInformationKeys)
             {
                 Write-Verbose -Message "[$RepositoryName] Starting Processing"
                 Invoke-GitRepositorySync -RepositoryName $RepositoryName
@@ -55,34 +55,37 @@ workflow Monitor-SourceControlChange
             }
         }
         finally
-		{
-			#region Sleep for Delay Cycle
-			[int]$RemainingDelay = $CIVariables.MonitorDelayCycle - (Get-Date).TimeOfDay.TotalSeconds % $CIVariables.MonitorDelayCycle 
-			If ( $RemainingDelay -eq 0 ) { $RemainingDelay = $CIVariables.MonitorDelayCycle  }
-			Write-Verbose -Message "Sleeping for $RemainingDelay seconds."
-			Checkpoint-Workflow
+        {
+            #region Sleep for Delay Cycle
+            [int]$RemainingDelay = $CIVariables.MonitorDelayCycle - (Get-Date).TimeOfDay.TotalSeconds % $CIVariables.MonitorDelayCycle 
+            If ( $RemainingDelay -eq 0 ) 
+            {
+                $RemainingDelay = $CIVariables.MonitorDelayCycle
+            }
+            Write-Verbose -Message "Sleeping for $RemainingDelay seconds."
+            Checkpoint-Workflow
 
-			While ( $RemainingDelay -gt 0 )
-			{    
-				Start-Sleep -Seconds ( [math]::Min( $RemainingDelay, $CIVariables.MonitorCheckpoint ) )
-				Checkpoint-Workflow
-				$RemainingDelay -= $CIVariables.MonitorCheckpoint
-			}
-			#endregion
-			$MonitorActive = ( Get-Date ) -lt $MonitorRefreshTime
-		}
+            While ( $RemainingDelay -gt 0 )
+            {    
+                Start-Sleep -Seconds ( [math]::Min( $RemainingDelay, $CIVariables.MonitorCheckpoint ) )
+                Checkpoint-Workflow
+                $RemainingDelay -= $CIVariables.MonitorCheckpoint
+            }
+            #endregion
+            $MonitorActive = ( Get-Date ) -lt $MonitorRefreshTime
+        }
     }
-	#  Relaunch this monitor
-	Write-Verbose -Message "Reached end of monitor lifespan. Relaunching this monitor [$WorkflowCommandName]."
-	$Launch = Start-SmaRunbook -Name $WorkflowCommandName `
-     						   -WebServiceEndpoint $WebServiceEndpoint
+    #  Relaunch this monitor
+    Write-Verbose -Message "Reached end of monitor lifespan. Relaunching this monitor [$WorkflowCommandName]."
+    $Launch = Start-SmaRunbook -Name $WorkflowCommandName `
+                               -WebServiceEndpoint $WebServiceEndpoint
 }
 
 # SIG # Begin signature block
 # MIIOfQYJKoZIhvcNAQcCoIIObjCCDmoCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUNFdfkXsVHxbSuhwHInQZx08X
-# lP6gggqQMIIB8zCCAVygAwIBAgIQEdV66iePd65C1wmJ28XdGTANBgkqhkiG9w0B
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQU4/cqilnAUwepGlAapZf4HPMd
+# w2egggqQMIIB8zCCAVygAwIBAgIQEdV66iePd65C1wmJ28XdGTANBgkqhkiG9w0B
 # AQUFADAUMRIwEAYDVQQDDAlTQ09yY2hEZXYwHhcNMTUwMzA5MTQxOTIxWhcNMTkw
 # MzA5MDAwMDAwWjAUMRIwEAYDVQQDDAlTQ09yY2hEZXYwgZ8wDQYJKoZIhvcNAQEB
 # BQADgY0AMIGJAoGBANbZ1OGvnyPKFcCw7nDfRgAxgMXt4YPxpX/3rNVR9++v9rAi
@@ -141,20 +144,20 @@ workflow Monitor-SourceControlChange
 # PiJoY1OavWl0rMUdPH+S4MO8HNgEdTGCA1cwggNTAgEBMCgwFDESMBAGA1UEAwwJ
 # U0NPcmNoRGV2AhAR1XrqJ493rkLXCYnbxd0ZMAkGBSsOAwIaBQCgeDAYBgorBgEE
 # AYI3AgEMMQowCKACgAChAoAAMBkGCSqGSIb3DQEJAzEMBgorBgEEAYI3AgEEMBwG
-# CisGAQQBgjcCAQsxDjAMBgorBgEEAYI3AgEVMCMGCSqGSIb3DQEJBDEWBBTddkGB
-# 3+2ohIfSvn1zL/asYOBMrzANBgkqhkiG9w0BAQEFAASBgBvH6sbZBnTfu/TDlek/
-# 3cjFfAyX4C4rH+jywDmdfJGGp02/Xfbph6bYLBWvtJouqT2L3VO4R+e/Kf+Dv8hr
-# P4uRCnwvJzfptN7GfnZoR/boTtMazakuJSyg9Bewrr6NoGpAHyXlvGJJ7kxaDErm
-# FdGlHjEvcTFu/OEr2/TV+knYoYICCzCCAgcGCSqGSIb3DQEJBjGCAfgwggH0AgEB
+# CisGAQQBgjcCAQsxDjAMBgorBgEEAYI3AgEVMCMGCSqGSIb3DQEJBDEWBBTqc/pk
+# WWyIywRImntzfRWLrtU+8TANBgkqhkiG9w0BAQEFAASBgAx/CoXISF/02Klob6ZB
+# DD6W+dsZdUc3TMcHxaBcK07OCJhWPEkIgrsXo+Pt91WmkWNkOXPWdkeh8aFWCXtk
+# e+YKOPKUxgKANXgaBMWFC8l9Dc12sNfvR07scPLx0p3UPnaFAHbI288saMt3yiGn
+# vOuZk7pB++N/m5b9knh9s3mCoYICCzCCAgcGCSqGSIb3DQEJBjGCAfgwggH0AgEB
 # MHIwXjELMAkGA1UEBhMCVVMxHTAbBgNVBAoTFFN5bWFudGVjIENvcnBvcmF0aW9u
 # MTAwLgYDVQQDEydTeW1hbnRlYyBUaW1lIFN0YW1waW5nIFNlcnZpY2VzIENBIC0g
 # RzICEA7P9DjI/r81bgTYapgbGlAwCQYFKw4DAhoFAKBdMBgGCSqGSIb3DQEJAzEL
-# BgkqhkiG9w0BBwEwHAYJKoZIhvcNAQkFMQ8XDTE1MDMxNjIwMTcxMFowIwYJKoZI
-# hvcNAQkEMRYEFJKa6sCI2glpA13LLWd3gcy+X/2QMA0GCSqGSIb3DQEBAQUABIIB
-# AEXRW5mBmMFMP04X3AImMLCxEKbzRwEW9C5R4aiJyTrNmCmgNv/1y1tv9b/FhUNN
-# WplcyQHgUD2DNJHriw9Acdk+HZV0VKMkwiXmiHZZzKpXefW4Juo8PIQ3KuAd1/Ss
-# a80bmEQSNaNNT1e2bzzU8hcNASctNbsUV0e5IfrrlCwvjpj5UY1osO0dJOBYtoJa
-# Z9XqWtXQZ4s0hreny7Fb3U7vrqRkEDYN+Mambj/Hj3HMzy/PrEAJ7ZSMXoIB2sXa
-# U5PkCqB2R4fJVRfJF0dCWSGMzN+Hm19gYZTNrSiQK8v+WPnrnsmAqDNK/w62y5+6
-# rjYgMT73o+FRvh8cVPMESIo=
+# BgkqhkiG9w0BBwEwHAYJKoZIhvcNAQkFMQ8XDTE1MDMxNzIwNTgzN1owIwYJKoZI
+# hvcNAQkEMRYEFDqCVCGa5lzbE9cMPCI7geON+0gUMA0GCSqGSIb3DQEBAQUABIIB
+# AFE/jQAmCEOJJlTVyAH5Ol1yeGOFqzATVXW7qEPyUNdyVkBSyXn9VrK2UpUJYofC
+# Gm3M7/HhAahYTZHpR6f3mY+2EZDR1Mrx5hXb+J2qAHkvF5l0NqKlhz9d5BkgmiVN
+# 4NssjVuTgDvhdPcAdYHWxiFc2VSkxDlEqcjScdvNNIWBCFj1onyR2fmLy1Wbqg1q
+# VphmF1GB7wCpTqoYs4Ia09uq3dyLRw2huEBximwGo/2XtJ0TH9ExnUFw/OnTPn4i
+# hIim2Bv3qXfnLB1z4cpMyPnPW16Zw0r6LGJsBf67F2V804N+8dNMtWT1YmkBJz6J
+# ZfG4FvUcUQj7L8HtmzVSmqU=
 # SIG # End signature block
