@@ -9,17 +9,18 @@ Function Get-SmaWorkflowNameFromFile
 {
     Param([Parameter(Mandatory=$true)][string] $FilePath)
 
-    $FileContent = Get-Content $FilePath
-    if("$FileContent" -match '(?im)workflow\s+([^\s]+)')
+    $DeclaredCommands = Find-DeclaredCommand -Path $FilePath
+    Foreach($Command in $DeclaredCommands.Keys)
     {
-        return $Matches[1]
+        if($DeclaredCommands.$Command.Type -eq 'Workflow') 
+        { 
+            return $Command -as [string]
+        }
     }
-    else
-    {
-        Throw-Exception -Type 'WorkflowNameNotFound' `
+    $FileContent = Get-Content $FilePath
+    Throw-Exception -Type 'WorkflowNameNotFound' `
                         -Message 'Could not find the workflow tag and corresponding workflow name' `
                         -Property @{ 'FileContent' = "$FileContent" }
-    }
 }
 <#
     .Synopsis
@@ -472,8 +473,8 @@ Export-ModuleMember -Function * -Verbose:$false -Debug:$False
 # SIG # Begin signature block
 # MIIOfQYJKoZIhvcNAQcCoIIObjCCDmoCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQU5s37vt3AMT5GMZzioO+rrE0w
-# Wz2gggqQMIIB8zCCAVygAwIBAgIQEdV66iePd65C1wmJ28XdGTANBgkqhkiG9w0B
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUK0ImCTVCNVCnSglAbQuLCYl5
+# 0+WgggqQMIIB8zCCAVygAwIBAgIQEdV66iePd65C1wmJ28XdGTANBgkqhkiG9w0B
 # AQUFADAUMRIwEAYDVQQDDAlTQ09yY2hEZXYwHhcNMTUwMzA5MTQxOTIxWhcNMTkw
 # MzA5MDAwMDAwWjAUMRIwEAYDVQQDDAlTQ09yY2hEZXYwgZ8wDQYJKoZIhvcNAQEB
 # BQADgY0AMIGJAoGBANbZ1OGvnyPKFcCw7nDfRgAxgMXt4YPxpX/3rNVR9++v9rAi
@@ -532,20 +533,20 @@ Export-ModuleMember -Function * -Verbose:$false -Debug:$False
 # PiJoY1OavWl0rMUdPH+S4MO8HNgEdTGCA1cwggNTAgEBMCgwFDESMBAGA1UEAwwJ
 # U0NPcmNoRGV2AhAR1XrqJ493rkLXCYnbxd0ZMAkGBSsOAwIaBQCgeDAYBgorBgEE
 # AYI3AgEMMQowCKACgAChAoAAMBkGCSqGSIb3DQEJAzEMBgorBgEEAYI3AgEEMBwG
-# CisGAQQBgjcCAQsxDjAMBgorBgEEAYI3AgEVMCMGCSqGSIb3DQEJBDEWBBQAOYkm
-# glnifiWMST2hnxwJ2r9trTANBgkqhkiG9w0BAQEFAASBgK1cPhjsqvei13nz4kRI
-# sf/uMLBmPj9zIIWbG+NWkbQoVKvC9QAimrpnLA6BZhnClLL7aK4xW5r7YvU9tsxW
-# zJdWVQdASw/1H2bOk1SiTheMQCIO+E/Sz1Z430rc0Th79vdAnmuFNUEllfm4Rj7q
-# roaGmKGw7mgvzmcnG/4535rRoYICCzCCAgcGCSqGSIb3DQEJBjGCAfgwggH0AgEB
+# CisGAQQBgjcCAQsxDjAMBgorBgEEAYI3AgEVMCMGCSqGSIb3DQEJBDEWBBQNei77
+# j62Or/uUvnJpe9HuDkbXozANBgkqhkiG9w0BAQEFAASBgARgP0myJ3up/UUQqA0L
+# zE+WhY+mrsBg1Pe5vHPQTz3XhzfWmlJiJfUT4c47zh3WyJwGOOouOAUc+RCh4iDs
+# 01/iGh14gb9DHaaIyDFVFCwOcwY3ICKDLeH8g6c002ZFUGE8SSzKSpDb5SiG/urV
+# DzwqYaLi4X+iEThKSCQGfto+oYICCzCCAgcGCSqGSIb3DQEJBjGCAfgwggH0AgEB
 # MHIwXjELMAkGA1UEBhMCVVMxHTAbBgNVBAoTFFN5bWFudGVjIENvcnBvcmF0aW9u
 # MTAwLgYDVQQDEydTeW1hbnRlYyBUaW1lIFN0YW1waW5nIFNlcnZpY2VzIENBIC0g
 # RzICEA7P9DjI/r81bgTYapgbGlAwCQYFKw4DAhoFAKBdMBgGCSqGSIb3DQEJAzEL
-# BgkqhkiG9w0BBwEwHAYJKoZIhvcNAQkFMQ8XDTE1MDMxNjIwMDY1MVowIwYJKoZI
-# hvcNAQkEMRYEFL4fcVcELk68/B1/zHra86Kz2YisMA0GCSqGSIb3DQEBAQUABIIB
-# ACAnmaqVeRC12DBXPceLekasqTBmHbAIpdlMxoMv7yZPLgQhPePRFRdb5iqbuSf5
-# dM675brzmazKMTfmrBX2LUkv425RBYEuy0LPyVEeHnvkTokVf1sT2RvJGf+Aiols
-# P0KlNUnG927vzmFhkaf4zD/R5z22azgPcT9M8XJNv6zWJLEDliDD4wp3RdDGZ9us
-# M9ZPN/sCAGqyX1L0aPn85ICxEVYgyiNeVkYewncONOnaWP/vWnv506q6ZmMQKhHy
-# uMbXOEsYUpigDpdwtfxf8qSAkbEkxOmQ6DWNO3ASk6qYq6DUAGAciv7YpdSg4hFA
-# GECsTk7ETMNI0ypg2wGq+cM=
+# BgkqhkiG9w0BBwEwHAYJKoZIhvcNAQkFMQ8XDTE1MDMxNzIyNTI0N1owIwYJKoZI
+# hvcNAQkEMRYEFH3BZBYVvcfyzl90qXxUWxKvZTZaMA0GCSqGSIb3DQEBAQUABIIB
+# AE9RsECZsADJNs99G+MfABHXLHjRAJL/rKTZisnOEPEj3oci2UFPOgz+55y5j5jc
+# kntujP1qaBGka95bW0AbnoTVB2q7mFWLpFg9wpnlEGcbBa3EW0mHKPh12bdWj541
+# jhrEOSkEvlz3HIwT4iICxig8wkwagSjB7Gfb9W5QsRHsqUN4NPAnIwWcOZbijTiK
+# Lfh3xuTnf+fU4vNk72kMboBLrmHkEHbdr1R836/I8lRo20gC5v9gT6G7fECT4l8V
+# ovEB4n6qlxqU61FOmdDpHkCSZfPqb3EYfNqz+QOACErfF29ftKdZ+lhs/LbcNjxZ
+# +1omQFs2tkgoXqNh8FGibm8=
 # SIG # End signature block

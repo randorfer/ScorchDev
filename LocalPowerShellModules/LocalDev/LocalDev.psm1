@@ -24,7 +24,8 @@ $env:LocalSMAVariableWarn = Select-FirstValid -Value $env:LocalSMAVariableWarn, 
 .EXAMPLE
     PS > . (Import-Workflow Test-Workflow)
 #>
-function Import-Workflow {
+function Import-Workflow 
+{
     param(
         [Parameter(Mandatory=$True)]  [String] $WorkflowName,
         [Parameter(Mandatory=$False)] [String] $Path = $env:SMARunbookPath
@@ -36,20 +37,23 @@ function Import-Workflow {
     $CompileStack = New-Object -TypeName 'System.Collections.Stack'
     $TokenizeStack = New-Object -TypeName 'System.Collections.Stack'
     $DeclaredCommands = Find-DeclaredCommand -Path $Path
-    $BaseWorkflowPath = $DeclaredCommands[$WorkflowName]
+    $BaseWorkflowPath = $DeclaredCommands[$WorkflowName].Path
     $Stacked = @{$BaseWorkflowPath = $True}
     $TokenizeStack.Push($BaseWorkflowPath)
     $CompileStack.Push($BaseWorkflowPath)
-    while ($TokenizeStack.Count -gt 0) {
+    while ($TokenizeStack.Count -gt 0) 
+    {
         $ScriptPath = $TokenizeStack.Pop()
         $Tokens = [System.Management.Automation.PSParser]::Tokenize((Get-Content -Path $ScriptPath), [ref] $null)
         $NeededCommands = ($Tokens | Where-Object -FilterScript { $_.Type -eq 'Command' }).Content
-        foreach ($Command in $NeededCommands) {
-            $NeededScriptPath = $DeclaredCommands[$Command]
+        foreach ($Command in $NeededCommands) 
+        {
+            $NeededScriptPath = $DeclaredCommands[$Command].Path
             # If $NeededScriptPath is $null, we didn't find it when we searched declared
             # commands in the runbook path. We'll assume that is okay and that the command
             # is provided by some other means (e.g. a module import)
-            if (($NeededScriptPath -ne $null) -and (-not $Stacked[$NeededScriptPath])) {
+            if (($NeededScriptPath -ne $null) -and (-not $Stacked[$NeededScriptPath])) 
+            {
                 $TokenizeStack.Push($NeededScriptPath)
                 $CompileStack.Push($NeededScriptPath)
                 $Stacked[$NeededScriptPath] = $True
@@ -627,8 +631,8 @@ Export-ModuleMember -Function * -Verbose:$false
 # SIG # Begin signature block
 # MIIOfQYJKoZIhvcNAQcCoIIObjCCDmoCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUn0mLs+r5f54E81o0bCmVqXfK
-# Q16gggqQMIIB8zCCAVygAwIBAgIQEdV66iePd65C1wmJ28XdGTANBgkqhkiG9w0B
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUyW0FdFD+z0HBoBaC8xU49tMM
+# W02gggqQMIIB8zCCAVygAwIBAgIQEdV66iePd65C1wmJ28XdGTANBgkqhkiG9w0B
 # AQUFADAUMRIwEAYDVQQDDAlTQ09yY2hEZXYwHhcNMTUwMzA5MTQxOTIxWhcNMTkw
 # MzA5MDAwMDAwWjAUMRIwEAYDVQQDDAlTQ09yY2hEZXYwgZ8wDQYJKoZIhvcNAQEB
 # BQADgY0AMIGJAoGBANbZ1OGvnyPKFcCw7nDfRgAxgMXt4YPxpX/3rNVR9++v9rAi
@@ -687,20 +691,20 @@ Export-ModuleMember -Function * -Verbose:$false
 # PiJoY1OavWl0rMUdPH+S4MO8HNgEdTGCA1cwggNTAgEBMCgwFDESMBAGA1UEAwwJ
 # U0NPcmNoRGV2AhAR1XrqJ493rkLXCYnbxd0ZMAkGBSsOAwIaBQCgeDAYBgorBgEE
 # AYI3AgEMMQowCKACgAChAoAAMBkGCSqGSIb3DQEJAzEMBgorBgEEAYI3AgEEMBwG
-# CisGAQQBgjcCAQsxDjAMBgorBgEEAYI3AgEVMCMGCSqGSIb3DQEJBDEWBBR17VMF
-# C7SvI3PFO2z8NBjvLL/NdDANBgkqhkiG9w0BAQEFAASBgH/lhxYnCVfrrXahVxYO
-# 2kz7lgt2B5SYCdA/exkLJVQe2POKja5luieo3YQy+67Hpzn7RjdOT/lNNYlTF2Ga
-# 8desiVafl4HTnU5jv0CjC6OxxjTPF7Gyh6lAN+Zf1rma3v0y/hPJ+KSCKmMsz9nT
-# 96x1MqU1p9an5s+9pFsA+zCcoYICCzCCAgcGCSqGSIb3DQEJBjGCAfgwggH0AgEB
+# CisGAQQBgjcCAQsxDjAMBgorBgEEAYI3AgEVMCMGCSqGSIb3DQEJBDEWBBTmyGW1
+# f+PEhI6rpOH+rshbX+CoVTANBgkqhkiG9w0BAQEFAASBgDb+3R76Ic1152Et4Rk9
+# 2ZFXsLUQ80o89E630aU8kMRAOVArbDDJFa8+CqzAFtWbzmx3ZYXFiyIhA012tsJc
+# wmmf+dni3rTjffjAVhd9cXymxhjikLfoaiKb/so8i/qAusX3wkTwDS8JIYmzsP3P
+# dWLrKJrugG+RZCj0OVuMETvYoYICCzCCAgcGCSqGSIb3DQEJBjGCAfgwggH0AgEB
 # MHIwXjELMAkGA1UEBhMCVVMxHTAbBgNVBAoTFFN5bWFudGVjIENvcnBvcmF0aW9u
 # MTAwLgYDVQQDEydTeW1hbnRlYyBUaW1lIFN0YW1waW5nIFNlcnZpY2VzIENBIC0g
 # RzICEA7P9DjI/r81bgTYapgbGlAwCQYFKw4DAhoFAKBdMBgGCSqGSIb3DQEJAzEL
-# BgkqhkiG9w0BBwEwHAYJKoZIhvcNAQkFMQ8XDTE1MDMxNjIwMTQzN1owIwYJKoZI
-# hvcNAQkEMRYEFB4Xg8w/2WDUF6Us6NNemuAJc1rbMA0GCSqGSIb3DQEBAQUABIIB
-# ACrHejZ3NsRbOA2wU7ewauwMdHY9PWhgloKtqOlJxFmD+coDs9gIrsCxd+dL1mIA
-# tqmEGZHgGhuht3bIXOjDVAC4U0h8u16rq7K3tnw0ku5ti2hhAgN3Z8Gus2e9Kr3v
-# O6muLEBT/gWjwb/RzUDsJ41mTyj1Zu0PKbpnEoRrEppQ0EMdTcG7v0ME9GPsEO3Y
-# B6R0FY0ZSWX68GcU4Ceju4Y/8zPpsOe4nrS33vdsNAMI1oT/jAGts4c2hsYu6usy
-# OXxB5q59lgMkfMeUt0MIVhvuGhDJYU9cMFmJ+qi7/4MTDOIvPckWPe391AdqedgQ
-# ieBqDqM9/ebVEZtXDlcdbBM=
+# BgkqhkiG9w0BBwEwHAYJKoZIhvcNAQkFMQ8XDTE1MDMxNzIyNDI1MFowIwYJKoZI
+# hvcNAQkEMRYEFOQmNy9hf+eU4QvQl2+p2NGgmZl5MA0GCSqGSIb3DQEBAQUABIIB
+# AHBKhhaf4CdnVMwkOGUEyPPufE9xNRkMyo92J41ydfvbaZ0NA2cW6ZEPmVZdNU2Z
+# ZVFl3sghnZYpSNig8/YJTPnr7/0C3BkagzMZNwnJbIeUEUZZlOb41Bqz7iB8Cub0
+# 0MP73MmVZCDjBtgURDS6iUyIYSC0GbO8PPe1F/05msfXxMeggyZG8k6porkpEoVn
+# 4ROdXxpTrECNxYK/+X4qb685tBqjcOzzsydc4AKyHVtgHL7s62xG+DUAjG0QFzld
+# 8fvHq8iq2bMzJhsrY1f6vCGjhbzvqVjJC2tFHr3aMLMSijPlm/eRaXitvX4t3KzX
+# gpki1sC5ynAt7H/8/OJHCgo=
 # SIG # End signature block

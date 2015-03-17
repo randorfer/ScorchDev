@@ -8,6 +8,7 @@ Copyright = ''
 Description = 'Useful utilites for local SMA development'
 PowerShellVersion = '4.0'
 FunctionsToExport = '*'
+RequiredModules = @('SCOrchDev-Utility')
 CmdletsToExport = '*'
 VariablesToExport = @()
 AliasesToExport = @()
