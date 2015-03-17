@@ -1,18 +1,22 @@
 ﻿<#
     .Synopsis
-        Check GIT repository for new commits. If found sync the changes into
-        the current SMA environment
+    Check GIT repository for new commits. If found sync the changes into
+    the current SMA environment
 
     .Parameter RepositoryName
 #>
 Workflow Invoke-GitRepositorySync
 {
-    Param([Parameter(Mandatory=$true)][String] $RepositoryName)
+    Param(
+        [Parameter(Mandatory = $true)]
+        [String]
+        $RepositoryName
+    )
     
     Write-Verbose -Message "Starting [$WorkflowCommandName]"
     $ErrorActionPreference = [System.Management.Automation.ActionPreference]::Stop
 
-    $CIVariables = Get-BatchAutomationVariable -Name @('RepositoryInformation',
+    $CIVariables = Get-BatchAutomationVariable -Name @('RepositoryInformation', 
                                                        'SMACredName',
                                                        'WebserviceEndpoint'
                                                        'WebservicePort') `
@@ -20,8 +24,8 @@ Workflow Invoke-GitRepositorySync
     $SMACred = Get-AutomationPSCredential -Name $CIVariables.SMACredName
     Try
     {
-        $RepositoryInformation = (ConvertFrom-Json $CIVariables.RepositoryInformation)."$RepositoryName"
-        Write-Verbose -Message "`$RepositoryInformation [$(ConvertTo-JSON $RepositoryInformation)]"
+        $RepositoryInformation = (ConvertFrom-Json -InputObject $CIVariables.RepositoryInformation)."$RepositoryName"
+        Write-Verbose -Message "`$RepositoryInformation [$(ConvertTo-Json -InputObject $RepositoryInformation)]"
 
         $RunbookWorker = Get-SMARunbookWorker
         
@@ -29,11 +33,11 @@ Workflow Invoke-GitRepositorySync
         InlineScript
         {
             $ErrorActionPreference = [System.Management.Automation.ActionPreference]::Continue
-		    & {
-			    $null = $(
-				    $DebugPreference       = [System.Management.Automation.ActionPreference]::SilentlyContinue
-				    $VerbosePreference     = [System.Management.Automation.ActionPreference]::SilentlyContinue
-				    $ErrorActionPreference = [System.Management.Automation.ActionPreference]::Stop
+            & {
+                $null = $(
+                    $DebugPreference       = [System.Management.Automation.ActionPreference]::SilentlyContinue
+                    $VerbosePreference     = [System.Management.Automation.ActionPreference]::SilentlyContinue
+                    $ErrorActionPreference = [System.Management.Automation.ActionPreference]::Stop
                     
                     $RepositoryInformation = $Using:RepositoryInformation
                     Update-GitRepository -RepositoryInformation $RepositoryInformation
@@ -42,14 +46,14 @@ Workflow Invoke-GitRepositorySync
         } -PSComputerName $RunbookWorker -PSCredential $SMACred
 
         $RepositoryChangeJSON = Find-GitRepositoryChange -RepositoryInformation $RepositoryInformation
-        $RepositoryChange = ConvertFrom-JSON $RepositoryChangeJSON
+        $RepositoryChange = ConvertFrom-Json -InputObject $RepositoryChangeJSON
         if("$($RepositoryChange.CurrentCommit)" -ne "$($RepositoryInformation.CurrentCommit)")
         {
             Write-Verbose -Message "Processing [$($RepositoryInformation.CurrentCommit)..$($RepositoryChange.CurrentCommit)]"
             Write-Verbose -Message "RepositoryChange [$RepositoryChangeJSON]"
             $ReturnInformationJSON = Group-RepositoryFile -Files $RepositoryChange.Files `
                                                           -RepositoryInformation $RepositoryInformation
-            $ReturnInformation = ConvertFrom-JSON -InputObject $ReturnInformationJSON
+            $ReturnInformation = ConvertFrom-Json -InputObject $ReturnInformationJSON
             Write-Verbose -Message "ReturnInformation [$ReturnInformationJSON]"
             Foreach($RunbookFilePath in $ReturnInformation.ScriptFiles)
             {
@@ -61,8 +65,8 @@ Workflow Invoke-GitRepositorySync
             Foreach($SettingsFilePath in $ReturnInformation.SettingsFiles)
             {
                 Publish-SMASettingsFileChange -FilePath $SettingsFilePath `
-                                              -CurrentCommit $RepositoryChange.CurrentCommit `
-                                              -RepositoryName $RepositoryName
+                                         -CurrentCommit $RepositoryChange.CurrentCommit `
+                                         -RepositoryName $RepositoryName
                 Checkpoint-Workflow
             }
             foreach($Module in $ReturnInformation.ModuleFiles)
@@ -102,14 +106,14 @@ Workflow Invoke-GitRepositorySync
                 Checkpoint-Workflow
             }
             $UpdatedRepositoryInformation = (Set-SmaRepositoryInformationCommitVersion -RepositoryInformation $CIVariables.RepositoryInformation `
-                                                                                      -RepositoryName $RepositoryName `
-                                                                                      -Commit $RepositoryChange.CurrentCommit) -as [string]
+                                                                                       -RepositoryName $RepositoryName `
+                                                                                       -Commit $RepositoryChange.CurrentCommit) -as [string]
             $VariableUpdate = Set-SmaVariable -Name 'SMAContinuousIntegration-RepositoryInformation' `
                                               -Value $UpdatedRepositoryInformation `
                                               -WebServiceEndpoint $CIVariables.WebserviceEndpoint `
                                               -Port $CIVariables.WebservicePort `
                                               -Credential $SMACred
-            
+
             Write-Verbose -Message "Finished Processing [$($RepositoryInformation.CurrentCommit)..$($RepositoryChange.CurrentCommit)]"
         }
     }
@@ -123,8 +127,8 @@ Workflow Invoke-GitRepositorySync
 # SIG # Begin signature block
 # MIIOfQYJKoZIhvcNAQcCoIIObjCCDmoCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUofTp4tou9jT+Cy3je0FZ1qk4
-# 02+gggqQMIIB8zCCAVygAwIBAgIQEdV66iePd65C1wmJ28XdGTANBgkqhkiG9w0B
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUJuuJRWQmgAUn37gltEzqdbS/
+# 27mgggqQMIIB8zCCAVygAwIBAgIQEdV66iePd65C1wmJ28XdGTANBgkqhkiG9w0B
 # AQUFADAUMRIwEAYDVQQDDAlTQ09yY2hEZXYwHhcNMTUwMzA5MTQxOTIxWhcNMTkw
 # MzA5MDAwMDAwWjAUMRIwEAYDVQQDDAlTQ09yY2hEZXYwgZ8wDQYJKoZIhvcNAQEB
 # BQADgY0AMIGJAoGBANbZ1OGvnyPKFcCw7nDfRgAxgMXt4YPxpX/3rNVR9++v9rAi
@@ -183,20 +187,20 @@ Workflow Invoke-GitRepositorySync
 # PiJoY1OavWl0rMUdPH+S4MO8HNgEdTGCA1cwggNTAgEBMCgwFDESMBAGA1UEAwwJ
 # U0NPcmNoRGV2AhAR1XrqJ493rkLXCYnbxd0ZMAkGBSsOAwIaBQCgeDAYBgorBgEE
 # AYI3AgEMMQowCKACgAChAoAAMBkGCSqGSIb3DQEJAzEMBgorBgEEAYI3AgEEMBwG
-# CisGAQQBgjcCAQsxDjAMBgorBgEEAYI3AgEVMCMGCSqGSIb3DQEJBDEWBBTmcCgH
-# PN6//1Pkb+S49axeJyQy2zANBgkqhkiG9w0BAQEFAASBgHAq6AdZ9+mlAGoU0l0H
-# XVUItjwOfN3FgYWWr1086/1cb5u8VQ5Q+SRt002vnrdRD+rmhFWycGR4D2qdpKMh
-# 0RvavitpxASwho++UlOJyHo8d3jnZOzfgbMMDjnE+jiNQ3ymNccUB1RbLUg8Xf9g
-# CtbmBWpClY8yfvRiO0ixKaDSoYICCzCCAgcGCSqGSIb3DQEJBjGCAfgwggH0AgEB
+# CisGAQQBgjcCAQsxDjAMBgorBgEEAYI3AgEVMCMGCSqGSIb3DQEJBDEWBBReJL8D
+# f1FrRFrvFlM6WqxhKO1OHDANBgkqhkiG9w0BAQEFAASBgMAoNcf6IsngSUpHhz19
+# 04Pi+ABPxt1ubAhkLfcLwBJHAXN6WtuTZR/VFCsqysZWSb1NBbc1z49IGaLX6dXl
+# bFI3N0Yhc65H8bHDEOtw9tKtUvqGhGrbhfBVq1f0EpJ3nPHg1hzglrgdyC4qz0yF
+# TfRLzv1xz+FRiFI2PIfh55eloYICCzCCAgcGCSqGSIb3DQEJBjGCAfgwggH0AgEB
 # MHIwXjELMAkGA1UEBhMCVVMxHTAbBgNVBAoTFFN5bWFudGVjIENvcnBvcmF0aW9u
 # MTAwLgYDVQQDEydTeW1hbnRlYyBUaW1lIFN0YW1waW5nIFNlcnZpY2VzIENBIC0g
 # RzICEA7P9DjI/r81bgTYapgbGlAwCQYFKw4DAhoFAKBdMBgGCSqGSIb3DQEJAzEL
-# BgkqhkiG9w0BBwEwHAYJKoZIhvcNAQkFMQ8XDTE1MDMxNjIwMTcwMFowIwYJKoZI
-# hvcNAQkEMRYEFL7isWpKEb76HEJgOP52ix2HPXZkMA0GCSqGSIb3DQEBAQUABIIB
-# AF9SXn1nwO30pmAfptMBStLVchHo9aIKhyGsfA+CerOLmQDiQtoySQsHd7fWSzG9
-# d7MtOz36ZafIlCDETHOu31uiAksxOeRexXbTUlGi9MjKhEEmz8cXEou2iUfB+yva
-# cpr45w5o1TG0jsqCo4nQLinQekYm0lpKMU4zMrbIliC13EN+YKnqGYrgMg+1BqEh
-# +uVul02H5QCVvQso5ugf2tAMW9ohR3hz9KRx2Vi+gSlIifMSRN2yNeTOsE6lGDx9
-# AwOHjCsbN0HKaAwQZ6u+UO9YdZK1z+WAYc/87lsbEQL/btzMoBcpUjSicWKUo/6O
-# EHcclCFqaky1+WginLA87T0=
+# BgkqhkiG9w0BBwEwHAYJKoZIhvcNAQkFMQ8XDTE1MDMxNzIwNTMwMlowIwYJKoZI
+# hvcNAQkEMRYEFF3urDvh1aXsxjCISkagpT5J2GmyMA0GCSqGSIb3DQEBAQUABIIB
+# AFip6BH29KtQeWDLyp5VXjvluQIcleczNbfWsDG2MHDy7T1iMloHkd0PAvd33t+C
+# iJJh95iPjeFn9x4MgOQYQbiNHgoSqhoEIxwAGqsys3ZMIsjZXPQbIkpIlJJmY3+I
+# CQDpl8QgV8gHl9TB3nnOE4Yx4Z+9eq+L8g62galSy8YzZu3UkGSM0vKmS/HjgP4n
+# YlqShO5RegnOPzq4QEWk6lyxmQRh+tAM5kD5apBvlZNIfoMPiF+dt+p4Mg3Ya2zC
+# WqB197FY3C56c3qiX5ZxIjkZXCkWv9wRvhp9rO69eAiPIvkbd3ouHiNauIl6fH6j
+# mBua2pv8qPzKooQyz0bylFY=
 # SIG # End signature block
