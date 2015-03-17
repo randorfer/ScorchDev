@@ -13,45 +13,72 @@ Workflow Remove-SmaOrphanRunbook
 
     Write-Verbose -Message "Starting [$WorkflowCommandName]"
     $ErrorActionPreference = [System.Management.Automation.ActionPreference]::Stop
-
-    $CIVariables = Get-BatchAutomationVariable -Name @('RepositoryInformation',
-                                                       'SMACredName',
-                                                       'WebserviceEndpoint'
-                                                       'WebservicePort') `
-                                               -Prefix 'SMAContinuousIntegration'
-    $SMACred = Get-AutomationPSCredential -Name $CIVariables.SMACredName
-
-    $RepositoryInformation = (ConvertFrom-JSON -InputObject $CIVariables.RepositoryInformation)."$RepositoryName"
-
-    $SmaRunbooks = Get-SMARunbookPaged -WebserviceEndpoint $CIVariables.WebserviceEndpoint `
-                                       -Port $CIVariables.WebservicePort `
-                                       -Credential $SMACred
-    if($SmaRunbooks) { $SmaRunbookTable = Group-SmaRunbooksByRepository -InputObject $SmaRunbooks }
-    $RepositoryWorkflows = Get-GitRepositoryWorkflowName -Path "$($RepositoryInformation.Path)\$($RepositoryInformation.RunbookFolder)"
-    $Differences = Compare-Object -ReferenceObject $SmaRunbookTable.$RepositoryName.RunbookName `
-                                  -DifferenceObject $RepositoryWorkflows
-    
-    Foreach($Difference in $Differences)
+    Try
     {
-        if($Difference.SideIndicator -eq '<=')
+        $CIVariables = Get-BatchAutomationVariable -Name @('RepositoryInformation',
+                                                           'SMACredName',
+                                                           'WebserviceEndpoint'
+                                                           'WebservicePort') `
+                                                   -Prefix 'SMAContinuousIntegration'
+        $SMACred = Get-AutomationPSCredential -Name $CIVariables.SMACredName
+
+        $RepositoryInformation = (ConvertFrom-JSON -InputObject $CIVariables.RepositoryInformation)."$RepositoryName"
+
+        $SmaRunbooks = Get-SMARunbookPaged -WebserviceEndpoint $CIVariables.WebserviceEndpoint `
+                                           -Port $CIVariables.WebservicePort `
+                                           -Credential $SMACred
+        if($SmaRunbooks) { $SmaRunbookTable = Group-SmaRunbooksByRepository -InputObject $SmaRunbooks }
+        $RepositoryWorkflows = Get-GitRepositoryWorkflowName -Path "$($RepositoryInformation.Path)\$($RepositoryInformation.RunbookFolder)"
+        $Differences = Compare-Object -ReferenceObject $SmaRunbookTable.$RepositoryName.RunbookName `
+                                      -DifferenceObject $RepositoryWorkflows
+    
+        Foreach($Difference in $Differences)
         {
-            Write-Verbose -Message "[$($Difference.InputObject)] Does not exist in Source Control"
-            Remove-SmaRunbook -Name $Difference.InputObject `
-                              -WebServiceEndpoint $CIVariables.WebserviceEndpoint `
-                              -Port $CIVariables.WebservicePort `
-                              -Credential $SMACred
-            Write-Verbose -Message "[$($Difference.InputObject)] Removed from SMA"
+            if($Difference.SideIndicator -eq '<=')
+            {
+                Try
+                {
+                    Write-Verbose -Message "[$($Difference.InputObject)] Does not exist in Source Control"
+                    Remove-SmaRunbook -Name $Difference.InputObject `
+                                      -WebServiceEndpoint $CIVariables.WebserviceEndpoint `
+                                      -Port $CIVariables.WebservicePort `
+                                      -Credential $SMACred
+                    Write-Verbose -Message "[$($Difference.InputObject)] Removed from SMA"
+                }
+                Catch
+                {
+                    $Exception = New-Exception -Type 'RemoveSmaRunbookFailure' `
+                                               -Message 'Failed to remove a Sma Runbook' `
+                                               -Property @{
+                        'ErrorMessage' = (Convert-ExceptionToString $_) ;
+                        'RunbookName' = $Difference.InputObject ;
+                        'WebserviceEnpoint' = $CIVariables.WebserviceEndpoint ;
+                        'Port' = $CIVariables.WebservicePort ;
+                        'Credential' = $SMACred.UserName ;
+                    }
+                    Write-Exception -Exception $Exception -Stream Warning
+                }
+            }
         }
     }
-
+    Catch
+    {
+        $Exception = New-Exception -Type 'RemoveSmaOrphanRunbookWorkflowFailure' `
+                                   -Message 'Unexpected error encountered in the Remove-SmaOrphanRunbook workflow' `
+                                   -Property @{
+            'ErrorMessage' = (Convert-ExceptionToString $_) ;
+            'RepositoryName' = $RepositoryName ;
+        }
+        Write-Exception -Exception $Exception -Stream Warning
+    }
     Write-Verbose -Message "Finished [$WorkflowCommandName]"
 }
 
 # SIG # Begin signature block
 # MIIOfQYJKoZIhvcNAQcCoIIObjCCDmoCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUOruTbwpO+FhGLKWBitSI5wdE
-# JxWgggqQMIIB8zCCAVygAwIBAgIQEdV66iePd65C1wmJ28XdGTANBgkqhkiG9w0B
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUBpXSTCqhjL0LUPaLLWmJAX4h
+# ckugggqQMIIB8zCCAVygAwIBAgIQEdV66iePd65C1wmJ28XdGTANBgkqhkiG9w0B
 # AQUFADAUMRIwEAYDVQQDDAlTQ09yY2hEZXYwHhcNMTUwMzA5MTQxOTIxWhcNMTkw
 # MzA5MDAwMDAwWjAUMRIwEAYDVQQDDAlTQ09yY2hEZXYwgZ8wDQYJKoZIhvcNAQEB
 # BQADgY0AMIGJAoGBANbZ1OGvnyPKFcCw7nDfRgAxgMXt4YPxpX/3rNVR9++v9rAi
@@ -110,20 +137,20 @@ Workflow Remove-SmaOrphanRunbook
 # PiJoY1OavWl0rMUdPH+S4MO8HNgEdTGCA1cwggNTAgEBMCgwFDESMBAGA1UEAwwJ
 # U0NPcmNoRGV2AhAR1XrqJ493rkLXCYnbxd0ZMAkGBSsOAwIaBQCgeDAYBgorBgEE
 # AYI3AgEMMQowCKACgAChAoAAMBkGCSqGSIb3DQEJAzEMBgorBgEEAYI3AgEEMBwG
-# CisGAQQBgjcCAQsxDjAMBgorBgEEAYI3AgEVMCMGCSqGSIb3DQEJBDEWBBRwqLip
-# fIntA3hyefioN5L5iN6E6TANBgkqhkiG9w0BAQEFAASBgJbDHOVIka0LYc7/yvKF
-# +WsYVGGL7g+0exKkgC1x+WVbzXvvlqeYJjeH9xX3xVu9ZWi6j76y6ylW/pxTCBXv
-# yGSo9rfejhvzhdyaQk5b79vibWRjgAXE5EbaU0moZJBf6kUcjTiDeGEs+dOXuX+l
-# 7x4Hz7ZGu0AqrEUqWWVVrmCXoYICCzCCAgcGCSqGSIb3DQEJBjGCAfgwggH0AgEB
+# CisGAQQBgjcCAQsxDjAMBgorBgEEAYI3AgEVMCMGCSqGSIb3DQEJBDEWBBQGA+Gw
+# pdbMoWJo3tIBwA5Dr1+GvzANBgkqhkiG9w0BAQEFAASBgJbLvGRT7Wzuyqcq3bcA
+# nYnBPiU/qigZ9Bw9Kj6LRugr3pnB/4y707tU06YRPCEGpCXU0aBvzGuQiRFQ+4Ap
+# +OBT9UgiSzrEpNLy29Bb2kyaFTPvb70vuNzZ9VryzyX67x8MKH355or5Uf07OOLz
+# zk8eqpVAP9qZ+4qXBpEnXAaooYICCzCCAgcGCSqGSIb3DQEJBjGCAfgwggH0AgEB
 # MHIwXjELMAkGA1UEBhMCVVMxHTAbBgNVBAoTFFN5bWFudGVjIENvcnBvcmF0aW9u
 # MTAwLgYDVQQDEydTeW1hbnRlYyBUaW1lIFN0YW1waW5nIFNlcnZpY2VzIENBIC0g
 # RzICEA7P9DjI/r81bgTYapgbGlAwCQYFKw4DAhoFAKBdMBgGCSqGSIb3DQEJAzEL
-# BgkqhkiG9w0BBwEwHAYJKoZIhvcNAQkFMQ8XDTE1MDMxNjIwMTc1N1owIwYJKoZI
-# hvcNAQkEMRYEFNzsbwAsk0kSdvwjLrJ7ZgIWeM5WMA0GCSqGSIb3DQEBAQUABIIB
-# ABBlgAn2nFadbn5+x1BTmzf80b633E4FrS6HI/NTZgarQjBH+Lc7PTii9JO4lGR2
-# yA16ekHhYwnGXgJ+92t4Ew3ELa4ay1AZpxRmC/bm9I3fLRhBmkTSCjUc4K8aToQY
-# g2+h3EwZmzPKjOugoJ0r2NVBov8YNDplz/5hZ02drg8WOuFfHvCIgCXky592QUuC
-# GJfzklA2nmg+J0vGCZQz17d+zauh6TOtoIzRIwauTQ8UcP1DAn51MYhjKO2FQpwU
-# fJfKFOzDsXc0i8EXNcGyuJurCbUgqhfwckfgz6xdkInNqFhmh0OVInyucUuRfeAK
-# yGsC4tedGIshxjPuPSojkPo=
+# BgkqhkiG9w0BBwEwHAYJKoZIhvcNAQkFMQ8XDTE1MDMxNzIwMzEyOVowIwYJKoZI
+# hvcNAQkEMRYEFEA7Msoil3dEoO+rNR5AFzfKBuo0MA0GCSqGSIb3DQEBAQUABIIB
+# ADuvb09V9XKJF1OVhTV1T2tHDXRZviLlRobR1fkMQg0c1c9tPMqKrVeFC2Llurnb
+# 3HtAimdX8RRo4JA791qeQwSv1EsR9q2nXQFVVa9f3RiKDKes8MW+mB4KNp5JoNV3
+# 6hzYl4mqmTQAIEd4JI47JktmR1qpLGl2pyJg2yacltKA+M/EFmv/mXTQGZr/Izhw
+# wYtyYLt/j17COcSVD5ZNfEc5QLgAiqVkgiWbkZts75g7Jh65jyPBaMfrWKpiabUi
+# TnAWYR/uizAAk2G5//Q4vksXXChR8M3M1WkdHlX0ApCDQcpez2bQOFzPqTdc9Jvo
+# rvhDbMZhR0cy1GwDXZs3D/s=
 # SIG # End signature block
