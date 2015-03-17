@@ -360,7 +360,6 @@ Function Set-SmaRunbookTags
             'Method' = 'Merge' ;
             'Uri' = $RunbookUri ;
             'Body' = $baseXML ;
-            'Credential' = $Credential ;
             'ContentType' = 'application/atom+xml' ;
         }
 
@@ -685,8 +684,8 @@ Export-ModuleMember -Function * -Verbose:$False -Debug:$False
 # SIG # Begin signature block
 # MIID1QYJKoZIhvcNAQcCoIIDxjCCA8ICAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUqDLqnipkhTFURlLgjqkyCkvI
-# 4pSgggH3MIIB8zCCAVygAwIBAgIQEdV66iePd65C1wmJ28XdGTANBgkqhkiG9w0B
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUL9Kki3WIyp/gFv340DjZEPUu
+# p7+gggH3MIIB8zCCAVygAwIBAgIQEdV66iePd65C1wmJ28XdGTANBgkqhkiG9w0B
 # AQUFADAUMRIwEAYDVQQDDAlTQ09yY2hEZXYwHhcNMTUwMzA5MTQxOTIxWhcNMTkw
 # MzA5MDAwMDAwWjAUMRIwEAYDVQQDDAlTQ09yY2hEZXYwgZ8wDQYJKoZIhvcNAQEB
 # BQADgY0AMIGJAoGBANbZ1OGvnyPKFcCw7nDfRgAxgMXt4YPxpX/3rNVR9++v9rAi
@@ -700,8 +699,8 @@ Export-ModuleMember -Function * -Verbose:$False -Debug:$False
 # BgNVBAMMCVNDT3JjaERldgIQEdV66iePd65C1wmJ28XdGTAJBgUrDgMCGgUAoHgw
 # GAYKKwYBBAGCNwIBDDEKMAigAoAAoQKAADAZBgkqhkiG9w0BCQMxDAYKKwYBBAGC
 # NwIBBDAcBgorBgEEAYI3AgELMQ4wDAYKKwYBBAGCNwIBFTAjBgkqhkiG9w0BCQQx
-# FgQUHqYBZBvTOK+197MupymhptaYVtowDQYJKoZIhvcNAQEBBQAEgYCubxPjhiAp
-# 99Fdaut6ZsWjSPL3/DY/W7fCn2Nd/W/Ka9CvElLmaTgTk0rbmUhBMZibay8M/WV1
-# fEzuiUXunrRCfJ9hxq6UcAvQaNDlG0EHemursj3MVqwXe32//kkbx3D8bSwnB4ec
-# iNALwv/gY2fC4jhAFL1dy+792F4nN/iXMw==
+# FgQUxgmZDwUdv942qfQm5Lh9XnijDRYwDQYJKoZIhvcNAQEBBQAEgYCM91WR8Kq8
+# 4bGxF0R4foxn2kShvELS4pCKkY5FiwbmYlgKuoxGZ28FGnculD3jYTfhNrNxuGWM
+# 7LQAp8yt3Nnn+R9F7DMV2jfpgh6QMRnAO/9PpE/cx7fUyKiTYu4ocUurdIdybKfi
+# qPgyQFwatl4Gw/lhrZl0nOINoraZ8Zz3fg==
 # SIG # End signature block
