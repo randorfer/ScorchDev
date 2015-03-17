@@ -66,11 +66,11 @@ Workflow Publish-SMARunbookChange
             if($NewVersion)
             {
                 $EditStatus = Edit-SmaRunbook -Overwrite `
-                                          -Path $FilePath `
-                                          -Name $WorkflowName `
-                                          -WebServiceEndpoint $CIVariables.WebserviceEndpoint `
-                                          -Port $CIVariables.WebservicePort `
-                                          -Credential $SMACred                
+                                              -Path $FilePath `
+                                              -Name $WorkflowName `
+                                              -WebServiceEndpoint $CIVariables.WebserviceEndpoint `
+                                              -Port $CIVariables.WebservicePort `
+                                              -Credential $SMACred                
             }
             else
             {
@@ -101,8 +101,8 @@ Workflow Publish-SMARunbookChange
 # SIG # Begin signature block
 # MIIOfQYJKoZIhvcNAQcCoIIObjCCDmoCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUXTgvTcTGqWPLQIftCGf4IOnd
-# 5jmgggqQMIIB8zCCAVygAwIBAgIQEdV66iePd65C1wmJ28XdGTANBgkqhkiG9w0B
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUNtPGPzmCJQFqmetGtBr3junn
+# 57agggqQMIIB8zCCAVygAwIBAgIQEdV66iePd65C1wmJ28XdGTANBgkqhkiG9w0B
 # AQUFADAUMRIwEAYDVQQDDAlTQ09yY2hEZXYwHhcNMTUwMzA5MTQxOTIxWhcNMTkw
 # MzA5MDAwMDAwWjAUMRIwEAYDVQQDDAlTQ09yY2hEZXYwgZ8wDQYJKoZIhvcNAQEB
 # BQADgY0AMIGJAoGBANbZ1OGvnyPKFcCw7nDfRgAxgMXt4YPxpX/3rNVR9++v9rAi
@@ -161,20 +161,20 @@ Workflow Publish-SMARunbookChange
 # PiJoY1OavWl0rMUdPH+S4MO8HNgEdTGCA1cwggNTAgEBMCgwFDESMBAGA1UEAwwJ
 # U0NPcmNoRGV2AhAR1XrqJ493rkLXCYnbxd0ZMAkGBSsOAwIaBQCgeDAYBgorBgEE
 # AYI3AgEMMQowCKACgAChAoAAMBkGCSqGSIb3DQEJAzEMBgorBgEEAYI3AgEEMBwG
-# CisGAQQBgjcCAQsxDjAMBgorBgEEAYI3AgEVMCMGCSqGSIb3DQEJBDEWBBTNDoP+
-# xsHDcgBaiij6dNX59C5hUjANBgkqhkiG9w0BAQEFAASBgBm81GykRKkq0YKqPGAX
-# 0bLLDCAEP/2EYaVtR56yVujHVNmcFQMsdgXnXjivfKLefk1voyGzBoUlMHtpSc8z
-# e9IazAxsNb5XRINk+b3r/f3wASogzMwuvLHmgqzwMPoe0qfjbbp3cxj1MYLnUCNL
-# CVHveEn07L+l1iz4Q2V819TRoYICCzCCAgcGCSqGSIb3DQEJBjGCAfgwggH0AgEB
+# CisGAQQBgjcCAQsxDjAMBgorBgEEAYI3AgEVMCMGCSqGSIb3DQEJBDEWBBSDz56K
+# EZvRkB5/iJv3w/wmJO4juzANBgkqhkiG9w0BAQEFAASBgCA4iF2+JaZTOjGz9YHz
+# FbZgwxkJmkLeq2lW9KfBxxJPGT1ncOY65hT7B0JySY/g8WWNZTQZ8dmafAZwnScm
+# 2904NV2i5jVSvNcCvy7xCP5/D0DYcfJU95U7Z25wiJv92Lzc5t/ggl9m2gci28I9
+# 37QZGMk793TS6UlNG0M2nrpyoYICCzCCAgcGCSqGSIb3DQEJBjGCAfgwggH0AgEB
 # MHIwXjELMAkGA1UEBhMCVVMxHTAbBgNVBAoTFFN5bWFudGVjIENvcnBvcmF0aW9u
 # MTAwLgYDVQQDEydTeW1hbnRlYyBUaW1lIFN0YW1waW5nIFNlcnZpY2VzIENBIC0g
 # RzICEA7P9DjI/r81bgTYapgbGlAwCQYFKw4DAhoFAKBdMBgGCSqGSIb3DQEJAzEL
-# BgkqhkiG9w0BBwEwHAYJKoZIhvcNAQkFMQ8XDTE1MDMxNjIwMTcyMlowIwYJKoZI
-# hvcNAQkEMRYEFKW3/ar8dUoffShKF/UoDB6/GZLOMA0GCSqGSIb3DQEBAQUABIIB
-# AIh2svhuJRtgfBUlGlPlpXRFqUm/uqQBbRrMJ3H3BcDFYA35pHlIDKKLTPcm/iOu
-# nE7dBMuQMmMR+u9HeaPxmz+64Iq+2yymffM2ocBxZ548PnTrcRzJGnoLL5T4LIdK
-# +DnIAP1k+3qnFT0iN8A8+uDtsF57vtvBqfx2VFspl9bAlYQnLH7pr+kiXMzXhayF
-# ZW34AQMZfFhRZjJ1sPd7Zk171MRE1/chavZj8i0KMOVI9pQ3na6THzOs65Gk/cEH
-# Qv/EHSIzak5yaxde8YVSJhMzplSajS6LysORQ/EuQa5X+cVnb8RASYw5xegT/PWg
-# 7fJUwuorsOygKECa8r+dqHE=
+# BgkqhkiG9w0BBwEwHAYJKoZIhvcNAQkFMQ8XDTE1MDMxNzIwMzIzMlowIwYJKoZI
+# hvcNAQkEMRYEFLLvTKnJLLUAKYjDRf+wEjeSKpiWMA0GCSqGSIb3DQEBAQUABIIB
+# AHc4xh1YkS82JfeXQx68BOmMDoxj6KEJJJA0ISMYOlf5ki579Mj1Eakg5muk2kIj
+# M2YuK0hy2MpLRYKKPiKTIxF9iA8KoA9+nqIThOb0w7YiKa4Zb4LGmhANIrXQsKZc
+# UwanFml7PR1/YjmRCcQ5qcfh0vzrLoCk1ozQeccMN7rFc2AkbHn8/kG/2eJsNNf+
+# KKgX60zySJOPPsn/ECz4MO7OsEjkPH32O8ubZFl1Jf+iocCnUGFW6PBIADipI7hf
+# zeERPGbK0L04dQg/lZMWtBfxwITVyqxe1XnouBjCsPVcJc9WXLw3dGbwNwVBuE90
+# 2Yd2V+S88CqQaLRb9pc6ctA=
 # SIG # End signature block
