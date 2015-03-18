@@ -439,10 +439,17 @@ Function Update-GitRepository
       
     if(-not ("$(git.exe branch)" -match '\*\s(\w+)'))
     {
-        Throw-Exception -Type 'GitTargetBranchNotFound' `
-                        -Message 'git could not find any current branch' `
-                        -Property @{ 'result' = $(git.exe branch) ;
-                                     'match'  = "$(git.exe branch)" -match '\*\s(\w+)'}
+        if(Test-IsNullOrEmpty -String "$(git.exe branch)")
+        {
+            Write-Verbose -Message 'git branch did not return output. Assuming we are on the correct branch'
+        }
+        else
+        {
+            Throw-Exception -Type 'GitTargetBranchNotFound' `
+                            -Message 'git could not find any current branch' `
+                            -Property @{ 'result' = $(git.exe branch) ;
+                                         'match'  = "$(git.exe branch)" -match '\*\s(\w+)'}
+        }
     }
     if($Matches[1] -ne $RepositoryInformation.Branch)
     {
@@ -470,8 +477,8 @@ Export-ModuleMember -Function * -Verbose:$false -Debug:$False
 # SIG # Begin signature block
 # MIID1QYJKoZIhvcNAQcCoIIDxjCCA8ICAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUaxKL2/8rTPZWbsYRz/YDJPx6
-# oMCgggH3MIIB8zCCAVygAwIBAgIQEdV66iePd65C1wmJ28XdGTANBgkqhkiG9w0B
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUPqHb3MoSWyO59TKv6LUuYPn6
+# ESigggH3MIIB8zCCAVygAwIBAgIQEdV66iePd65C1wmJ28XdGTANBgkqhkiG9w0B
 # AQUFADAUMRIwEAYDVQQDDAlTQ09yY2hEZXYwHhcNMTUwMzA5MTQxOTIxWhcNMTkw
 # MzA5MDAwMDAwWjAUMRIwEAYDVQQDDAlTQ09yY2hEZXYwgZ8wDQYJKoZIhvcNAQEB
 # BQADgY0AMIGJAoGBANbZ1OGvnyPKFcCw7nDfRgAxgMXt4YPxpX/3rNVR9++v9rAi
@@ -485,8 +492,8 @@ Export-ModuleMember -Function * -Verbose:$false -Debug:$False
 # BgNVBAMMCVNDT3JjaERldgIQEdV66iePd65C1wmJ28XdGTAJBgUrDgMCGgUAoHgw
 # GAYKKwYBBAGCNwIBDDEKMAigAoAAoQKAADAZBgkqhkiG9w0BCQMxDAYKKwYBBAGC
 # NwIBBDAcBgorBgEEAYI3AgELMQ4wDAYKKwYBBAGCNwIBFTAjBgkqhkiG9w0BCQQx
-# FgQUUeWtFCZTfvPvQXTbv4muI2AknzowDQYJKoZIhvcNAQEBBQAEgYAW2HrN7UZn
-# LRk9i8Q2nZiV4NubESmoJA1wLoblz3Ha71o9fh8BDUxpc+bwCFSyJnjCzNV6D9wf
-# CkcJT2ntMOZ7UXIlEkuIY2U2I4USL5BQDROmsFvFYToJfjKMLD5g32QpEyNzPWWO
-# K2Ip2uaYbJrSBHyw2zg/P7UQc9rb6eX8ZQ==
+# FgQUctu6brnd6tKrbMkU9GDuvQ+4JckwDQYJKoZIhvcNAQEBBQAEgYDPnfE0BOjG
+# cnUI6Y1VcBrx1klO64Ovbxs47d7oym1i3AmhMzPikU5PeZ8WSlzC/fgBx3aKIR4e
+# /Y7EMiidipUFZrLPnrODTroR5mxmaUbGTqRcvSH5SCBQ51a/klfrPVYtD2BgI+5O
+# rUqkSL6s3fOI1CLoB9SBr2NRau+Uf5SlTQ==
 # SIG # End signature block
