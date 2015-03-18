@@ -422,59 +422,56 @@ Function Update-GitRepository
     $ErrorActionPreference = [System.Management.Automation.ActionPreference]::Stop
     
     # Set current directory to the git repo location
+    if(-Not (Test-Path -Path $RepositoryInformation.Path))
+    {
+        $ParentDirectory = New-FileItemContainer -FileItemPath $RepositoryInformation.Path
+        Try
+        {
+            git.exe clone "$($RepositoryInformation.RepositoryPath)" "$($RepositoryInformation.Path)" --recursive
+        }
+        Catch
+        {
+            Write-Exception -Exception $_ -Stream Warning 
+        }
+        
+    }
     Set-Location $RepositoryInformation.Path
       
-    if(-not ("$(git branch)" -match '\*\s(\w+)'))
+    if(-not ("$(git.exe branch)" -match '\*\s(\w+)'))
     {
         Throw-Exception -Type 'GitTargetBranchNotFound' `
                         -Message 'git could not find any current branch' `
-                        -Property @{ 'result' = $(git branch) ;
-                                     'match'  = "$(git branch)" -match '\*\s(\w+)'}
+                        -Property @{ 'result' = $(git.exe branch) ;
+                                     'match'  = "$(git.exe branch)" -match '\*\s(\w+)'}
     }
     if($Matches[1] -ne $RepositoryInformation.Branch)
     {
         Write-Verbose -Message "Setting current branch to [$($RepositoryInformation.Branch)]"
         try
         {
-            git checkout $RepositoryInformation.Branch | Out-Null
+            git.exe checkout $RepositoryInformation.Branch | Out-Null
         }
         catch
         {
-            if($LASTEXITCODE -ne 0)
-            {
-                Write-Exception -Stream Error -Exception $_
-            }
-            else
-            {
-                Write-Exception -Stream Verbose -Exception $_
-            }
+            Write-Exception -Exception $_ -Stream Warning
         }
     }
-
     
     try
     {
-        $initialization = git pull
+        $initialization = git.exe pull
     }
     catch
     {
-        if($LASTEXITCODE -ne -1)
-        {
-            Write-Verbose -Message "`$LASTEXITCODE [$LASTEXITCODE]"
-            Write-Exception -Stream Error -Exception $_
-        }
-        else
-        {
-            Write-Verbose -Message 'Updated Repository'
-        }
+        Write-Exception -Exception $_ -Stream Warning
     }
 }
 Export-ModuleMember -Function * -Verbose:$false -Debug:$False
 # SIG # Begin signature block
-# MIIOfQYJKoZIhvcNAQcCoIIObjCCDmoCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
+# MIID1QYJKoZIhvcNAQcCoIIDxjCCA8ICAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUK0ImCTVCNVCnSglAbQuLCYl5
-# 0+WgggqQMIIB8zCCAVygAwIBAgIQEdV66iePd65C1wmJ28XdGTANBgkqhkiG9w0B
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUaxKL2/8rTPZWbsYRz/YDJPx6
+# oMCgggH3MIIB8zCCAVygAwIBAgIQEdV66iePd65C1wmJ28XdGTANBgkqhkiG9w0B
 # AQUFADAUMRIwEAYDVQQDDAlTQ09yY2hEZXYwHhcNMTUwMzA5MTQxOTIxWhcNMTkw
 # MzA5MDAwMDAwWjAUMRIwEAYDVQQDDAlTQ09yY2hEZXYwgZ8wDQYJKoZIhvcNAQEB
 # BQADgY0AMIGJAoGBANbZ1OGvnyPKFcCw7nDfRgAxgMXt4YPxpX/3rNVR9++v9rAi
@@ -484,69 +481,12 @@ Export-ModuleMember -Function * -Verbose:$false -Debug:$False
 # ty2pMj8+MRAFTTAOBgNVHQ8BAf8EBAMCB4AwDQYJKoZIhvcNAQEFBQADgYEAoK7K
 # SmNLQ++VkzdvS8Vp5JcpUi0GsfEX2AGWZ/NTxnMpyYmwEkzxAveH1jVHgk7zqglS
 # OfwX2eiu0gvxz3mz9Vh55XuVJbODMfxYXuwjMjBV89jL0vE/YgbRAcU05HaWQu2z
-# nkvaq1yD5SJIRBooP7KkC/zCfCWRTnXKWVTw7hwwggPuMIIDV6ADAgECAhB+k+v7
-# fMZOWepLmnfUBvw7MA0GCSqGSIb3DQEBBQUAMIGLMQswCQYDVQQGEwJaQTEVMBMG
-# A1UECBMMV2VzdGVybiBDYXBlMRQwEgYDVQQHEwtEdXJiYW52aWxsZTEPMA0GA1UE
-# ChMGVGhhd3RlMR0wGwYDVQQLExRUaGF3dGUgQ2VydGlmaWNhdGlvbjEfMB0GA1UE
-# AxMWVGhhd3RlIFRpbWVzdGFtcGluZyBDQTAeFw0xMjEyMjEwMDAwMDBaFw0yMDEy
-# MzAyMzU5NTlaMF4xCzAJBgNVBAYTAlVTMR0wGwYDVQQKExRTeW1hbnRlYyBDb3Jw
-# b3JhdGlvbjEwMC4GA1UEAxMnU3ltYW50ZWMgVGltZSBTdGFtcGluZyBTZXJ2aWNl
-# cyBDQSAtIEcyMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAsayzSVRL
-# lxwSCtgleZEiVypv3LgmxENza8K/LlBa+xTCdo5DASVDtKHiRfTot3vDdMwi17SU
-# AAL3Te2/tLdEJGvNX0U70UTOQxJzF4KLabQry5kerHIbJk1xH7Ex3ftRYQJTpqr1
-# SSwFeEWlL4nO55nn/oziVz89xpLcSvh7M+R5CvvwdYhBnP/FA1GZqtdsn5Nph2Up
-# g4XCYBTEyMk7FNrAgfAfDXTekiKryvf7dHwn5vdKG3+nw54trorqpuaqJxZ9YfeY
-# cRG84lChS+Vd+uUOpyyfqmUg09iW6Mh8pU5IRP8Z4kQHkgvXaISAXWp4ZEXNYEZ+
-# VMETfMV58cnBcQIDAQABo4H6MIH3MB0GA1UdDgQWBBRfmvVuXMzMdJrU3X3vP9vs
-# TIAu3TAyBggrBgEFBQcBAQQmMCQwIgYIKwYBBQUHMAGGFmh0dHA6Ly9vY3NwLnRo
-# YXd0ZS5jb20wEgYDVR0TAQH/BAgwBgEB/wIBADA/BgNVHR8EODA2MDSgMqAwhi5o
-# dHRwOi8vY3JsLnRoYXd0ZS5jb20vVGhhd3RlVGltZXN0YW1waW5nQ0EuY3JsMBMG
-# A1UdJQQMMAoGCCsGAQUFBwMIMA4GA1UdDwEB/wQEAwIBBjAoBgNVHREEITAfpB0w
-# GzEZMBcGA1UEAxMQVGltZVN0YW1wLTIwNDgtMTANBgkqhkiG9w0BAQUFAAOBgQAD
-# CZuPee9/WTCq72i1+uMJHbtPggZdN1+mUp8WjeockglEbvVt61h8MOj5aY0jcwsS
-# b0eprjkR+Cqxm7Aaw47rWZYArc4MTbLQMaYIXCp6/OJ6HVdMqGUY6XlAYiWWbsfH
-# N2qDIQiOQerd2Vc/HXdJhyoWBl6mOGoiEqNRGYN+tjCCBKMwggOLoAMCAQICEA7P
-# 9DjI/r81bgTYapgbGlAwDQYJKoZIhvcNAQEFBQAwXjELMAkGA1UEBhMCVVMxHTAb
-# BgNVBAoTFFN5bWFudGVjIENvcnBvcmF0aW9uMTAwLgYDVQQDEydTeW1hbnRlYyBU
-# aW1lIFN0YW1waW5nIFNlcnZpY2VzIENBIC0gRzIwHhcNMTIxMDE4MDAwMDAwWhcN
-# MjAxMjI5MjM1OTU5WjBiMQswCQYDVQQGEwJVUzEdMBsGA1UEChMUU3ltYW50ZWMg
-# Q29ycG9yYXRpb24xNDAyBgNVBAMTK1N5bWFudGVjIFRpbWUgU3RhbXBpbmcgU2Vy
-# dmljZXMgU2lnbmVyIC0gRzQwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIB
-# AQCiYws5RLi7I6dESbsO/6HwYQpTk7CY260sD0rFbv+GPFNVDxXOBD8r/amWltm+
-# YXkLW8lMhnbl4ENLIpXuwitDwZ/YaLSOQE/uhTi5EcUj8mRY8BUyb05Xoa6IpALX
-# Kh7NS+HdY9UXiTJbsF6ZWqidKFAOF+6W22E7RVEdzxJWC5JH/Kuu9mY9R6xwcueS
-# 51/NELnEg2SUGb0lgOHo0iKl0LoCeqF3k1tlw+4XdLxBhircCEyMkoyRLZ53RB9o
-# 1qh0d9sOWzKLVoszvdljyEmdOsXF6jML0vGjG/SLvtmzV4s73gSneiKyJK4ux3DF
-# vk6DJgj7C72pT5kI4RAocqrNAgMBAAGjggFXMIIBUzAMBgNVHRMBAf8EAjAAMBYG
-# A1UdJQEB/wQMMAoGCCsGAQUFBwMIMA4GA1UdDwEB/wQEAwIHgDBzBggrBgEFBQcB
-# AQRnMGUwKgYIKwYBBQUHMAGGHmh0dHA6Ly90cy1vY3NwLndzLnN5bWFudGVjLmNv
-# bTA3BggrBgEFBQcwAoYraHR0cDovL3RzLWFpYS53cy5zeW1hbnRlYy5jb20vdHNz
-# LWNhLWcyLmNlcjA8BgNVHR8ENTAzMDGgL6AthitodHRwOi8vdHMtY3JsLndzLnN5
-# bWFudGVjLmNvbS90c3MtY2EtZzIuY3JsMCgGA1UdEQQhMB+kHTAbMRkwFwYDVQQD
-# ExBUaW1lU3RhbXAtMjA0OC0yMB0GA1UdDgQWBBRGxmmjDkoUHtVM2lJjFz9eNrwN
-# 5jAfBgNVHSMEGDAWgBRfmvVuXMzMdJrU3X3vP9vsTIAu3TANBgkqhkiG9w0BAQUF
-# AAOCAQEAeDu0kSoATPCPYjA3eKOEJwdvGLLeJdyg1JQDqoZOJZ+aQAMc3c7jecsh
-# aAbatjK0bb/0LCZjM+RJZG0N5sNnDvcFpDVsfIkWxumy37Lp3SDGcQ/NlXTctlze
-# vTcfQ3jmeLXNKAQgo6rxS8SIKZEOgNER/N1cdm5PXg5FRkFuDbDqOJqxOtoJcRD8
-# HHm0gHusafT9nLYMFivxf1sJPZtb4hbKE4FtAC44DagpjyzhsvRaqQGvFZwsL0kb
-# 2yK7w/54lFHDhrGCiF3wPbRRoXkzKy57udwgCRNx62oZW8/opTBXLIlJP7nPf8m/
-# PiJoY1OavWl0rMUdPH+S4MO8HNgEdTGCA1cwggNTAgEBMCgwFDESMBAGA1UEAwwJ
-# U0NPcmNoRGV2AhAR1XrqJ493rkLXCYnbxd0ZMAkGBSsOAwIaBQCgeDAYBgorBgEE
-# AYI3AgEMMQowCKACgAChAoAAMBkGCSqGSIb3DQEJAzEMBgorBgEEAYI3AgEEMBwG
-# CisGAQQBgjcCAQsxDjAMBgorBgEEAYI3AgEVMCMGCSqGSIb3DQEJBDEWBBQNei77
-# j62Or/uUvnJpe9HuDkbXozANBgkqhkiG9w0BAQEFAASBgARgP0myJ3up/UUQqA0L
-# zE+WhY+mrsBg1Pe5vHPQTz3XhzfWmlJiJfUT4c47zh3WyJwGOOouOAUc+RCh4iDs
-# 01/iGh14gb9DHaaIyDFVFCwOcwY3ICKDLeH8g6c002ZFUGE8SSzKSpDb5SiG/urV
-# DzwqYaLi4X+iEThKSCQGfto+oYICCzCCAgcGCSqGSIb3DQEJBjGCAfgwggH0AgEB
-# MHIwXjELMAkGA1UEBhMCVVMxHTAbBgNVBAoTFFN5bWFudGVjIENvcnBvcmF0aW9u
-# MTAwLgYDVQQDEydTeW1hbnRlYyBUaW1lIFN0YW1waW5nIFNlcnZpY2VzIENBIC0g
-# RzICEA7P9DjI/r81bgTYapgbGlAwCQYFKw4DAhoFAKBdMBgGCSqGSIb3DQEJAzEL
-# BgkqhkiG9w0BBwEwHAYJKoZIhvcNAQkFMQ8XDTE1MDMxNzIyNTI0N1owIwYJKoZI
-# hvcNAQkEMRYEFH3BZBYVvcfyzl90qXxUWxKvZTZaMA0GCSqGSIb3DQEBAQUABIIB
-# AE9RsECZsADJNs99G+MfABHXLHjRAJL/rKTZisnOEPEj3oci2UFPOgz+55y5j5jc
-# kntujP1qaBGka95bW0AbnoTVB2q7mFWLpFg9wpnlEGcbBa3EW0mHKPh12bdWj541
-# jhrEOSkEvlz3HIwT4iICxig8wkwagSjB7Gfb9W5QsRHsqUN4NPAnIwWcOZbijTiK
-# Lfh3xuTnf+fU4vNk72kMboBLrmHkEHbdr1R836/I8lRo20gC5v9gT6G7fECT4l8V
-# ovEB4n6qlxqU61FOmdDpHkCSZfPqb3EYfNqz+QOACErfF29ftKdZ+lhs/LbcNjxZ
-# +1omQFs2tkgoXqNh8FGibm8=
+# nkvaq1yD5SJIRBooP7KkC/zCfCWRTnXKWVTw7hwxggFIMIIBRAIBATAoMBQxEjAQ
+# BgNVBAMMCVNDT3JjaERldgIQEdV66iePd65C1wmJ28XdGTAJBgUrDgMCGgUAoHgw
+# GAYKKwYBBAGCNwIBDDEKMAigAoAAoQKAADAZBgkqhkiG9w0BCQMxDAYKKwYBBAGC
+# NwIBBDAcBgorBgEEAYI3AgELMQ4wDAYKKwYBBAGCNwIBFTAjBgkqhkiG9w0BCQQx
+# FgQUUeWtFCZTfvPvQXTbv4muI2AknzowDQYJKoZIhvcNAQEBBQAEgYAW2HrN7UZn
+# LRk9i8Q2nZiV4NubESmoJA1wLoblz3Ha71o9fh8BDUxpc+bwCFSyJnjCzNV6D9wf
+# CkcJT2ntMOZ7UXIlEkuIY2U2I4USL5BQDROmsFvFYToJfjKMLD5g32QpEyNzPWWO
+# K2Ip2uaYbJrSBHyw2zg/P7UQc9rb6eX8ZQ==
 # SIG # End signature block
