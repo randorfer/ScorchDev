@@ -273,7 +273,7 @@ Function ConvertFrom-PSCustomObject
 {
     [OutputType([hashtable])] 
     Param(
-        [Parameter(Mandatory = $True)] 
+        [Parameter(Mandatory = $True, ValueFromPipeline = $True)] 
         $InputObject,
 
         [Parameter(Mandatory = $False)]
@@ -734,8 +734,8 @@ Export-ModuleMember -Function * -Verbose:$False -Debug:$False
 # SIG # Begin signature block
 # MIID1QYJKoZIhvcNAQcCoIIDxjCCA8ICAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQU4TFk2VATv88pgG10J83kGDaN
-# QWugggH3MIIB8zCCAVygAwIBAgIQEdV66iePd65C1wmJ28XdGTANBgkqhkiG9w0B
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQU82SvajrGwqDp2ibyDlt+UO8m
+# nnigggH3MIIB8zCCAVygAwIBAgIQEdV66iePd65C1wmJ28XdGTANBgkqhkiG9w0B
 # AQUFADAUMRIwEAYDVQQDDAlTQ09yY2hEZXYwHhcNMTUwMzA5MTQxOTIxWhcNMTkw
 # MzA5MDAwMDAwWjAUMRIwEAYDVQQDDAlTQ09yY2hEZXYwgZ8wDQYJKoZIhvcNAQEB
 # BQADgY0AMIGJAoGBANbZ1OGvnyPKFcCw7nDfRgAxgMXt4YPxpX/3rNVR9++v9rAi
@@ -749,8 +749,8 @@ Export-ModuleMember -Function * -Verbose:$False -Debug:$False
 # BgNVBAMMCVNDT3JjaERldgIQEdV66iePd65C1wmJ28XdGTAJBgUrDgMCGgUAoHgw
 # GAYKKwYBBAGCNwIBDDEKMAigAoAAoQKAADAZBgkqhkiG9w0BCQMxDAYKKwYBBAGC
 # NwIBBDAcBgorBgEEAYI3AgELMQ4wDAYKKwYBBAGCNwIBFTAjBgkqhkiG9w0BCQQx
-# FgQUfS1hWg0Bu5Y3RhkKJeFGD9WE6DYwDQYJKoZIhvcNAQEBBQAEgYBlTgZp9hLC
-# Ef1qbNhKPsOtH/eEPy9Nqn13VTTXn9LlsPnxlNB8IR2iHbSDd0x7ckrx1m1FGqSE
-# J78u0D38omF+IDafz1Q23RadPle0ajTk0FW7j08trRK29xsw/l486M5mX2H30oqQ
-# scJh8ZVC7dfuktPgnCyqsr+OVigilcnrKg==
+# FgQUTD1tIsNppTermZzBuXoE32F1peQwDQYJKoZIhvcNAQEBBQAEgYDGzMDK88Rr
+# UwhsNtYAffjqqj15ATvI3ag7tc7x5dVosRn6KNASHVEv45AfLbxFxMCPrH4XS1ud
+# p1t3kMB9f492C1KpVoPe1cgzFeZUUp/91kJaQPmzygplk6gwv1nLatW59Jpu5brg
+# Xrs7axROJhYeta1tkJcCo3QGKWkMRIVJSQ==
 # SIG # End signature block
