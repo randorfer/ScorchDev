@@ -80,8 +80,6 @@ Workflow Invoke-GitRepositorySync
                                                                               -WebserviceEndpoint $CIVariables.WebserviceEndpoint `
                                                                               -WebservicePort $CIVariables.WebservicePort `
                                                                               -Credential $SMACred
-                    SetAutomationModuleActivityMetadata -ModuleName $ModuleName `
-                                                        -ModuleVersion $ModuleVersion
                 }
                 Catch
                 {
@@ -166,8 +164,8 @@ Workflow Invoke-GitRepositorySync
 # SIG # Begin signature block
 # MIID1QYJKoZIhvcNAQcCoIIDxjCCA8ICAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUTEl88YruWKq7wJUBIYdczO7n
-# cs6gggH3MIIB8zCCAVygAwIBAgIQEdV66iePd65C1wmJ28XdGTANBgkqhkiG9w0B
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUw1h4oFUqqRq3B1UlE31toNzF
+# MzWgggH3MIIB8zCCAVygAwIBAgIQEdV66iePd65C1wmJ28XdGTANBgkqhkiG9w0B
 # AQUFADAUMRIwEAYDVQQDDAlTQ09yY2hEZXYwHhcNMTUwMzA5MTQxOTIxWhcNMTkw
 # MzA5MDAwMDAwWjAUMRIwEAYDVQQDDAlTQ09yY2hEZXYwgZ8wDQYJKoZIhvcNAQEB
 # BQADgY0AMIGJAoGBANbZ1OGvnyPKFcCw7nDfRgAxgMXt4YPxpX/3rNVR9++v9rAi
@@ -181,8 +179,8 @@ Workflow Invoke-GitRepositorySync
 # BgNVBAMMCVNDT3JjaERldgIQEdV66iePd65C1wmJ28XdGTAJBgUrDgMCGgUAoHgw
 # GAYKKwYBBAGCNwIBDDEKMAigAoAAoQKAADAZBgkqhkiG9w0BCQMxDAYKKwYBBAGC
 # NwIBBDAcBgorBgEEAYI3AgELMQ4wDAYKKwYBBAGCNwIBFTAjBgkqhkiG9w0BCQQx
-# FgQUewD89QwKL3ZRYzNQ3Z9y9MvvSJUwDQYJKoZIhvcNAQEBBQAEgYARAT6+MXfc
-# E/g30Le6nbD9SMbd8lTrLK8bfwc00wQ17n0kyvWTPQbdytiD3Aj6zWyNnaYHmkGN
-# Cqw1XVAyll80chu5N3T0nLGHAMOmgX9kvNoa9i1QatTFyoSVi6Z3LJK9PASyS09L
-# pJTTIKH7BqsUI5OO8KXMNonF4Iz+luhfvQ==
+# FgQU7ZWayYYL7s+VYMiIrvORjcQFYxcwDQYJKoZIhvcNAQEBBQAEgYCuOMrNbveZ
+# +Z/oLRgMSNEp5cc+JIbZpTy0BNYj6dBcqU6CtzTw5cYqT+/4etwYVX2VQBbXvxIp
+# bwS3rF57W8rhAqCsf/l8U0xCzZBEfjhqVW9HliZFFrIBMxOQcD421fPD4vvQ6TVQ
+# 37NOI8dNti+7FvEj1xD2Yso7IOn9n6BR7g==
 # SIG # End signature block
