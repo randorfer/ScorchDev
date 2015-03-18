@@ -1,42 +1,43 @@
 {
+    "Schedules":  {
+
+                  },
     "Variables":  {
-                      "SMAContinuousIntegration-MonitorLifeSpan":  {
-                                                                       "isEncrypted":  false,
-                                                                       "Description":  "",
-                                                                       "Value":  300
-                                                                   },
                       "SMAContinuousIntegration-MonitorDelayCycle":  {
                                                                          "isEncrypted":  false,
                                                                          "Description":  "",
                                                                          "Value":  30
                                                                      },
-                      "SMAContinuousIntegration-MonitorCheckpoint":  {
-                                                                         "isEncrypted":  false,
-                                                                         "Description":  "",
-                                                                         "Value":  5
-                                                                     },
-                      "SMAContinuousIntegration-RepositoryInformation":  {
-                                                                             "isEncrypted":  false,
-                                                                             "Description":  "",
-                                                                             "Type":  "String",
-                                                                             "Value":  "{\"ContinuousIntegrationProject\":{\"Path\":\"C:\\\\git\\\\ScorchDev\",\"RepositoryPath\":\"https://github.com/randorfer/ScorchDev.git\",\"RunbookFolder\":\"Runbooks\",\"PowerShellModuleFolder\":\"PowerShellModules\",\"CurrentCommit\":\"84de715\",\"Branch\":\"master\"}}"
-                                                                         },
-                      "SMAContinuousIntegration-SMACredName":  {
-                                                                   "isEncrypted":  false,
-                                                                   "Description":  "",
-                                                                   "Value":  "SCOrchDev\\SMA"
-                                                               },
                       "SMAContinuousIntegration-WebserviceEndpoint":  {
                                                                           "isEncrypted":  false,
                                                                           "Description":  "",
                                                                           "Value":  "https://scorchsma01.scorchdev.com"
                                                                       },
+                      "SMAContinuousIntegration-SMACredName":  {
+                                                                   "isEncrypted":  false,
+                                                                   "Description":  "",
+                                                                   "Value":  "SCOrchDev\\SMA"
+                                                               },
+                      "SMAContinuousIntegration-MonitorLifeSpan":  {
+                                                                       "isEncrypted":  false,
+                                                                       "Description":  "",
+                                                                       "Value":  300
+                                                                   },
+                      "SMAContinuousIntegration-MonitorCheckpoint":  {
+                                                                         "isEncrypted":  false,
+                                                                         "Description":  "",
+                                                                         "Value":  5
+                                                                     },
                       "SMAContinuousIntegration-WebservicePort":  {
                                                                       "isEncrypted":  false,
                                                                       "Description":  "",
                                                                       "Value":  "9090"
-                                                                  }
-                  },
-    "Schedules":  {
+                                                                  },
+                      "SMAContinuousIntegration-RepositoryInformation":  {
+                                                                             "isEncrypted":  false,
+                                                                             "Description":  "",
+                                                                             "Type":  "String",
+                                                                             "Value":  "{\r\n    \"ContinuousIntegrationProject\":  {\r\n                                         \"Path\":  \"C:\\\\git\\\\ScorchDev\",\r\n                                         \"RepositoryPath\":  \"https://github.com/randorfer/ScorchDev.git\",\r\n                                         \"RunbookFolder\":  \"Runbooks\",\r\n                                         \"PowerShellModuleFolder\":  \"PowerShellModules\",\r\n                                         \"CurrentCommit\":  \"84de715\",\r\n                                         \"Branch\":  \"master\"\r\n                                     },\r\n    \"RunbookExample\":  {\r\n                                         \"Path\":  \"C:\\\\git\\\\RunbookExample\",\r\n                                         \"RepositoryPath\":  \"https://github.com/randorfer/RunbookExample.git\",\r\n                                         \"RunbookFolder\":  \"Runbooks\",\r\n                                         \"PowerShellModuleFolder\":  \"PowerShellModules\",\r\n                                         \"CurrentCommit\":  \"0\",\r\n                                         \"Branch\":  \"master\"\r\n                                     }\r\n}"
+                                                                         }
                   }
 }
