@@ -16,10 +16,15 @@
 Function Format-ObjectDump
 {
     [CmdletBinding()]
-    Param([Parameter(Position=0, Mandatory=$True,ValueFromPipeline=$True)] [Object]$InputObject,
-          [Parameter(Position=1, Mandatory=$False)] [string[]] $Property=@('*'))
-    $typeInfo = $inputObject.GetType() | Out-String;
-    $objList = $inputObject | Format-List -Property $property | Out-String;
+    Param(
+        [Parameter(Position = 0, Mandatory = $True,ValueFromPipeline = $True)]
+        [Object]$InputObject,
+        [Parameter(Position = 1, Mandatory = $False)] [string[]] $Property = @('*')
+    )
+    $typeInfo = $InputObject.GetType() | Out-String
+    $objList = $InputObject | `
+        Format-List -Property $Property | `
+        Out-String
 
     return "$typeInfo`r`n$objList"
 }
@@ -63,14 +68,19 @@ Function Format-ObjectDump
 #>
 Function ConvertTo-Boolean
 {
-    Param($InputString)
+    [OutputType([string])]
+    Param(
+        [Parameter(Mandatory = $True, ValueFromPipeline = $True)]
+        [string]
+        $InputString
+    )
 
     if(-not [System.String]::IsNullOrEmpty($InputString))
     {
-        $res    = $true
+        $res    = $True
         $success = [bool]::TryParse($InputString,[ref]$res)
         if($success)
-        { 
+        {
             return $res
         }
         else
@@ -79,11 +89,26 @@ Function ConvertTo-Boolean
     
             Switch ($InputString)
             {
-                'f'     { $false }
-                'false' { $false }
-                'off'   { $false }
-                'no'    { $false }
-                'n'     { $false }
+                'f'     
+                {
+                    $False 
+                }
+                'false' 
+                {
+                    $False 
+                }
+                'off'   
+                {
+                    $False 
+                }
+                'no'    
+                {
+                    $False 
+                }
+                'n'     
+                {
+                    $False 
+                }
                 default
                 {
                     try
@@ -100,7 +125,7 @@ Function ConvertTo-Boolean
     }
     else
     {
-        return $false
+        return $False
     }
 }
 <#
@@ -127,8 +152,14 @@ Function Select-FirstValid
     # Don't allow values from the pipeline. The pipeline does weird things with
     # nested arrays.
     Param(
-        [Parameter(Mandatory=$True, ValueFromPipeline=$False)] [AllowNull()] $Value,
-        [Parameter(Mandatory=$False)] $FilterScript = { $_ -As [Bool] }
+        [Parameter(Mandatory = $True, ValueFromPipeline = $False)]
+        [AllowNull()]
+        $Value,
+
+        [Parameter(Mandatory = $False)]
+        $FilterScript = {
+            $_ -As [Bool] 
+        }
     )
     ForEach($_ in $Value)
     {
@@ -155,8 +186,8 @@ Function Select-FirstValid
 #>
 function Find-DeclaredCommand
 {
-    param(
-        [Parameter(Mandatory=$True)]
+    Param(
+        [Parameter(Mandatory = $True, ValueFromPipeline = $True)]
         [String]
         $Path
     )
@@ -165,15 +196,18 @@ function Find-DeclaredCommand
     $DeclaredCommandMap = @{}
     foreach ($Path in $RunbookPaths) 
     {
-        $Tokens = [System.Management.Automation.PSParser]::Tokenize((Get-Content -Path $Path), [ref] $null)
+        $Tokens = [System.Management.Automation.PSParser]::Tokenize((Get-Content -Path $Path), [ref] $Null)
         For($i = 0 ; $i -lt $Tokens.Count - 1 ; $i++)
         {
             $Token = $Tokens[$i]
-            if($Token.Type -eq 'Keyword' -and $Token.Content -in @('function','workflow'))
+            if($Token.Type -eq 'Keyword' -and $Token.Content -in @('function', 'workflow'))
             {
                 Write-Debug -Message "Found command $($NextToken.Content) in $Path of type $($Token.Content)"
                 $NextToken = $Tokens[$i+1]
-                $DeclaredCommandMap."$($NextToken.Content)" = @{ 'Path' = $Path ; 'Type' = $Token.Content}
+                $DeclaredCommandMap."$($NextToken.Content)" = @{
+                    'Path' = $Path
+                    'Type' = $Token.Content
+                }
             }
         }
     }
@@ -193,7 +227,10 @@ function Find-DeclaredCommand
 #>
 Function Test-IsNullOrWhiteSpace
 {
-    Param([Parameter(Mandatory=$True)][AllowNull()] $String)
+    [OutputType([bool])]
+    Param([Parameter(Mandatory = $True, ValueFromPipeline = $True)]
+    [AllowNull()]
+    $String)
     Return [String]::IsNullOrWhiteSpace($String)
 }
 
@@ -210,31 +247,45 @@ Function Test-IsNullOrWhiteSpace
 #>
 Function Test-IsNullOrEmpty
 {
-    Param([Parameter(Mandatory=$True)][AllowNull()] $String)
+    [OutputType([bool])]
+    Param(
+        [Parameter(Mandatory = $True, ValueFromPipeline = $True)]
+        [AllowNull()]
+        $String
+    )
     Return [String]::IsNullOrEmpty($String)
 }
 <#
-    .Synopsis
-        Takes a pscustomobject and converts into a IDictionary.
-        Translates all membertypes into keys for the IDictionary
+.Synopsis
+    Takes a pscustomobject and converts into a IDictionary.
+    Translates all membertypes into keys for the IDictionary
     
-    .Parameter InputObject
-        The input pscustomobject object to convert
+.Parameter InputObject
+    The input pscustomobject object to convert
 
-    .Parameter MemberType
-        The membertype to change into a key property
+.Parameter MemberType
+    The membertype to change into a key property
 
-    .Parameter KeyFilterScript
-        A script to run to manipulate the keyname during grouping.
+.Parameter KeyFilterScript
+    A script to run to manipulate the keyname during grouping.
 #>
 Function ConvertFrom-PSCustomObject
-{ 
-    Param([Parameter(Mandatory=$True)] 
-          $InputObject,
-          [Parameter(Mandatory=$False)][System.Management.Automation.PSMemberTypes]
-          $MemberType = [System.Management.Automation.PSMemberTypes]::NoteProperty,
-          [Parameter(Mandatory=$False)][ScriptBlock] 
-          $KeyFilterScript = { Param($KeyName) $KeyName } ) 
+{
+    [OutputType([hashtable])] 
+    Param(
+        [Parameter(Mandatory = $True)] 
+        $InputObject,
+
+        [Parameter(Mandatory = $False)]
+        [System.Management.Automation.PSMemberTypes]
+        $MemberType = [System.Management.Automation.PSMemberTypes]::NoteProperty,
+
+        [Parameter(Mandatory = $False)]
+        [ScriptBlock] 
+        $KeyFilterScript = {
+            Param($KeyName) $KeyName 
+        }
+    ) 
     
     $outputObj = @{}   
     
@@ -249,7 +300,7 @@ Function ConvertFrom-PSCustomObject
             }
             else
             {
-                $outputObj.Add($KeyName, $InputObject."$KeyName") | Out-Null 
+                $Null = $outputObj.Add($KeyName, $InputObject."$KeyName")
             } 
         }
     } 
@@ -257,27 +308,34 @@ Function ConvertFrom-PSCustomObject
 } 
 
 <#
-    .Synopsis
-        Converts an object or array of objects into a hashtable
-        by grouping them by the target key property
+.Synopsis
+    Converts an object or array of objects into a hashtable
+    by grouping them by the target key property
     
-    .Parameter InputObject
-        The object or array of objects to convert
+.Parameter InputObject
+    The object or array of objects to convert
 
-    .Parameter KeyName
-        The name of the property to group the objects by
+.Parameter KeyName
+    The name of the property to group the objects by
 
-    .Parameter KeyFilterScript
-        A script to run to manipulate the keyname during grouping.
+.Parameter KeyFilterScript
+    A script to run to manipulate the keyname during grouping.
 #>
 Function ConvertTo-Hashtable
 {
-    Param([Parameter(Mandatory=$True)]
-          $InputObject,
-          [Parameter(Mandatory=$True)][string]
-          $KeyName,
-          [Parameter(Mandatory=$False)][ScriptBlock]
-          $KeyFilterScript = { Param($Key) $Key })
+    [OutputType([hashtable])]
+    Param(
+        [Parameter(Mandatory = $True, ValueFromPipeline = $True)]
+        $InputObject,
+
+        [Parameter(Mandatory = $True)][string]
+        
+        $KeyName,
+        [Parameter(Mandatory = $False)][ScriptBlock]
+        $KeyFilterScript = {
+            Param($Key) $Key 
+        }
+    )
     $outputObj = @{}
     foreach($Object in $InputObject)
     {
@@ -291,7 +349,7 @@ Function ConvertTo-Hashtable
             }
             else
             {
-                $outputObj.Add($Key, @($Object)) | Out-Null
+                $Null = $outputObj.Add($Key, @($Object))
             }
         }
     }
@@ -299,25 +357,35 @@ Function ConvertTo-Hashtable
 }
 
 <#
-    .Synopsis
-        Creates a zip file from a target directory
+.Synopsis
+    Creates a zip file from a target directory
     
-    .Parameter SourceDir
-        The directory to zip up
+.Parameter SourceDir
+    The directory to zip up
 
-    .Parameter ZipFilePath
-        The path to store the new zip file at
+.Parameter ZipFilePath
+    The path to store the new zip file at
 
-    .Parameter OverwriteExisting
-        If the zip file already exists should it be overwritten. Default: True
+.Parameter OverwriteExisting
+    If the zip file already exists should it be overwritten. Default: True
 #>
 Function New-ZipFile
 {
-    Param([Parameter(Mandatory=$true) ][string] $SourceDir,
-          [Parameter(Mandatory=$true) ][string] $ZipFilePath,
-          [Parameter(Mandatory=$false)][bool]   $OverwriteExisting = $true)
+    Param(
+        [Parameter(Mandatory = $True)]
+        [string]
+        $SourceDir,
+
+        [Parameter(Mandatory = $True)]
+        [string]
+        $ZipFilePath,
+    
+        [Parameter(Mandatory = $False)]
+        [bool]
+        $OverwriteExisting = $True
+    )
             
-    $null = $(
+    $Null = $(
         Write-Verbose -Message 'Starting [New-ZipFile]'
         Write-Verbose -Message "`$SourceDir [$SourceDir]"
         Write-Verbose -Message "`$ZipFilePath [$ZipFilePath]"
@@ -326,34 +394,39 @@ Function New-ZipFile
         {
             if(Test-Path -Path $ZipFilePath)
             {
-                Remove-Item $ZipFilePath -Force -Confirm:$false
+                Remove-Item $ZipFilePath -Force -Confirm:$False
             }
         }
 
         if(-not (Test-Path -Path "$($ZipFilePath.Substring(0,$ZipFilePath.LastIndexOf('\')))"))
         {
             $newDir = New-Item -ItemType Directory `
-                                -Path "$($ZipFilePath.Substring(0,$ZipFilePath.LastIndexOf('\')))" `
-                                -Force `
-                                -Confirm:$false
+                               -Path "$($ZipFilePath.Substring(0,$ZipFilePath.LastIndexOf('\')))" `
+                               -Force `
+                               -Confirm:$False
         }
 
-        Add-Type -Assembly System.IO.Compression.FileSystem
+        Add-Type -AssemblyName System.IO.Compression.FileSystem
         $CompressionLevel = [System.IO.Compression.CompressionLevel]::Optimal
-        [System.IO.Compression.ZipFile]::CreateFromDirectory($SourceDir, $ZipFilePath, $CompressionLevel, $false)
+        [System.IO.Compression.ZipFile]::CreateFromDirectory($SourceDir, $ZipFilePath, $CompressionLevel, $False)
         Write-Verbose -Message 'Finished [New-ZipFile]'
     )
 }
 <#
-    .Synopsis
-        Creates a new empty temporary directory
+.Synopsis
+    Creates a new empty temporary directory
     
-    .Parameter Root
-        The root path to create the temporary directory under
+.Parameter Root
+    The root path to create the temporary directory under
 #>
 Function New-TempDirectory
 {
-    Param([Parameter(Mandatory=$false) ][string] $SourceDir = 'C:\')
+    [OutputType([System.IO.DirectoryInfo])]
+    Param(
+        [Parameter(Mandatory = $False, ValueFromPipeline = $True)]
+        [string]
+        $SourceDir = 'C:\'
+    )
     
     do
     {
@@ -366,121 +439,137 @@ Function New-TempDirectory
 }
 
 <#
-    .SYNOPSIS
-        Gets file encoding. From http://poshcode.org/2059
+.SYNOPSIS
+    Gets file encoding. From http://poshcode.org/2059
     
-    .DESCRIPTION
-        The Get-FileEncoding function determines encoding by looking at Byte Order Mark (BOM).
-        Based on port of C# code from http://www.west-wind.com/Weblog/posts/197245.aspx
+.DESCRIPTION
+    The Get-FileEncoding function determines encoding by looking at Byte Order Mark (BOM).
+    Based on port of C# code from http://www.west-wind.com/Weblog/posts/197245.aspx
     
-    .EXAMPLE
-        Get-ChildItem  *.ps1 | select FullName, @{n='Encoding';e={Get-FileEncoding $_.FullName}} | where {$_.Encoding -ne 'ASCII'}
-        This command gets ps1 files in current directory where encoding is not ASCII
+.EXAMPLE
+    Get-ChildItem  *.ps1 | select FullName, @{n='Encoding';e={Get-FileEncoding $_.FullName}} | where {$_.Encoding -ne 'ASCII'}
+    This command gets ps1 files in current directory where encoding is not ASCII
 
-    .EXAMPLE
-        Get-ChildItem  *.ps1 | select FullName, @{n='Encoding';e={Get-FileEncoding $_.FullName}} | where {$_.Encoding -ne 'ASCII'} | foreach {(get-content $_.FullName) | set-content $_.FullName -Encoding ASCII}
-        Same as previous example but fixes encoding using set-content
+.EXAMPLE
+    Get-ChildItem  *.ps1 | select FullName, @{n='Encoding';e={Get-FileEncoding $_.FullName}} | where {$_.Encoding -ne 'ASCII'} | foreach {(get-content $_.FullName) | set-content $_.FullName -Encoding ASCII}
+    Same as previous example but fixes encoding using set-content
 #>
-
-
 Function Get-FileEncoding
 {
+    [OutputType([string])]
     Param ( 
-            [Parameter(Mandatory = $True, ValueFromPipelineByPropertyName = $True)] 
-            [string]$Path 
-          )
+        [Parameter(Mandatory = $True, ValueFromPipeline = $True)] 
+        [string]$Path 
+    )
  
-    [byte[]]$byte = get-content -Encoding byte -ReadCount 4 -TotalCount 4 -Path $Path
+    [byte[]]$byte = Get-Content -Encoding byte -ReadCount 4 -TotalCount 4 -Path $Path
     if ( $byte[0] -eq 0xef -and $byte[1] -eq 0xbb -and $byte[2] -eq 0xbf )
-    { 
-        Write-Output 'UTF8' 
+    {
+        Return 'UTF8'
     }
     elseif ($byte[0] -eq 0xfe -and $byte[1] -eq 0xff)
-    { 
-        Write-Output 'Unicode' 
+    {
+        Return 'Unicode'
     }
     elseif ($byte[0] -eq 0 -and $byte[1] -eq 0 -and $byte[2] -eq 0xfe -and $byte[3] -eq 0xff)
-    { 
-        Write-Output 'UTF32' 
+    {
+        Return 'UTF32'
     }
     elseif ($byte[0] -eq 0x2b -and $byte[1] -eq 0x2f -and $byte[2] -eq 0x76)
-    { 
-        Write-Output 'UTF7'
+    {
+        Return 'UTF7'
     }
-    else
-    { 
-        Write-Output 'ASCII' 
-    }
+    Return 'ASCII'
 }
 <#
-    .Synopsis
+.Synopsis
+    Converts a filt to UTF8
+
+.Parameter Path
+    The path to the file to convert
 #>
 Function ConvertTo-UTF8
 {
     Param ( 
-            [Parameter(Mandatory = $True, ValueFromPipelineByPropertyName = $True)] 
-            [string]$Path 
-          )
+        [Parameter(Mandatory = $True, ValueFromPipeline = $True)] 
+        [string]$Path 
+    )
     $File = Get-Item $Path
     $content = Get-Content $Path
-    if ( $content -ne $null ) 
+    if ( $content -ne $Null ) 
     {
-        Remove-Item -Path $file.FullName -Force
-        $content | Out-File -FilePath $file.FullName -Encoding utf8
+        Remove-Item -Path $File.FullName -Force
+        $content | Out-File -FilePath $File.FullName -Encoding utf8
     } 
     else
     {
         Throw-Exception -Type 'NoContentFound' `
-                        -Message 'Could not read the file' `
-                        -Property @{ 'Path' = $Path ;
-                                     'File' = $(ConvertTo-JSON $File) ;
-                                     'Content' = $content }
+        -Message 'Could not read the file' `
+        -Property @{
+            'Path'  = $Path
+            'File'  = $(ConvertTo-Json -InputObject $File)
+            'Content' = $content
+        }
     }
 }
 <#
     .Synopsis
-        Updates the local powershell environment path. Sets the target path as a part
-        of the environment path if it does not already exist there
+    Updates the local powershell environment path. Sets the target path as a part
+    of the environment path if it does not already exist there
     
     .Parameter Path
-        The path to add to the system environment variable 'path'. Only adds if it is not already there            
+    The path to add to the system environment variable 'path'. Only adds if it is not already there            
 #>
 Function Add-PSEnvironmentPathLocation
 {
-    Param([Parameter(Mandatory=$True)] $Path)
+    Param(
+        [Parameter(Mandatory = $True, ValueFromPipeline = $True)]
+        $Path
+    )
     
     $CurrentPSModulePath = [System.Environment]::GetEnvironmentVariable('PSModulePath')
     if($CurrentPSModulePath.ToLower().Contains($Path.ToLower()))
     {
-        Write-Verbose "The path [$Path] was not in the environment path [$CurrentPSModulePath]. Adding."
+        Write-Verbose -Message "The path [$Path] was not in the environment path [$CurrentPSModulePath]. Adding."
         [Environment]::SetEnvironmentVariable( 'PSModulePath', "$CurrentPSModulePath;$Path", [System.EnvironmentVariableTarget]::Machine )
     }
 }
 <#
-    .SYNOPSIS
-        Enables PowerShell Remoting on a remote computer. Requires that the machine
-        responds to WMI requests, and that its operating system is Windows Vista or
-        later.
+.SYNOPSIS
+    Enables PowerShell Remoting on a remote computer. Requires that the machine
+    responds to WMI requests, and that its operating system is Windows Vista or
+    later.
 
-        Adapted from http://www.davidaiken.com/2011/01/12/enable-powershell-remoting-on-windows-azure/
-          From Windows PowerShell Cookbook (O'Reilly)
-          by Lee Holmes (http://www.leeholmes.com/guide)
+    Adapted from http://www.davidaiken.com/2011/01/12/enable-powershell-remoting-on-windows-azure/
+    From Windows PowerShell Cookbook (O'Reilly)
+    by Lee Holmes (http://www.leeholmes.com/guide)
+
+.Parameter Computername
+    The name of the computer to enable PSRemoting on
+
+.Parameter Credential
+    The Credential to use when connecting to the remote computer
           
-    .EXAMPLE
-        Enable-RemotePsRemoting -ComputerName <Computer> -Credential <Credential>
-
-
+.EXAMPLE
+    Enable-RemotePsRemoting -ComputerName <Computer> -Credential <Credential>
 #>
 Function Enable-RemotePsRemoting
 {
-    param( [Parameter(Mandatory=$True)][String] $Computername,
-           [Parameter(Mandatory=$True)][PSCredential]$Credential )
+    Param(
+        [Parameter(Mandatory = $True)]
+        [String]
+        $Computername,
+    
+        [Parameter(Mandatory = $True)]
+        [PSCredential]
+        $Credential
+    )
 
     Set-StrictMode -Version Latest
     $VerbosePreference = [System.Management.Automation.ActionPreference]::Continue
 
-    $username = $credential.Username
-    $password = $credential.GetNetworkCredential().Password
+    $username = $Credential.Username
+    $password = $Credential.GetNetworkCredential().Password
     $script = @"
 `$log = Join-Path `$env:TEMP Enable-RemotePsRemoting.output.txt
 Remove-Item -Force `$log -ErrorAction SilentlyContinue
@@ -517,18 +606,20 @@ Stop-Transcript
     $commandBytes = [System.Text.Encoding]::Unicode.GetBytes($script)
     $encoded = [Convert]::ToBase64String($commandBytes)
 
-    Write-Verbose "Configuring $computername"
+    Write-Verbose -Message "Configuring $Computername"
     $command = "powershell -NoProfile -EncodedCommand $encoded"
-    $null = Invoke-WmiMethod -Computer $computername -Credential $credential `
+    $Null = Invoke-WmiMethod -ComputerName $Computername -Credential $Credential `
     Win32_Process Create -Args $command
-    Write-Verbose 'Testing connection'
+    Write-Verbose -Message 'Testing connection'
 
     $attempts = 0
     do
     {
         try 
         {
-            $output = Invoke-Command $computername { Get-WmiObject Win32_ComputerSystem } -Credential $credential
+            $output = Invoke-Command $Computername {
+                Get-WmiObject -Class Win32_ComputerSystem 
+            } -Credential $Credential
             $status = 'Success'
         }
         catch
@@ -537,9 +628,11 @@ Stop-Transcript
             {
                 Throw-Exception -Type 'FailedToConfigurePSRemoting' `
                                 -Message 'Failed to configure PS remoting on the target box' `
-                                -Property @{ 'ComputerName' = $Computername ;
-                                             'Credential' = $Credential.UserName ;
-                                             'ErrorMessage' = Convert-ExceptionToString -Exception $_ }
+                                -Property @{
+                    'ComputerName' = $Computername
+                    'Credential' = $Credential.UserName
+                    'ErrorMessage' = Convert-ExceptionToString -Exception $_
+                }
             }
             else
             {
@@ -549,21 +642,25 @@ Stop-Transcript
             }
             $status = 'Failure'
         }
-    } while($status -ne 'Success')
+    }
+    while($status -ne 'Success')
     Write-Verbose -Message 'Success'
 }
 <#
-    .Synopsis
-        Takes a passed item path and creates the container if it does not already exist
+.Synopsis
+    Takes a passed item path and creates the container if it does not already exist
     
-    .Parameter FileItemPath
-        The path to the file who's container object will be created if it does not already exist
+.Parameter FileItemPath
+    The path to the file who's container object will be created if it does not already exist
 #>
 Function New-FileItemContainer
 {
-    Param([Parameter(Mandatory=$True)] $FileItemPath)
+    Param(
+        [Parameter(Mandatory = $True, ValueFromPipeline = $True)]
+        $FileItemPath
+    )
     
-    $ContainerPath = $FileItemPath -replace '[^\\]+$',''
+    $ContainerPath = $FileItemPath -replace '[^\\]+$', ''
     if(-Not (Test-Path -Path $ContainerPath))
     {
         Write-Verbose -Message 'Creating Directory'
@@ -601,31 +698,31 @@ Function Get-OptionalRemotingParameter
 {
     [OutputType([hashtable])]
     param(
-        [Parameter(Mandatory=$False)]
+        [Parameter(Mandatory = $False)]
         [String] 
-        $ComputerName,
+        $Computername,
 
-        [Parameter(Mandatory=$False)]
+        [Parameter(Mandatory = $False)]
         [PSCredential]
         $Credential,
 
-        [Parameter(Mandatory=$False)]
+        [Parameter(Mandatory = $False)]
         [ValidateSet('Basic','Credssp', 'Default', 'Digest', 'Kerberos', 'Negotiate', 'NegotiateWithImplicitCredential')]
         [String]
         $Authentication = 'CredSSP'
     )
 
     $InvokeCommandParameters = @{}
-    if(-not (Test-IsNullOrEmpty -String $ComputerName))
+    if(-not (Test-IsNullOrEmpty -String $Computername))
     {
-        $InvokeCommandParameters['ComputerName'] = $ComputerName
+        $InvokeCommandParameters['ComputerName'] = $Computername
     }
-    if($Credential -ne $null)
+    if($Credential -ne $Null)
     {
         $InvokeCommandParameters['Credential'] = $Credential
         $InvokeCommandParameters['Authentication'] = $Authentication
         # If a credential is provided, we must specify a computer name.
-        if($InvokeCommandParameters['ComputerName'] -eq $null)
+        if($InvokeCommandParameters['ComputerName'] -eq $Null)
         {
             $InvokeCommandParameters['ComputerName'] = Get-RemotingComputer
         }
@@ -633,12 +730,12 @@ Function Get-OptionalRemotingParameter
     return $InvokeCommandParameters
 }
 
-Export-ModuleMember -Function * -Verbose:$false -Debug:$false
+Export-ModuleMember -Function * -Verbose:$False -Debug:$False
 # SIG # Begin signature block
-# MIIOfQYJKoZIhvcNAQcCoIIObjCCDmoCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
+# MIID1QYJKoZIhvcNAQcCoIIDxjCCA8ICAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUimpqUjAqrZSU/BnVjKu2AGeQ
-# 9+SgggqQMIIB8zCCAVygAwIBAgIQEdV66iePd65C1wmJ28XdGTANBgkqhkiG9w0B
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQU4TFk2VATv88pgG10J83kGDaN
+# QWugggH3MIIB8zCCAVygAwIBAgIQEdV66iePd65C1wmJ28XdGTANBgkqhkiG9w0B
 # AQUFADAUMRIwEAYDVQQDDAlTQ09yY2hEZXYwHhcNMTUwMzA5MTQxOTIxWhcNMTkw
 # MzA5MDAwMDAwWjAUMRIwEAYDVQQDDAlTQ09yY2hEZXYwgZ8wDQYJKoZIhvcNAQEB
 # BQADgY0AMIGJAoGBANbZ1OGvnyPKFcCw7nDfRgAxgMXt4YPxpX/3rNVR9++v9rAi
@@ -648,69 +745,12 @@ Export-ModuleMember -Function * -Verbose:$false -Debug:$false
 # ty2pMj8+MRAFTTAOBgNVHQ8BAf8EBAMCB4AwDQYJKoZIhvcNAQEFBQADgYEAoK7K
 # SmNLQ++VkzdvS8Vp5JcpUi0GsfEX2AGWZ/NTxnMpyYmwEkzxAveH1jVHgk7zqglS
 # OfwX2eiu0gvxz3mz9Vh55XuVJbODMfxYXuwjMjBV89jL0vE/YgbRAcU05HaWQu2z
-# nkvaq1yD5SJIRBooP7KkC/zCfCWRTnXKWVTw7hwwggPuMIIDV6ADAgECAhB+k+v7
-# fMZOWepLmnfUBvw7MA0GCSqGSIb3DQEBBQUAMIGLMQswCQYDVQQGEwJaQTEVMBMG
-# A1UECBMMV2VzdGVybiBDYXBlMRQwEgYDVQQHEwtEdXJiYW52aWxsZTEPMA0GA1UE
-# ChMGVGhhd3RlMR0wGwYDVQQLExRUaGF3dGUgQ2VydGlmaWNhdGlvbjEfMB0GA1UE
-# AxMWVGhhd3RlIFRpbWVzdGFtcGluZyBDQTAeFw0xMjEyMjEwMDAwMDBaFw0yMDEy
-# MzAyMzU5NTlaMF4xCzAJBgNVBAYTAlVTMR0wGwYDVQQKExRTeW1hbnRlYyBDb3Jw
-# b3JhdGlvbjEwMC4GA1UEAxMnU3ltYW50ZWMgVGltZSBTdGFtcGluZyBTZXJ2aWNl
-# cyBDQSAtIEcyMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAsayzSVRL
-# lxwSCtgleZEiVypv3LgmxENza8K/LlBa+xTCdo5DASVDtKHiRfTot3vDdMwi17SU
-# AAL3Te2/tLdEJGvNX0U70UTOQxJzF4KLabQry5kerHIbJk1xH7Ex3ftRYQJTpqr1
-# SSwFeEWlL4nO55nn/oziVz89xpLcSvh7M+R5CvvwdYhBnP/FA1GZqtdsn5Nph2Up
-# g4XCYBTEyMk7FNrAgfAfDXTekiKryvf7dHwn5vdKG3+nw54trorqpuaqJxZ9YfeY
-# cRG84lChS+Vd+uUOpyyfqmUg09iW6Mh8pU5IRP8Z4kQHkgvXaISAXWp4ZEXNYEZ+
-# VMETfMV58cnBcQIDAQABo4H6MIH3MB0GA1UdDgQWBBRfmvVuXMzMdJrU3X3vP9vs
-# TIAu3TAyBggrBgEFBQcBAQQmMCQwIgYIKwYBBQUHMAGGFmh0dHA6Ly9vY3NwLnRo
-# YXd0ZS5jb20wEgYDVR0TAQH/BAgwBgEB/wIBADA/BgNVHR8EODA2MDSgMqAwhi5o
-# dHRwOi8vY3JsLnRoYXd0ZS5jb20vVGhhd3RlVGltZXN0YW1waW5nQ0EuY3JsMBMG
-# A1UdJQQMMAoGCCsGAQUFBwMIMA4GA1UdDwEB/wQEAwIBBjAoBgNVHREEITAfpB0w
-# GzEZMBcGA1UEAxMQVGltZVN0YW1wLTIwNDgtMTANBgkqhkiG9w0BAQUFAAOBgQAD
-# CZuPee9/WTCq72i1+uMJHbtPggZdN1+mUp8WjeockglEbvVt61h8MOj5aY0jcwsS
-# b0eprjkR+Cqxm7Aaw47rWZYArc4MTbLQMaYIXCp6/OJ6HVdMqGUY6XlAYiWWbsfH
-# N2qDIQiOQerd2Vc/HXdJhyoWBl6mOGoiEqNRGYN+tjCCBKMwggOLoAMCAQICEA7P
-# 9DjI/r81bgTYapgbGlAwDQYJKoZIhvcNAQEFBQAwXjELMAkGA1UEBhMCVVMxHTAb
-# BgNVBAoTFFN5bWFudGVjIENvcnBvcmF0aW9uMTAwLgYDVQQDEydTeW1hbnRlYyBU
-# aW1lIFN0YW1waW5nIFNlcnZpY2VzIENBIC0gRzIwHhcNMTIxMDE4MDAwMDAwWhcN
-# MjAxMjI5MjM1OTU5WjBiMQswCQYDVQQGEwJVUzEdMBsGA1UEChMUU3ltYW50ZWMg
-# Q29ycG9yYXRpb24xNDAyBgNVBAMTK1N5bWFudGVjIFRpbWUgU3RhbXBpbmcgU2Vy
-# dmljZXMgU2lnbmVyIC0gRzQwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIB
-# AQCiYws5RLi7I6dESbsO/6HwYQpTk7CY260sD0rFbv+GPFNVDxXOBD8r/amWltm+
-# YXkLW8lMhnbl4ENLIpXuwitDwZ/YaLSOQE/uhTi5EcUj8mRY8BUyb05Xoa6IpALX
-# Kh7NS+HdY9UXiTJbsF6ZWqidKFAOF+6W22E7RVEdzxJWC5JH/Kuu9mY9R6xwcueS
-# 51/NELnEg2SUGb0lgOHo0iKl0LoCeqF3k1tlw+4XdLxBhircCEyMkoyRLZ53RB9o
-# 1qh0d9sOWzKLVoszvdljyEmdOsXF6jML0vGjG/SLvtmzV4s73gSneiKyJK4ux3DF
-# vk6DJgj7C72pT5kI4RAocqrNAgMBAAGjggFXMIIBUzAMBgNVHRMBAf8EAjAAMBYG
-# A1UdJQEB/wQMMAoGCCsGAQUFBwMIMA4GA1UdDwEB/wQEAwIHgDBzBggrBgEFBQcB
-# AQRnMGUwKgYIKwYBBQUHMAGGHmh0dHA6Ly90cy1vY3NwLndzLnN5bWFudGVjLmNv
-# bTA3BggrBgEFBQcwAoYraHR0cDovL3RzLWFpYS53cy5zeW1hbnRlYy5jb20vdHNz
-# LWNhLWcyLmNlcjA8BgNVHR8ENTAzMDGgL6AthitodHRwOi8vdHMtY3JsLndzLnN5
-# bWFudGVjLmNvbS90c3MtY2EtZzIuY3JsMCgGA1UdEQQhMB+kHTAbMRkwFwYDVQQD
-# ExBUaW1lU3RhbXAtMjA0OC0yMB0GA1UdDgQWBBRGxmmjDkoUHtVM2lJjFz9eNrwN
-# 5jAfBgNVHSMEGDAWgBRfmvVuXMzMdJrU3X3vP9vsTIAu3TANBgkqhkiG9w0BAQUF
-# AAOCAQEAeDu0kSoATPCPYjA3eKOEJwdvGLLeJdyg1JQDqoZOJZ+aQAMc3c7jecsh
-# aAbatjK0bb/0LCZjM+RJZG0N5sNnDvcFpDVsfIkWxumy37Lp3SDGcQ/NlXTctlze
-# vTcfQ3jmeLXNKAQgo6rxS8SIKZEOgNER/N1cdm5PXg5FRkFuDbDqOJqxOtoJcRD8
-# HHm0gHusafT9nLYMFivxf1sJPZtb4hbKE4FtAC44DagpjyzhsvRaqQGvFZwsL0kb
-# 2yK7w/54lFHDhrGCiF3wPbRRoXkzKy57udwgCRNx62oZW8/opTBXLIlJP7nPf8m/
-# PiJoY1OavWl0rMUdPH+S4MO8HNgEdTGCA1cwggNTAgEBMCgwFDESMBAGA1UEAwwJ
-# U0NPcmNoRGV2AhAR1XrqJ493rkLXCYnbxd0ZMAkGBSsOAwIaBQCgeDAYBgorBgEE
-# AYI3AgEMMQowCKACgAChAoAAMBkGCSqGSIb3DQEJAzEMBgorBgEEAYI3AgEEMBwG
-# CisGAQQBgjcCAQsxDjAMBgorBgEEAYI3AgEVMCMGCSqGSIb3DQEJBDEWBBRjSGBB
-# reO2Cp4t3u9qNlRUaxdj1TANBgkqhkiG9w0BAQEFAASBgFvLhW73VE1uNu0TItdl
-# T4Ory+/t29ak+HsxOQkJpaHI7wIvUNgElUVcvC8J2vAmH6GIrDnFkZBxHuCq/ttm
-# Y4f2lfiX7f+SXASLnvY7jp5Cr19lTkBKzYqGabE1HJvhPhR5U+9jM7qdTS11M7t3
-# SnZYKjNJZWt62ivs+aQ2eJKpoYICCzCCAgcGCSqGSIb3DQEJBjGCAfgwggH0AgEB
-# MHIwXjELMAkGA1UEBhMCVVMxHTAbBgNVBAoTFFN5bWFudGVjIENvcnBvcmF0aW9u
-# MTAwLgYDVQQDEydTeW1hbnRlYyBUaW1lIFN0YW1waW5nIFNlcnZpY2VzIENBIC0g
-# RzICEA7P9DjI/r81bgTYapgbGlAwCQYFKw4DAhoFAKBdMBgGCSqGSIb3DQEJAzEL
-# BgkqhkiG9w0BBwEwHAYJKoZIhvcNAQkFMQ8XDTE1MDMxNzIyMzU0OFowIwYJKoZI
-# hvcNAQkEMRYEFHN49JZCEvYjx1apuq3b2AwPgXI5MA0GCSqGSIb3DQEBAQUABIIB
-# AAWY1sRJZlWApJQvuMQqdS3R8SU9MxbNXuTwCxio+3NtVqqnYsRJH6jo0CgqZRwD
-# vGKZk5MbC2WTVk307CcbmVbMlflBRtL4vq2JfTFcV6pdVdMxV30K9voi1KtiRi4H
-# r9Q0CcDrlJdJVmjAGuhm7FoPKWUhbAk7VL1UtN0xDQ6G3c7HQozzbvXaIqm4AkVu
-# dv4pttD6wx6zpcJ9L/2hwZXQs90zixjG5+a2yQsvpRSORVeVItUcrwxLzB2w376K
-# a9VLbHNc8g6ErAkXesc2h/4uQ2icihzgaFJdlMxCJeFtwGRGcB/y8zzH1vkcQaE8
-# OAxiULVLM/z6USzLRDrPWUE=
+# nkvaq1yD5SJIRBooP7KkC/zCfCWRTnXKWVTw7hwxggFIMIIBRAIBATAoMBQxEjAQ
+# BgNVBAMMCVNDT3JjaERldgIQEdV66iePd65C1wmJ28XdGTAJBgUrDgMCGgUAoHgw
+# GAYKKwYBBAGCNwIBDDEKMAigAoAAoQKAADAZBgkqhkiG9w0BCQMxDAYKKwYBBAGC
+# NwIBBDAcBgorBgEEAYI3AgELMQ4wDAYKKwYBBAGCNwIBFTAjBgkqhkiG9w0BCQQx
+# FgQUfS1hWg0Bu5Y3RhkKJeFGD9WE6DYwDQYJKoZIhvcNAQEBBQAEgYBlTgZp9hLC
+# Ef1qbNhKPsOtH/eEPy9Nqn13VTTXn9LlsPnxlNB8IR2iHbSDd0x7ckrx1m1FGqSE
+# J78u0D38omF+IDafz1Q23RadPle0ajTk0FW7j08trRK29xsw/l486M5mX2H30oqQ
+# scJh8ZVC7dfuktPgnCyqsr+OVigilcnrKg==
 # SIG # End signature block
