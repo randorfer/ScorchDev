@@ -97,7 +97,7 @@ Workflow Invoke-GitRepositorySync
                         'Port' = $CIVariables.WebservicePort ;
                         'Credential' = $SMACred.UserName ;
                     }
-                    Write-Exception -Exception $Exception -Stream Warning
+                    Write-Warning -Message $Exception -WarningAction Continue
                 }
                 
                 Checkpoint-Workflow
@@ -139,7 +139,7 @@ Workflow Invoke-GitRepositorySync
                         'RepositoryModulePath' = $RepositoryModulePath ;
                         'RunbookWorker' = $RunbookWorker ;
                     }
-                    Write-Exception -Exception $Exception -Stream Warning
+                    Write-Warning -Message $Exception -WarningAction Continue
                 }
                 
                 Checkpoint-Workflow
@@ -166,8 +166,8 @@ Workflow Invoke-GitRepositorySync
 # SIG # Begin signature block
 # MIID1QYJKoZIhvcNAQcCoIIDxjCCA8ICAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQU6JM64s8E2vomcAtezNDjJPzx
-# bDGgggH3MIIB8zCCAVygAwIBAgIQEdV66iePd65C1wmJ28XdGTANBgkqhkiG9w0B
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUTEl88YruWKq7wJUBIYdczO7n
+# cs6gggH3MIIB8zCCAVygAwIBAgIQEdV66iePd65C1wmJ28XdGTANBgkqhkiG9w0B
 # AQUFADAUMRIwEAYDVQQDDAlTQ09yY2hEZXYwHhcNMTUwMzA5MTQxOTIxWhcNMTkw
 # MzA5MDAwMDAwWjAUMRIwEAYDVQQDDAlTQ09yY2hEZXYwgZ8wDQYJKoZIhvcNAQEB
 # BQADgY0AMIGJAoGBANbZ1OGvnyPKFcCw7nDfRgAxgMXt4YPxpX/3rNVR9++v9rAi
@@ -181,8 +181,8 @@ Workflow Invoke-GitRepositorySync
 # BgNVBAMMCVNDT3JjaERldgIQEdV66iePd65C1wmJ28XdGTAJBgUrDgMCGgUAoHgw
 # GAYKKwYBBAGCNwIBDDEKMAigAoAAoQKAADAZBgkqhkiG9w0BCQMxDAYKKwYBBAGC
 # NwIBBDAcBgorBgEEAYI3AgELMQ4wDAYKKwYBBAGCNwIBFTAjBgkqhkiG9w0BCQQx
-# FgQUo5iuo4p0hgX2EMi/nwU/TCmT7bQwDQYJKoZIhvcNAQEBBQAEgYC0UmobFb28
-# bQseJBP9B6JLVt+M4tvm64Z1D8M6be27gYQiQ6AiJUf9tiuEAPjHtyC2foC3RSnr
-# 9vM5FhL5zlFT81sApWi+CowFMsybyGeTujiBLB8/BT9MOKdKtjJCfztjQAC0SUB7
-# BHCfI0j0Erg4l1xro86pz/qMU6p5m2W13w==
+# FgQUewD89QwKL3ZRYzNQ3Z9y9MvvSJUwDQYJKoZIhvcNAQEBBQAEgYARAT6+MXfc
+# E/g30Le6nbD9SMbd8lTrLK8bfwc00wQ17n0kyvWTPQbdytiD3Aj6zWyNnaYHmkGN
+# Cqw1XVAyll80chu5N3T0nLGHAMOmgX9kvNoa9i1QatTFyoSVi6Z3LJK9PASyS09L
+# pJTTIKH7BqsUI5OO8KXMNonF4Iz+luhfvQ==
 # SIG # End signature block

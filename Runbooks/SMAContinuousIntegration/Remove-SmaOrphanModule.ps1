@@ -58,7 +58,7 @@ Workflow Remove-SmaOrphanModule
                             'Port' = $CIVariables.WebservicePort ;
                             'Credential' = $SMACred.UserName ;
                         }
-                        Write-Exception -Exception $Exception -Stream Warning
+                        Write-Warning -Message $Exception -WarningAction Continue
                     }
                 }
             }
@@ -81,8 +81,8 @@ Workflow Remove-SmaOrphanModule
 # SIG # Begin signature block
 # MIID1QYJKoZIhvcNAQcCoIIDxjCCA8ICAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUt6ypH97YM9DlYw1r97FHGwph
-# oeWgggH3MIIB8zCCAVygAwIBAgIQEdV66iePd65C1wmJ28XdGTANBgkqhkiG9w0B
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUehq494pyJHbCShc9qgBc0cY1
+# mk+gggH3MIIB8zCCAVygAwIBAgIQEdV66iePd65C1wmJ28XdGTANBgkqhkiG9w0B
 # AQUFADAUMRIwEAYDVQQDDAlTQ09yY2hEZXYwHhcNMTUwMzA5MTQxOTIxWhcNMTkw
 # MzA5MDAwMDAwWjAUMRIwEAYDVQQDDAlTQ09yY2hEZXYwgZ8wDQYJKoZIhvcNAQEB
 # BQADgY0AMIGJAoGBANbZ1OGvnyPKFcCw7nDfRgAxgMXt4YPxpX/3rNVR9++v9rAi
@@ -96,8 +96,8 @@ Workflow Remove-SmaOrphanModule
 # BgNVBAMMCVNDT3JjaERldgIQEdV66iePd65C1wmJ28XdGTAJBgUrDgMCGgUAoHgw
 # GAYKKwYBBAGCNwIBDDEKMAigAoAAoQKAADAZBgkqhkiG9w0BCQMxDAYKKwYBBAGC
 # NwIBBDAcBgorBgEEAYI3AgELMQ4wDAYKKwYBBAGCNwIBFTAjBgkqhkiG9w0BCQQx
-# FgQUEIxBNIuKkwT/8K70CZgz9SXX2ewwDQYJKoZIhvcNAQEBBQAEgYBAJn5TG3wc
-# 7qs3LYToHnpOk2M6JItMMTOGYrH7PiQjrJt/xOoPVaex+t9f8disMUjmTNnp+llt
-# XcspnxvZfibgU/Jf9mVkupRud38JuKZOPiKGWZgxHCg08d9Ogh1DWIMUEOuTCmNM
-# 26/WkbLawnPZrOwbmkQAZgj2/jc0dylMog==
+# FgQU9vnmMEdTSAjeRsd70CRnjhOLW0kwDQYJKoZIhvcNAQEBBQAEgYC7beYgYJ8q
+# QcuVDvBRLnhyRUtzChQZUS2lr6n5BmE/HdtEW3Kif2hfrapNLtlq75etSmD8OXyz
+# FQsGYaqW0G6TgGIF6knbXwW4FYIf1jCQ4UZL4f8SVC+8+xtCiknnZsrIa0x3IsSw
+# EPsmSLXvq4zrsOtGUkUGHpEUedtqiMn+hQ==
 # SIG # End signature block
