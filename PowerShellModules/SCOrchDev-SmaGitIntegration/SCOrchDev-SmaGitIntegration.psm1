@@ -451,7 +451,7 @@ Function Update-GitRepository
                                          'match'  = "$(git.exe branch)" -match '\*\s(\w+)'}
         }
     }
-    if($Matches[1] -ne $RepositoryInformation.Branch)
+    elseif($Matches[1] -ne $RepositoryInformation.Branch)
     {
         Write-Verbose -Message "Setting current branch to [$($RepositoryInformation.Branch)]"
         try
@@ -477,8 +477,8 @@ Export-ModuleMember -Function * -Verbose:$false -Debug:$False
 # SIG # Begin signature block
 # MIID1QYJKoZIhvcNAQcCoIIDxjCCA8ICAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUPqHb3MoSWyO59TKv6LUuYPn6
-# ESigggH3MIIB8zCCAVygAwIBAgIQEdV66iePd65C1wmJ28XdGTANBgkqhkiG9w0B
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUej7D5epkugTFK/bLeJWSU1W7
+# Ul6gggH3MIIB8zCCAVygAwIBAgIQEdV66iePd65C1wmJ28XdGTANBgkqhkiG9w0B
 # AQUFADAUMRIwEAYDVQQDDAlTQ09yY2hEZXYwHhcNMTUwMzA5MTQxOTIxWhcNMTkw
 # MzA5MDAwMDAwWjAUMRIwEAYDVQQDDAlTQ09yY2hEZXYwgZ8wDQYJKoZIhvcNAQEB
 # BQADgY0AMIGJAoGBANbZ1OGvnyPKFcCw7nDfRgAxgMXt4YPxpX/3rNVR9++v9rAi
@@ -492,8 +492,8 @@ Export-ModuleMember -Function * -Verbose:$false -Debug:$False
 # BgNVBAMMCVNDT3JjaERldgIQEdV66iePd65C1wmJ28XdGTAJBgUrDgMCGgUAoHgw
 # GAYKKwYBBAGCNwIBDDEKMAigAoAAoQKAADAZBgkqhkiG9w0BCQMxDAYKKwYBBAGC
 # NwIBBDAcBgorBgEEAYI3AgELMQ4wDAYKKwYBBAGCNwIBFTAjBgkqhkiG9w0BCQQx
-# FgQUctu6brnd6tKrbMkU9GDuvQ+4JckwDQYJKoZIhvcNAQEBBQAEgYDPnfE0BOjG
-# cnUI6Y1VcBrx1klO64Ovbxs47d7oym1i3AmhMzPikU5PeZ8WSlzC/fgBx3aKIR4e
-# /Y7EMiidipUFZrLPnrODTroR5mxmaUbGTqRcvSH5SCBQ51a/klfrPVYtD2BgI+5O
-# rUqkSL6s3fOI1CLoB9SBr2NRau+Uf5SlTQ==
+# FgQUcD1k5dBroVFdcwGCp+EOvUfVSMgwDQYJKoZIhvcNAQEBBQAEgYC7jSbuTDSL
+# G2X9HjfDH3Ojvh9iJ9r1/BAbZ9VBPL5MA0en/05v6FY+GI42jImyuWAf6lAP4w/2
+# glL5FU+rZqJofgg0V5gK5KRIrOdAYbPJeZw+ERK3aN2F5HKdESBuzwj5jjY2nip/
+# 6jTxOrjAnsqcsex/ohXiYcpOkM0APTOK4A==
 # SIG # End signature block
