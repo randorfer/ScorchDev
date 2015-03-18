@@ -683,7 +683,7 @@ Function Import-SmaPowerShellModule
     $TempDirectory = New-TempDirectory
     try
     {
-        $ZipFile = "$TempDirectory\$($ModuleName).zip"
+        $ZipFile = "$($TempDirectory.FullName)\$($ModuleName).zip"
         New-ZipFile -SourceDir $ModuleFolderPath `
                     -ZipFilePath $ZipFile `
                     -OverwriteExisting $True
@@ -723,8 +723,8 @@ Export-ModuleMember -Function * -Verbose:$False -Debug:$False
 # SIG # Begin signature block
 # MIID1QYJKoZIhvcNAQcCoIIDxjCCA8ICAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQU5SkyzkH86KqEdrOyGd6R2T0y
-# Rg2gggH3MIIB8zCCAVygAwIBAgIQEdV66iePd65C1wmJ28XdGTANBgkqhkiG9w0B
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUdvjGr/11qlWpA9TIQNI4ONSk
+# oiygggH3MIIB8zCCAVygAwIBAgIQEdV66iePd65C1wmJ28XdGTANBgkqhkiG9w0B
 # AQUFADAUMRIwEAYDVQQDDAlTQ09yY2hEZXYwHhcNMTUwMzA5MTQxOTIxWhcNMTkw
 # MzA5MDAwMDAwWjAUMRIwEAYDVQQDDAlTQ09yY2hEZXYwgZ8wDQYJKoZIhvcNAQEB
 # BQADgY0AMIGJAoGBANbZ1OGvnyPKFcCw7nDfRgAxgMXt4YPxpX/3rNVR9++v9rAi
@@ -738,8 +738,8 @@ Export-ModuleMember -Function * -Verbose:$False -Debug:$False
 # BgNVBAMMCVNDT3JjaERldgIQEdV66iePd65C1wmJ28XdGTAJBgUrDgMCGgUAoHgw
 # GAYKKwYBBAGCNwIBDDEKMAigAoAAoQKAADAZBgkqhkiG9w0BCQMxDAYKKwYBBAGC
 # NwIBBDAcBgorBgEEAYI3AgELMQ4wDAYKKwYBBAGCNwIBFTAjBgkqhkiG9w0BCQQx
-# FgQUWCC7xxE2GZuU+BpPtfjaJrPucoowDQYJKoZIhvcNAQEBBQAEgYC7fceu8nd3
-# OqzKB/s1b2PT7EN9rVPubnuR9HE5aMDEcV1Pa5PzO3IKYbe6SzqfOP/qe5/NsL9u
-# /ic60YwZRuLDU0SsA9MP0FJopfkIYBGl9kqRnywNBujBjYb9WUIGnS7whRA0qNC4
-# CAR1R7adTBHIsdkYIGr9zvtoJFOYQLfPhQ==
+# FgQUpgI7O/bAWZzFHL8IKrKdn3zmZ+IwDQYJKoZIhvcNAQEBBQAEgYBPqprbG+aI
+# 1jfHlslw0yHylcMQB2tYdu7bzzxse12gZdFKRXy4Os5NYktuXH3np0r4BptEDjr4
+# YdGubCNFDbOllws3WNcNqZ4c7DcxQScoV490PRncjuyvJwqAqNMT2oFP2SP9/Air
+# MCllCT9dR2OF9Y0h4xiacDhTq0L5r/hwzg==
 # SIG # End signature block
