@@ -364,24 +364,41 @@ Function Remove-LocalDevAutomationVariable
                       -WarningAction 'Continue'
     }
 }
-
-#region Code from EmulatedAutomationActivities
-Workflow Get-AutomationPSCredential {
+Workflow Get-AutomationPSCredential 
+{
+    [OutputType([System.Management.Automation.PSCredential])]
     param(
         [Parameter(Mandatory=$true)]
         [string] $Name
     )
 
-    $Val = Get-AutomationAsset -Type PSCredential -Name $Name
-
-    if($Val) {
-        $SecurePassword = $Val.Password | ConvertTo-SecureString -asPlainText -Force
-        $Cred = New-Object -TypeName System.Management.Automation.PSCredential($Val.Username, $SecurePassword)
-
-        $Cred
+    Try
+    {
+        $Credential = (Get-PasswordVaultCredential -UserName $Name -Resource 'LocalDev' -AsPSCredential) -as [System.Management.Automation.PSCredential]
+        Write-Verbose -Message "Credential [$Name] found in PasswordVault"
     }
+    Catch
+    {
+        Write-Verbose -Message 'Credential [$Name] not found in PasswordVault retrieving from SMA'
+        $Val = Get-AutomationAsset -Type PSCredential -Name $Name
+        if($Val) 
+        {
+            $SecurePassword = $Val.Password | ConvertTo-SecureString -asPlainText -Force
+            $Credential = New-Object -TypeName System.Management.Automation.PSCredential($Val.Username, $SecurePassword)
+
+            Try
+            {
+                Set-PasswordVaultCredential -UserName $Name -Resource 'LocalDev' -Password $Val.Password
+            }
+            Catch
+            {
+                Remove-PasswordVaultCredential -Resource 'LocalDev'
+                Set-PasswordVaultCredential -UserName $Name -Resource 'LocalDev' -Password $Val.Password
+            }
+        }
+    }
+    $Credential
 }
-#endregion
 
 <#
 .SYNOPSIS
@@ -415,6 +432,7 @@ Workflow Get-AutomationPSCredential {
     UserName              : GENMILLS.com\M2IS254
     Password              : System.Security.SecureString
 #>
+
 Workflow Get-BatchAutomationPSCredential
 {
     param(

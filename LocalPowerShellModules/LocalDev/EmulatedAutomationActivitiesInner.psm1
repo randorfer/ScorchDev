@@ -4,19 +4,13 @@
     'AuthenticationType' = 'Windows'
 }
 
-
 # Uncomment this section and fill in $CredUsername and $CredPassword values
 # to talk to SMA using Basic Auth instead of Windows Auth
 
 # username / password of an account with access to the SMA Web Service
-$CredUsername = 'scorchdev\sma'
-$CredPassword = 'TechEd_2014'
-    
-$SecurePassword = $CredPassword | ConvertTo-SecureString -AsPlainText -Force
-   
-$SmaWebServiceDetails.AuthenticationType = 'Basic'
-$SmaWebServiceDetails.Credential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList ($CredUsername, $SecurePassword)
 
+$SmaWebServiceDetails.AuthenticationType = 'Basic'
+$SmaWebServiceDetails.Credential = Get-PasswordVaultCredential -UserName 'SCOrchDev\SMA' -Resource 'scorch' -AsPSCredential
 
 function Get-AutomationAsset 
 {
