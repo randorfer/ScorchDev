@@ -40,35 +40,60 @@ Function Get-PasswordVaultCredential
         [Switch]
         $WithPassword
     )
-    [void][Windows.Security.Credentials.PasswordVault,Windows.Security.Credentials,ContentType=WindowsRuntime]
-    $PasswordVault = new-object Windows.Security.Credentials.PasswordVault
-    if($UserName -and $Resource)
+    try
     {
-        $Credential = $PasswordVault.Retrieve($Resource,$UserName)
-    }
-    elseif($UserName)
-    {
-        $Credential = $PasswordVault.FindAllByUserName($UserName)
-    }
-    elseif($Resource)
-    {
-        $Credential = $PasswordVault.FindAllByResource($Resource)
-    }
-    else
-    {
-        $Credential = $PasswordVault.RetrieveAll()
-    }
+        [void][Windows.Security.Credentials.PasswordVault,Windows.Security.Credentials,ContentType=WindowsRuntime]
+        $PasswordVault = new-object Windows.Security.Credentials.PasswordVault
+        if($UserName -and $Resource)
+        {
+            $Credential = $PasswordVault.Retrieve($Resource,$UserName)
+        }
+        elseif($UserName)
+        {
+            $Credential = $PasswordVault.FindAllByUserName($UserName)
+        }
+        elseif($Resource)
+        {
+            $Credential = $PasswordVault.FindAllByResource($Resource)
+        }
+        else
+        {
+            $Credential = $PasswordVault.RetrieveAll()
+        }
 
-    if($WithPassword.IsPresent)
-    {
-        $Credential | ForEach-Object { 
-            $_.RetrievePassword(); 
-            $_
+        if($WithPassword.IsPresent)
+        {
+            $Credential | ForEach-Object { 
+                $_.RetrievePassword(); 
+                $_
+            }
+        }
+        else
+        {
+            $Credential
         }
     }
-    else
+    catch
     {
-        $Credential
+        $ExceptionProperties = @{
+            'ErrorMessage' = (Convert-ExceptionToString -Exception $_) ;
+            'UserName' = $UserName ;
+            'Resource' = $Resource ;
+            'WithPassword' = $WithPassword.IsPresent
+        }
+        if($_.FullyQualifiedErrorId -eq 'TypeNotFound')
+        {
+            $Exception = New-Exception -Type 'TypeNotFound' `
+                                       -Message 'Could not load Password Vault libraries.' `
+                                       -Property $ExceptionProperties
+            Write-Warning -Message $Exception
+        }
+        else
+        {
+            Throw-Exception -Type 'UnknownPasswordVaultException' `
+                            -Message 'Encountered an unexpected error' `
+                            -Property $ExceptionProperties
+        }
     }
 }
 <#
@@ -105,23 +130,47 @@ Function Set-PasswordVaultCredential
         [string]
         $Password
     )
-    [void][Windows.Security.Credentials.PasswordVault,Windows.Security.Credentials,ContentType=WindowsRuntime]
-    $PasswordVault = new-object Windows.Security.Credentials.PasswordVault
-    
-    $Credential = New-Object Windows.Security.Credentials.PasswordCredential
-    $Credential.UserName = $UserName
-    $Credential.Resource = $Resource
-    $Credential.Password = $Password
-
     try
     {
-        $OldCredential = Get-PasswordVaultCredential -Name $UserName -Resource $Resource
-        $PasswordVault.Remove($OldCred)
-        $PasswordVault.Add($Credential)
+        [void][Windows.Security.Credentials.PasswordVault,Windows.Security.Credentials,ContentType=WindowsRuntime]
+        $PasswordVault = new-object Windows.Security.Credentials.PasswordVault
+    
+        $Credential = New-Object Windows.Security.Credentials.PasswordCredential
+        $Credential.UserName = $UserName
+        $Credential.Resource = $Resource
+        $Credential.Password = $Password
+
+        try
+        {
+            $OldCredential = Get-PasswordVaultCredential -Name $UserName -Resource $Resource
+            $PasswordVault.Remove($OldCred)
+            $PasswordVault.Add($Credential)
+        }
+        catch
+        {
+            $PasswordVault.Add($Credential)
+        }
     }
     catch
     {
-        $PasswordVault.Add($Credential)
+        $ExceptionProperties = @{
+            'ErrorMessage' = (Convert-ExceptionToString -Exception $_) ;
+            'UserName' = $UserName ;
+            'Resource' = $Resource ;
+        }
+        if($_.FullyQualifiedErrorId -eq 'TypeNotFound')
+        {
+            $Exception = New-Exception -Type 'TypeNotFound' `
+                                       -Message 'Could not load Password Vault libraries.' `
+                                       -Property $ExceptionProperties
+            Write-Warning -Message $Exception
+        }
+        else
+        {
+            Throw-Exception -Type 'UnknownPasswordVaultException' `
+                            -Message 'Encountered an unexpected error' `
+                            -Property $ExceptionProperties
+        }
     }
 }
 <#
@@ -163,12 +212,35 @@ Function Remove-PasswordVaultCredential
         [string]
         $Resource
     )
-
-    [void][Windows.Security.Credentials.PasswordVault,Windows.Security.Credentials,ContentType=WindowsRuntime]
-    $PasswordVault = new-object Windows.Security.Credentials.PasswordVault
-    $Parameters = @{ 
-        'UserName' = $UserName ;
-        'Resource' = $Resource ;
-    }              
-    Get-PasswordVaultCredential @Parameters | ForEach-Object { $PasswordVault.Remove($_) }
+    try
+    {
+        [void][Windows.Security.Credentials.PasswordVault,Windows.Security.Credentials,ContentType=WindowsRuntime]
+        $PasswordVault = new-object Windows.Security.Credentials.PasswordVault
+        $Parameters = @{ 
+            'UserName' = $UserName ;
+            'Resource' = $Resource ;
+        }              
+        Get-PasswordVaultCredential @Parameters | ForEach-Object { $PasswordVault.Remove($_) }
+    }
+    catch
+    {
+        $ExceptionProperties = @{
+            'ErrorMessage' = (Convert-ExceptionToString -Exception $_) ;
+            'UserName' = $UserName ;
+            'Resource' = $Resource ;
+        }
+        if($_.FullyQualifiedErrorId -eq 'TypeNotFound')
+        {
+            $Exception = New-Exception -Type 'TypeNotFound' `
+                                       -Message 'Could not load Password Vault libraries.' `
+                                       -Property $ExceptionProperties
+            Write-Warning -Message $Exception
+        }
+        else
+        {
+            Throw-Exception -Type 'UnknownPasswordVaultException' `
+                            -Message 'Encountered an unexpected error' `
+                            -Property $ExceptionProperties
+        }
+    }
 }
