@@ -12,9 +12,6 @@ $env:LocalSMAVariableWarn = Select-FirstValid -Value $env:LocalSMAVariableWarn, 
     invoked with a very specific syntax in order to import workflows into your current session.
     See the example.
 
-    Import-Workflow only considers scripts whose full paths contain '\Dev\' in accordance with
-    GMI convention. See Find-DeclaredCommand to modify this behavior if it is undesired.
-
 .PARAMETER WorkflowName
     The name of the workflow to import.
 
@@ -638,5 +635,20 @@ Function Remove-LocalDevAutomationSchedule
                                                   'SettingsJSON' = $SettingsVars }) `
                       -WarningAction 'Continue'
     }
+}
+<#
+    .Synopsis
+        Fake for Set-AutomationActivityMetadata for local dev.
+#>
+Function Set-AutomationActivityMetadata
+{
+    Param([Parameter(Mandatory=$True)] $ModuleName,
+          [Parameter(Mandatory=$True)] $ModuleVersion,
+          [Parameter(Mandatory=$True)] $ListOfCommands)
+
+    $Inputs = ConvertTo-JSON @{ 'ModuleName' = $ModuleName;
+                                'ModuleVersion' = $ModuleVersion;
+                                'ListOfCommands' = $ListOfCommands }
+    Write-Verbose -Message "$Inputs"
 }
 Export-ModuleMember -Function * -Verbose:$false
