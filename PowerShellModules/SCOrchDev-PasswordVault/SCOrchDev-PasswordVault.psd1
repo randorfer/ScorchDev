@@ -12,7 +12,7 @@
 RootModule = '.\SCOrchDev-PasswordVault.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.0.2'
+ModuleVersion = '1.0.3'
 
 # ID used to uniquely identify this module
 GUID = '1ef339ab-57b3-4ea9-bedb-af2780f0e995'
