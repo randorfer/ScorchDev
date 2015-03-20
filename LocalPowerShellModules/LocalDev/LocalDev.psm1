@@ -639,19 +639,4 @@ Function Remove-LocalDevAutomationSchedule
                       -WarningAction 'Continue'
     }
 }
-<#
-    .Synopsis
-        Fake for Set-AutomationActivityMetadata for local dev.
-#>
-Function Set-AutomationActivityMetadata
-{
-    Param([Parameter(Mandatory=$True)] $ModuleName,
-          [Parameter(Mandatory=$True)] $ModuleVersion,
-          [Parameter(Mandatory=$True)] $ListOfCommands)
-
-    $Inputs = ConvertTo-JSON @{ 'ModuleName' = $ModuleName;
-                                'ModuleVersion' = $ModuleVersion;
-                                'ListOfCommands' = $ListOfCommands }
-    Write-Verbose -Message "$Inputs"
-}
 Export-ModuleMember -Function * -Verbose:$false
