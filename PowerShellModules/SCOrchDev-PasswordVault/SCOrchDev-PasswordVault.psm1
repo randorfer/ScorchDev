@@ -75,25 +75,34 @@ Function Get-PasswordVaultCredential
     }
     catch
     {
+        $ExceptionInfo = Get-ExceptionInfo -Exception $_
         $ExceptionProperties = @{
             'ErrorMessage' = (Convert-ExceptionToString -Exception $_) ;
             'UserName' = $UserName ;
             'Resource' = $Resource ;
             'WithPassword' = $WithPassword.IsPresent
         }
-        if($_.FullyQualifiedErrorId -eq 'TypeNotFound')
+        Switch -CaseSensitive ($ExceptionInfo.Type)
         {
-            $Exception = New-Exception -Type 'TypeNotFound' `
-                                       -Message 'Could not load Password Vault libraries.' `
-                                       -Property $ExceptionProperties
-            Write-Warning -Message $Exception
+            'System.Management.Automation.RuntimeException'
+            {
+                $Type = 'TypeNotFound'
+                $Message = 'Could not load Password Vault libraries.'
+            }
+            'System.Management.Automation.MethodInvocationException'
+            {
+                $Type = 'CredentialNotFound'
+                $Message = 'Could not find Credential in Password Vault.'
+            }
+            default
+            {
+                $Type = 'UnknownPasswordVaultException'
+                $Message = 'Encountered an unexpected error'
+            }
         }
-        else
-        {
-            Throw-Exception -Type 'UnknownPasswordVaultException' `
-                            -Message 'Encountered an unexpected error' `
-                            -Property $ExceptionProperties
-        }
+        Throw-Exception -Type $Type `
+                        -Message $Message `
+                        -Property $ExceptionProperties
     }
 }
 <#
@@ -153,24 +162,28 @@ Function Set-PasswordVaultCredential
     }
     catch
     {
+        $ExceptionInfo = Get-ExceptionInfo -Exception $_
         $ExceptionProperties = @{
             'ErrorMessage' = (Convert-ExceptionToString -Exception $_) ;
             'UserName' = $UserName ;
             'Resource' = $Resource ;
         }
-        if($_.FullyQualifiedErrorId -eq 'TypeNotFound')
+        Switch -CaseSensitive ($ExceptionInfo.Type)
         {
-            $Exception = New-Exception -Type 'TypeNotFound' `
-                                       -Message 'Could not load Password Vault libraries.' `
-                                       -Property $ExceptionProperties
-            Write-Warning -Message $Exception
+            'System.Management.Automation.RuntimeException'
+            {
+                $Type = 'TypeNotFound'
+                $Message = 'Could not load Password Vault libraries.'
+            }
+            default
+            {
+                $Type = 'UnknownPasswordVaultException'
+                $Message = 'Encountered an unexpected error'
+            }
         }
-        else
-        {
-            Throw-Exception -Type 'UnknownPasswordVaultException' `
-                            -Message 'Encountered an unexpected error' `
-                            -Property $ExceptionProperties
-        }
+        Throw-Exception -Type $Type `
+                        -Message $Message `
+                        -Property $ExceptionProperties
     }
 }
 <#
@@ -224,23 +237,27 @@ Function Remove-PasswordVaultCredential
     }
     catch
     {
+        $ExceptionInfo = Get-ExceptionInfo -Exception $_
         $ExceptionProperties = @{
             'ErrorMessage' = (Convert-ExceptionToString -Exception $_) ;
             'UserName' = $UserName ;
             'Resource' = $Resource ;
         }
-        if($_.FullyQualifiedErrorId -eq 'TypeNotFound')
+        Switch -CaseSensitive ($ExceptionInfo.Type)
         {
-            $Exception = New-Exception -Type 'TypeNotFound' `
-                                       -Message 'Could not load Password Vault libraries.' `
-                                       -Property $ExceptionProperties
-            Write-Warning -Message $Exception
+            'System.Management.Automation.RuntimeException'
+            {
+                $Type = 'TypeNotFound'
+                $Message = 'Could not load Password Vault libraries.'
+            }
+            default
+            {
+                $Type = 'UnknownPasswordVaultException'
+                $Message = 'Encountered an unexpected error'
+            }
         }
-        else
-        {
-            Throw-Exception -Type 'UnknownPasswordVaultException' `
-                            -Message 'Encountered an unexpected error' `
-                            -Property $ExceptionProperties
-        }
+        Throw-Exception -Type $Type `
+                        -Message $Message `
+                        -Property $ExceptionProperties
     }
 }
