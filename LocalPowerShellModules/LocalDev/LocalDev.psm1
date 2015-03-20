@@ -101,7 +101,9 @@ Function Get-AutomationVariable
     {
         Write-Warning -Message "Couldn't find variable $Name" -WarningAction 'Continue'
         Write-Warning -Message 'Do you need to update your local variables? Try running Update-LocalAutomationVariable.'
-        Throw-Exception -Type 'VariableDoesNotExist' -Message "Couldn't find variable $Name" -Property @{
+        Throw-Exception -Type 'VariableDoesNotExist' `
+                        -Message "Couldn't find variable $Name" `
+                        -Property @{
             'Variable' = $Name;
         }
     }
@@ -374,29 +376,29 @@ Workflow Get-AutomationPSCredential
 
     Try
     {
-        $Credential = (Get-PasswordVaultCredential -UserName $Name -Resource 'LocalDev' -AsPSCredential) -as [System.Management.Automation.PSCredential]
+        $Val = (Get-PasswordVaultCredential -UserName $Name -WithPassword)
         Write-Verbose -Message "Credential [$Name] found in PasswordVault"
     }
     Catch
     {
-        Write-Verbose -Message 'Credential [$Name] not found in PasswordVault retrieving from SMA'
+        Write-Verbose -Message "Credential [$Name] not found in PasswordVault retrieving from SMA"
         $Val = Get-AutomationAsset -Type PSCredential -Name $Name
         if($Val) 
         {
             $SecurePassword = $Val.Password | ConvertTo-SecureString -asPlainText -Force
             $Credential = New-Object -TypeName System.Management.Automation.PSCredential($Val.Username, $SecurePassword)
 
-            Try
-            {
-                Set-PasswordVaultCredential -UserName $Name -Resource 'LocalDev' -Password $Val.Password
-            }
-            Catch
-            {
-                Remove-PasswordVaultCredential -Resource 'LocalDev'
-                Set-PasswordVaultCredential -UserName $Name -Resource 'LocalDev' -Password $Val.Password
-            }
+            Set-PasswordVaultCredential -UserName $Name -Resource "LocalDev:$([guid]::NewGuid())" -Password $Val.Password
+        }
+        else
+        {
+            Throw-Exception -Type 'CredentialNotFound' `
+                            -Message 'Could not find credential' `
+                            -Parameter @{ 'Name' = $Name }
         }
     }
+    $SecurePassword = $Val.Password | ConvertTo-SecureString -asPlainText -Force
+    $Credential = New-Object -TypeName System.Management.Automation.PSCredential($Val.Username, $SecurePassword)
     $Credential
 }
 

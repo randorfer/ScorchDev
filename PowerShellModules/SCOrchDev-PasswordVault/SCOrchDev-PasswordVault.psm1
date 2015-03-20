@@ -8,9 +8,8 @@
 .Parameter Resource
     The resource store this credential is stored in
 
-.Parameter AsPSCredential
-    Use this flag if you would like a PSCredential object returned. Includes the
-    password of the object
+.Parameter WithPassword
+    Use this flag if you would to includes the password of the object
 
 .Example
     Get-PasswordVaultCredential
@@ -22,7 +21,7 @@
     Get-PasswordVaultCredential -Name 'SCOrchDev\SMA' -Resource 'LocalDev'
 
 .Example
-    Get-PasswordVaultCredential -Name 'SCOrchDev\SMA' -Resource 'LocalDev' -AsPSCredential
+    Get-PasswordVaultCredential -Name 'SCOrchDev\SMA' -Resource 'LocalDev' -WithPassword
 #>
 Function Get-PasswordVaultCredential
 {
@@ -39,7 +38,7 @@ Function Get-PasswordVaultCredential
 
         [Parameter(Mandatory = $False, ValueFromPipelineByPropertyName = $True)]
         [Switch]
-        $AsPSCredential
+        $WithPassword
     )
     [void][Windows.Security.Credentials.PasswordVault,Windows.Security.Credentials,ContentType=WindowsRuntime]
     $PasswordVault = new-object Windows.Security.Credentials.PasswordVault
@@ -60,12 +59,11 @@ Function Get-PasswordVaultCredential
         $Credential = $PasswordVault.RetrieveAll()
     }
 
-    if($AsPSCredential.IsPresent)
+    if($WithPassword.IsPresent)
     {
         $Credential | ForEach-Object { 
             $_.RetrievePassword(); 
-            $Password = $_.Password | ConvertTo-SecureString -AsPlainText -Force
-            New-Object -TypeName System.Management.Automation.PSCredential $_.UserName, $Password
+            $_
         }
     }
     else

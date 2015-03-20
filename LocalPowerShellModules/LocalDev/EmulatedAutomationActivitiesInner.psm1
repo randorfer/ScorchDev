@@ -4,13 +4,27 @@
     'AuthenticationType' = 'Windows'
 }
 
-# Uncomment this section and fill in $CredUsername and $CredPassword values
-# to talk to SMA using Basic Auth instead of Windows Auth
-
-# username / password of an account with access to the SMA Web Service
-
+<#
+Uncomment this section to setup acces based on a credential stored in password vault
+#>
 $SmaWebServiceDetails.AuthenticationType = 'Basic'
-$SmaWebServiceDetails.Credential = Get-PasswordVaultCredential -UserName 'SCOrchDev\SMA' -Resource 'scorch' -AsPSCredential
+$Username = 'SCOrchDev\randorfer'
+try
+{
+    $PasswordVaultCred = Get-PasswordVaultCredential -UserName $Username -WithPassword
+    $Password = $PasswordVaultCred.Password | ConvertTo-SecureString -AsPlainText -Force
+    $SmaWebServiceDetails.Credential = New-Object System.Management.Automation.PSCredential($PasswordVaultCred.Username, $Password)
+}
+catch
+{
+    Throw-Exception -Type 'CredentialNotFound' `
+                    -Message 'Credential not found in Password Vault. Please configure using Set-PasswordVaultCredential' `
+                    -Property @{
+        'UserName' = $UserName ;
+        'Error' = Convert-ExceptionToString -Exception $_
+    }
+}
+
 
 function Get-AutomationAsset 
 {
