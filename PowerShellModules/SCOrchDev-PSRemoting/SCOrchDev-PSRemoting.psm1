@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
     Enables PowerShell Remoting on a remote computer. Requires that the machine
     responds to WMI requests, and that its operating system is Windows Vista or
