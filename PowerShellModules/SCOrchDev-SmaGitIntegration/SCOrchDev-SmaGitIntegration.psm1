@@ -226,7 +226,6 @@ Function Get-GitRepositoryAssetName
     .Synopsis 
         Groups all files that will be processed.
         # TODO put logic for import order here
-        # TODO Remove duplicates
     .Parameter Files
         The files to sort
     .Parameter RepositoryInformation
