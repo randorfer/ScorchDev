@@ -4,3 +4,30 @@
 [submodule "PowerShellModules/SCOrchDev-Exception"]
 	path = PowerShellModules/SCOrchDev-Exception
 	url = https://github.com/randorfer/SCOrchDev-Exception
+[submodule "PowerShellModules/SCOrchDev-Networking"]
+	path = PowerShellModules/SCOrchDev-Networking
+	url = https://github.com/randorfer/SCOrchDev-Networking
+[submodule "PowerShellModules/SCOrchDev-PasswordVault"]
+	path = PowerShellModules/SCOrchDev-PasswordVault
+	url = https://github.com/randorfer/SCOrchDev-PasswordVault
+[submodule "PowerShellModules/SCOrchDev-File"]
+	path = PowerShellModules/SCOrchDev-File
+	url = https://github.com/randorfer/SCOrchDev-File
+[submodule "PowerShellModules/SCOrchDev-PSRemoting"]
+	path = PowerShellModules/SCOrchDev-PSRemoting
+	url = https://github.com/randorfer/SCOrchDev-PSRemoting
+[submodule "PowerShellModules/SCOrchDev-SharePoint"]
+	path = PowerShellModules/SCOrchDev-SharePoint
+	url = https://github.com/randorfer/SCOrchDev-SharePoint
+[submodule "PowerShellModules/SCOrchDev-SMA"]
+	path = PowerShellModules/SCOrchDev-SMA
+	url = https://github.com/randorfer/SCOrchDev-SMA
+[submodule "PowerShellModules/SCOrchDev-SmaGitIntegration"]
+	path = PowerShellModules/SCOrchDev-SmaGitIntegration
+	url = https://github.com/randorfer/SCOrchDev-SmaGitIntegration
+[submodule "PowerShellModules/SCOrchDev-SQL"]
+	path = PowerShellModules/SCOrchDev-SQL
+	url = https://github.com/randorfer/SCOrchDev-SQL
+[submodule "PowerShellModules/SCOrchDev-Utility"]
+	path = PowerShellModules/SCOrchDev-Utility
+	url = https://github.com/randorfer/SCOrchDev-Utility
