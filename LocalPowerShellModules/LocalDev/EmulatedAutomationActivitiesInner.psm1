@@ -1,6 +1,6 @@
 ﻿$AzureAutomationUsername = 'Automation@SCorchDev.com'
 $AutomationAccountName = 'SCORCHDev'
-
+$SubscriptionName = 'Visual Studio Ultimate with MSDN'
 try
 {
     $PasswordVaultCred = Get-PasswordVaultCredential -UserName $AzureAutomationUsername -WithPassword
@@ -17,9 +17,8 @@ catch
     }
 }
 
-Get-AzureAccount | ForEach-Object { Remove-AzureAccount -Name $_.Id -Force }
-Add-AzureAccount -Credential $Credential | Out-Null
-
+Add-AzureAccount -Credential $Credential
+Select-AzureSubscription -SubscriptionName $SubscriptionName
 function Get-AutomationAsset 
 {
     param(
