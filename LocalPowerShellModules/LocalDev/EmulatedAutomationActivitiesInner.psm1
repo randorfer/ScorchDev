@@ -1,30 +1,24 @@
-﻿$SmaWebServiceDetails = @{
-    'WebServiceEndpoint' = 'https://scorchsma01.scorchdev.com'
-    'Port'             = 9090
-    'AuthenticationType' = 'Windows'
-}
+﻿$AzureAutomationUsername = 'Automation@SCorchDev.com'
+$AutomationAccountName = 'SCORCHDev'
 
-<#
-Uncomment this section to setup acces based on a credential stored in password vault
-#>
-$SmaWebServiceDetails.AuthenticationType = 'Basic'
-$Username = 'SCOrchDev\randorfer'
 try
 {
-    $PasswordVaultCred = Get-PasswordVaultCredential -UserName $Username -WithPassword
+    $PasswordVaultCred = Get-PasswordVaultCredential -UserName $AzureAutomationUsername -WithPassword
     $Password = $PasswordVaultCred.Password | ConvertTo-SecureString -AsPlainText -Force
-    $SmaWebServiceDetails.Credential = New-Object System.Management.Automation.PSCredential($PasswordVaultCred.Username, $Password)
+    $Credential = New-Object -TypeName System.Management.Automation.PSCredential $PasswordVaultCred.UserName, $Password
 }
 catch
 {
     Throw-Exception -Type 'CredentialNotFound' `
                     -Message 'Credential not found in Password Vault. Please configure using Set-PasswordVaultCredential' `
                     -Property @{
-        'UserName' = $UserName ;
-        'Error' = Convert-ExceptionToString -Exception $_
+        'UserName' = $AzureAutomationUsername ;
+        'Error' = $_
     }
 }
 
+Get-AzureAccount | ForEach-Object { Remove-AzureAccount -Name $_.Id -Force }
+Add-AzureAccount -Credential $Credential | Out-Null
 
 function Get-AutomationAsset 
 {
@@ -47,7 +41,7 @@ function Get-AutomationAsset
         'Name' = $Name
     }
 
-    $Job = Start-SmaRunbook -Name 'Get-AutomationAsset' -Parameters $Params @SmaWebServiceDetails
+    $Job = Start-AzureAutomationRunbook -Name 'Get-AutomationAsset' -Parameters $Params -AutomationAccountName $AutomationAccountName
 
     if(!$Job) 
     {
