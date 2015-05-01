@@ -34,3 +34,6 @@
 [submodule "PowerShellModules/pester"]
 	path = PowerShellModules/pester
 	url = http://github.com/randorfer/pester
+[submodule "PowerShellModules/SCOrchDev-GitIntegration"]
+	path = PowerShellModules/SCOrchDev-GitIntegration
+	url = https://github.com/randorfer/SCOrchDev-GitIntegration
