@@ -1,0 +1,12 @@
+﻿{
+    "Schedules":  {
+                      "testing123-test":  {
+                                              "Description":  "cool kids",
+                                              "DayInterval":  1,
+                                              "ExpirationTime":  "\/Date(1433024877082)\/",
+                                              "NextRun":  "\/Date(1432938477082)\/",
+                                              "RunbookName":  "test",
+                                              "Parameter":  "{\r\n\r\n}"
+                                          }
+                  }
+}

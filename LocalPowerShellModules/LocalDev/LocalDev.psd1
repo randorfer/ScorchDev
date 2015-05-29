@@ -14,6 +14,5 @@ VariablesToExport = @()
 AliasesToExport = @()
 ModuleList = @('LocalDev')
 FileList = @('LocalDev.psd1', 'LocalDev.psm1')
-NestedModules = @('.\EmulatedAutomationActivitiesInner.psm1')
 }
 

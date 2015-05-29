@@ -59,7 +59,7 @@ function Import-Workflow
 
 <#
 .SYNOPSIS
-    Returns the named automation variable, referencing local XML files to find values.
+    Returns the named automation variable, referencing local JSON files to find values.
 
 .PARAMETER Name
     The name of the variable to retrieve.
@@ -74,12 +74,15 @@ Function Get-AutomationVariable
     
     If(-not $Script:LocalAutomationVariable.ContainsKey($Name))
     {
-        Write-Warning -Message "Couldn't find variable $Name" -WarningAction 'Continue'
-        Write-Warning -Message 'Do you need to update your local variables? Try running Update-LocalAutomationVariable.' -WarningAction 'Continue'
-        Throw-Exception -Type 'VariableDoesNotExist' `
-                        -Message "Couldn't find variable $Name" `
-                        -Property @{
-            'Variable' = $Name;
+        Update-LocalAutomationVariable
+        If(-not $Script:LocalAutomationVariable.ContainsKey($Name))
+        {
+            Write-Warning -Message "Couldn't find variable $Name" -WarningAction 'Continue'
+            Throw-Exception -Type 'VariableDoesNotExist' `
+                            -Message "Couldn't find variable $Name" `
+                            -Property @{
+                'Variable' = $Name;
+            }
         }
     }
     Return $Script:LocalAutomationVariable[$Name]
@@ -179,6 +182,10 @@ Function Set-AutomationVariable
     {
         $Prefix = $Name.Split('-')[0]
     }
+    else
+    {
+        $Name = "$Prefix-$Name"
+    }
     $SettingsFilePath = "$($Env:AutomationGlobalsPath)\$($Prefix).json"
     if(-not (Test-Path -Path $SettingsFilePath))
     {
@@ -238,6 +245,10 @@ Function Remove-AutomationVariable
     if(-not $Prefix)
     {
         $Prefix = $Name.Split('-')[0]
+    }
+    else
+    {
+        $Name = "$Prefix-$Name"
     }
     $SettingsFilePath = "$($Env:AutomationGlobalsPath)\$($Prefix).json"
     if(-not (Test-Path $SettingsFilePath))
@@ -319,8 +330,11 @@ Function Set-AutomationSchedule
         $Description = [System.String]::Emptpy,
 
         [Parameter(Mandatory=$False)]
+        [DateTime]
         $NextRun = $null,
+
         [Parameter(Mandatory=$False)]
+        [DateTime]
         $ExpirationTime = $null,
 
         [Parameter(Mandatory=$False)]
@@ -339,6 +353,10 @@ Function Set-AutomationSchedule
     {
         $Prefix = $Name.Split('-')[0]
     }
+    else
+    {
+        $Name = "$Prefix-$Name"
+    }
     $SettingsFilePath = "$($Env:AutomationGlobalsPath)\$($Prefix).json"
     if(-not (Test-Path -Path $SettingsFilePath))
     {
@@ -347,7 +365,27 @@ Function Set-AutomationSchedule
     }
 
     $SettingsVars = ConvertFrom-JSON -InputObject ((Get-Content -Path $SettingsFilePath) -as [String])
-    if(Test-IsNullOrEmpty $SettingsVars.Schedules)
+    if(-not $SettingsVars) { $SettingsVars = @{} }
+    else
+    {
+        $SettingsVars = ConvertFrom-PSCustomObject $SettingsVars
+    }
+
+    if(-not $SettingsVars.ContainsKey('Schedules'))
+    {
+        $SettingsVars.Add('Schedules',@{}) | out-null
+    }
+    if($SettingsVars.Schedules.GetType().name -eq 'PSCustomObject') { $SettingsVars.Schedules = ConvertFrom-PSCustomObject $SettingsVars.Schedules }
+    if($SettingsVars.Schedules.ContainsKey($Name))
+    {
+        if($Description)    { $SettingsVars.Schedules."$Name".Description    = $Description }
+        if($NextRun)        { $SettingsVars.Schedules."$Name".NextRun        = $NextRun }
+        if($ExpirationTime) { $SettingsVars.Schedules."$Name".ExpirationTime = $ExpirationTime }
+        if($DayInterval)    { $SettingsVars.Schedules."$Name".DayInterval    = $DayInterval }
+        if($RunbookName)    { $SettingsVars.Schedules."$Name".RunbookName    = $RunbookName }
+        if($Parameter)      { $SettingsVars.Schedules."$Name".Parameter      = $(ConvertTo-Json $Parameter) }
+    }
+    else
     {
         if(-not $ExpirationTime -or
            -not $NextRun -or
@@ -362,53 +400,17 @@ Function Set-AutomationSchedule
                                          'DayInterval' = $DayInterval ;
                                          'RunbookName' = $RunbookName ; }
         }
-        Add-Member -InputObject $SettingsVars `
-                   -MemberType NoteProperty `
-                   -Value @{ $Name = @{'Description' = $Description ;
-                                       'ExpirationTime' = $ExpirationTime -as [DateTime] ;
-                                       'NextRun' = $NextRun -as [DateTime] ;
-                                       'DayInterval' = $DayInterval ;
-                                       'RunbookName' = $RunbookName ;
-                                       'Parameter' = $(ConvertTo-JSON $Parameter) }} `
-                   -Name Schedules `
-                   -Force
-    }
-    else
-    {
-        if(($SettingsVars.Schedules | Get-Member -MemberType NoteProperty).Name -Contains $Name)
-        {
-            if($Description)    { $SettingsVars.Schedules."$Name".Description    = $Description }
-            if($NextRun)        { $SettingsVars.Schedules."$Name".NextRun        = $NextRun }
-            if($ExpirationTime) { $SettingsVars.Schedules."$Name".ExpirationTime = $ExpirationTime }
-            if($DayInterval)    { $SettingsVars.Schedules."$Name".DayInterval    = $DayInterval }
-            if($RunbookName)    { $SettingsVars.Schedules."$Name".RunbookName    = $RunbookName }
-            if($Parameter)      { $SettingsVars.Schedules."$Name".Parameter      = $(ConvertTo-Json $Parameter) }
-        }
-        else
-        {
-            if(-not $ExpirationTime -or
-           -not $NextRun -or
-           -not $DayInterval -or
-           -not $RunbookName )
-            {
-                Throw-Exception -Type 'MinimumNewParametersNotFound' `
-                                -Message 'The minimum set of input parameters for creating a new schedule was not supplied. Look at nulls' `
-                                -Property @{ 'Name' = $Name ;
-                                             'ExpirationTime' = $ExpirationTime ;
-                                             'NextRun' = $NextRun ;
-                                             'DayInterval' = $DayInterval ;
-                                             'RunbookName' = $RunbookName ; }
+
+        $SettingsVars.Schedules.Add(
+            $Name, @{ 
+                'Description' = $Description ;
+                'ExpirationTime' = $ExpirationTime -as [DateTime] ;
+                'NextRun' = $NextRun -as [DateTime] ;
+                'DayInterval' = $DayInterval ;
+                'RunbookName' = $RunbookName ;
+                'Parameter' = $(ConvertTo-JSON $Parameter)
             }
-            Add-Member -InputObject $SettingsVars.Schedules `
-                       -MemberType NoteProperty `
-                       -Value @{'Description' = $Description ;
-                                'ExpirationTime' = $ExpirationTime -as [DateTime] ;
-                                'NextRun' = $NextRun -as [DateTime] ;
-                                'DayInterval' = $DayInterval ;
-                                'RunbookName' = $RunbookName ;
-                                'Parameter' = $(ConvertTo-JSON $Parameter) } `
-                       -Name $Name
-        }
+        )
     }
     
     Set-Content -Path $SettingsFilePath -Value (ConvertTo-JSON $SettingsVars) -Encoding UTF8
