@@ -25,7 +25,7 @@ function Import-Workflow
 {
     param(
         [Parameter(Mandatory=$True)]  [String] $WorkflowName,
-        [Parameter(Mandatory=$False)] [String] $Path = $env:SMARunbookPath
+        [Parameter(Mandatory=$False)] [String] $Path = $env:WorkflowPath
     )
 
     # TODO: Make $CompileStack a more appropriate data structure.
