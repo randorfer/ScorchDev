@@ -20,7 +20,7 @@ function Import-Workflow
 {
     param(
         [Parameter(Mandatory=$True)]  [String] $WorkflowName,
-        [Parameter(Mandatory=$False)] [String] $Path = $env:WorkflowPath
+        [Parameter(Mandatory=$False)] [String] $Path = $env:AutomationWorkflowPath
     )
 
     # TODO: Make $CompileStack a more appropriate data structure.
