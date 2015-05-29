@@ -3,11 +3,10 @@
 ## Modules
 $env:AutomationWorkspace = 'C:\GIT\ScorchDev'
 $env:SMAModulePath = "$env:AutomationWorkspace\PowerShellModules"
-$env:SMARunbookPath = "$env:AutomationWorkspace\Runbooks"
+$env:SMAGlobalsPath = "$env:AutomationWorkspace\Globals"
 $env:PSModulePath = "$env:SMAModulePath;$env:AutomationWorkspace\LocalPowerShellModules;$env:PSModulePath"
-$env:AutomationWebServiceEndpoint = 'https://scorchsma01.scorchdev.com'
 $env:LocalAuthoring = $true
-$env:LocalSMAVariableUpdateInterval = 0
+
 # Set up debugging
 $VerbosePreference = 'Continue'
 $DebugPreference = 'Continue'

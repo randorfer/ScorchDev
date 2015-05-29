@@ -71,7 +71,11 @@ function Import-Workflow
 #>
 Function Get-AutomationVariable
 {
-    Param( [Parameter(Mandatory=$True)]  [String] $Name )
+    Param(
+        [Parameter(Mandatory=$True)]
+        [String]
+        $Name 
+    )
 
     $LocalSMAVariableWarn = ConvertTo-Boolean -InputString (Select-FirstValid -Value $env:LocalSMAVariableWarn, 'True' -FilterScript { $_ -ne $null })
     # Check to see if local variables are overridden in the environment - if so, pull directly from SMA.
@@ -132,9 +136,9 @@ function Update-LocalAutomationVariable
 {
     param()
 
-    Write-Verbose -Message 'Updating SMA variables in memory'
+    Write-Verbose -Message 'Updating variables in memory'
     $Script:LocalSMAVariableLastUpdate = Get-Date
-    $FilesToProcess = (Get-ChildItem -Path $env:SMARunbookPath -Include '*.json' -Recurse).FullName
+    $FilesToProcess = (Get-ChildItem -Path $env:SMAGlobalsPath -Include '*.json' -Recurse).FullName
     Read-SmaJSONVariables -Path $FilesToProcess
 }
 
