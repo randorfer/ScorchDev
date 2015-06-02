@@ -308,11 +308,13 @@ Workflow Get-AutomationPSCredential
     {
         Throw-Exception -Type 'CredentialNotFound' `
                         -Message 'Could not find credential. Please set it up in the local password vault using Set-PasswordVaultCredential' `
-                        -Parameter @{ 'Name' = $Name }
+                        -Property @{ 
+                            'Name' = $Name 
+                        }
     }
     $SecurePassword = $Val.Password | ConvertTo-SecureString -asPlainText -Force
     $Credential = New-Object -TypeName System.Management.Automation.PSCredential($Val.Username, $SecurePassword)
-    $Credential
+    Return $Credential -as [System.Management.Automation.PSCredential]
 }
 
 Function Set-AutomationSchedule

@@ -27,7 +27,7 @@ Workflow Invoke-GitRepositorySync
         $RepositoryInformation = (ConvertFrom-Json -InputObject $CIVariables.RepositoryInformation)."$RepositoryName"
         Write-Verbose -Message "`$RepositoryInformation [$(ConvertTo-Json -InputObject $RepositoryInformation)]"
 
-        $RunbookWorker = Get-SMARunbookWorker
+        $RunbookWorker = Get-AzureAutomationHybridRunbookWorker -Name $RepositoryInformation.HybridWorkerGroup
         
         # Update the repository on all SMA Workers
         InlineScript
