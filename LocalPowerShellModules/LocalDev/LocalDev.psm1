@@ -1,4 +1,5 @@
-﻿<#
+﻿$Script:LocalAutomationVariable = @{}
+<#
 .SYNOPSIS
     Returns a scriptblock that, when dot-sourced, will import a workflow and all its dependencies.
 

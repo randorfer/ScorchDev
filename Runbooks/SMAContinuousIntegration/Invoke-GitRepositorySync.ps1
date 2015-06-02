@@ -18,7 +18,7 @@ Workflow Invoke-GitRepositorySync
 
     $CIVariables = Get-BatchAutomationVariable -Name @('RepositoryInformation', 
                                                        'SMACredName',
-                                                       'WebserviceEndpoint'
+                                                       'WebserviceEndpoint',
                                                        'WebservicePort') `
                                                -Prefix 'SMAContinuousIntegration'
     $SMACred = Get-AutomationPSCredential -Name $CIVariables.SMACredName
