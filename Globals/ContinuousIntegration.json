@@ -1,0 +1,18 @@
+﻿{
+    "Schedules":  {
+
+                  },
+    "Variables":  {
+                      "ContinuousIntegration-RepositoryInformation":  {
+                                                                          "isEncrypted":  false,
+                                                                          "Description":  "",
+                                                                          "Type":  "String",
+                                                                          "Value":  "{\"RunbookExample\":{\"Branch\":\"master\",\"Path\":\"C:\\\\git\\\\RunbookExample\",\"RunbookFolder\":\"Runbooks\",\"HybridWorkerGroup\":\"ScorchDev\",\"CurrentCommit\":\"0\",\"RepositoryPath\":\"https://github.com/randorfer/RunbookExample.git\",\"PowerShellModuleFolder\":\"PowerShellModules\"},\"ContinuousIntegrationProject\":{\"Branch\":\"master\",\"Path\":\"C:\\\\git\\\\ScorchDev\",\"RunbookFolder\":\"Runbooks\",\"HybridWorkerGroup\":\"ScorchDev\",\"CurrentCommit\":\"84de715\",\"RepositoryPath\":\"https://github.com/randorfer/ScorchDev.git\",\"PowerShellModuleFolder\":\"PowerShellModules\"}}"
+                                                                      },
+                      "ContinuousIntegration-AccessCredentialName":  {
+                                                                         "isEncrypted":  false,
+                                                                         "Description":  "",
+                                                                         "Value":  "SCORCHDev\\AccessCred"
+                                                                     }
+                  }
+}

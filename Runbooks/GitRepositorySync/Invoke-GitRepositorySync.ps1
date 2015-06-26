@@ -16,12 +16,10 @@ Workflow Invoke-GitRepositorySync
     Write-Verbose -Message "Starting [$WorkflowCommandName]"
     $ErrorActionPreference = [System.Management.Automation.ActionPreference]::Stop
 
-    $CIVariables = Get-BatchAutomationVariable -Name @('RepositoryInformation', 
-                                                       'SMACredName',
-                                                       'WebserviceEndpoint',
-                                                       'WebservicePort') `
-                                               -Prefix 'SMAContinuousIntegration'
-    $SMACred = Get-AutomationPSCredential -Name $CIVariables.SMACredName
+    $CIVariables = Get-BatchAutomationVariable -Name @('RepositoryInformation',
+                                                       'AccessCredentialName') `
+                                               -Prefix 'ContinuousIntegration'
+    $AccessCredential = Get-AutomationPSCredential -Name $CIVariables.AccessCredentialName
     Try
     {
         $RepositoryInformation = (ConvertFrom-Json -InputObject $CIVariables.RepositoryInformation)."$RepositoryName"
