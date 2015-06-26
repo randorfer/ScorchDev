@@ -3,41 +3,11 @@
 
                   },
     "Variables":  {
-                      "SMAContinuousIntegration-MonitorDelayCycle":  {
-                                                                         "isEncrypted":  false,
-                                                                         "Description":  "",
-                                                                         "Value":  30
-                                                                     },
-                      "SMAContinuousIntegration-WebserviceEndpoint":  {
-                                                                          "isEncrypted":  false,
-                                                                          "Description":  "",
-                                                                          "Value":  "https://scorchsma01.scorchdev.com"
-                                                                      },
-                      "SMAContinuousIntegration-SMACredName":  {
-                                                                   "isEncrypted":  false,
-                                                                   "Description":  "",
-                                                                   "Value":  "SCOrchDev\\SMA"
-                                                               },
-                      "SMAContinuousIntegration-MonitorLifeSpan":  {
-                                                                       "isEncrypted":  false,
-                                                                       "Description":  "",
-                                                                       "Value":  300
-                                                                   },
-                      "SMAContinuousIntegration-MonitorCheckpoint":  {
-                                                                         "isEncrypted":  false,
-                                                                         "Description":  "",
-                                                                         "Value":  5
-                                                                     },
-                      "SMAContinuousIntegration-WebservicePort":  {
-                                                                      "isEncrypted":  false,
-                                                                      "Description":  "",
-                                                                      "Value":  "9090"
-                                                                  },
-                      "SMAContinuousIntegration-RepositoryInformation":  {
-                                                                             "isEncrypted":  false,
-                                                                             "Description":  "",
-                                                                             "Type":  "String",
-                                                                             "Value":  "{\"RunbookExample\":{\"Branch\":\"master\",\"Path\":\"C:\\\\git\\\\RunbookExample\",\"RunbookFolder\":\"Runbooks\",\"HybridWorkerGroup\":\"ScorchDev\",\"CurrentCommit\":\"0\",\"RepositoryPath\":\"https://github.com/randorfer/RunbookExample.git\",\"PowerShellModuleFolder\":\"PowerShellModules\"},\"ContinuousIntegrationProject\":{\"Branch\":\"master\",\"Path\":\"C:\\\\git\\\\ScorchDev\",\"RunbookFolder\":\"Runbooks\",\"HybridWorkerGroup\":\"ScorchDev\",\"CurrentCommit\":\"84de715\",\"RepositoryPath\":\"https://github.com/randorfer/ScorchDev.git\",\"PowerShellModuleFolder\":\"PowerShellModules\"}}"
-                                                                         }
+                      "ContinuousIntegration-RepositoryInformation":  {
+                                                                        "isEncrypted":  false,
+                                                                        "Description":  "",
+                                                                        "Type":  "String",
+                                                                        "Value":  "{\"RunbookExample\":{\"Branch\":\"master\",\"Path\":\"C:\\\\git\\\\RunbookExample\",\"RunbookFolder\":\"Runbooks\",\"HybridWorkerGroup\":\"ScorchDev\",\"CurrentCommit\":\"0\",\"RepositoryPath\":\"https://github.com/randorfer/RunbookExample.git\",\"PowerShellModuleFolder\":\"PowerShellModules\"},\"ContinuousIntegrationProject\":{\"Branch\":\"master\",\"Path\":\"C:\\\\git\\\\ScorchDev\",\"RunbookFolder\":\"Runbooks\",\"HybridWorkerGroup\":\"ScorchDev\",\"CurrentCommit\":\"84de715\",\"RepositoryPath\":\"https://github.com/randorfer/ScorchDev.git\",\"PowerShellModuleFolder\":\"PowerShellModules\"}}"
+                                                                      }
                   }
 }
