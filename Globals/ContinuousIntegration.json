@@ -3,16 +3,26 @@
 
                   },
     "Variables":  {
+                      "ContinuousIntegration-SubscriptionName":  {
+                                                                     "isEncrypted":  false,
+                                                                     "Description":  "",
+                                                                     "Value":  "Visual Studio Ultimate with MSDN"
+                                                                 },
                       "ContinuousIntegration-RepositoryInformation":  {
                                                                           "isEncrypted":  false,
                                                                           "Description":  "",
                                                                           "Type":  "String",
-                                                                          "Value":  "{\"RunbookExample\":{\"Branch\":\"master\",\"Path\":\"C:\\\\git\\\\RunbookExample\",\"RunbookFolder\":\"Runbooks\",\"HybridWorkerGroup\":\"ScorchDev\",\"CurrentCommit\":\"0\",\"RepositoryPath\":\"https://github.com/randorfer/RunbookExample.git\",\"PowerShellModuleFolder\":\"PowerShellModules\"},\"ContinuousIntegrationProject\":{\"Branch\":\"master\",\"Path\":\"C:\\\\git\\\\ScorchDev\",\"RunbookFolder\":\"Runbooks\",\"HybridWorkerGroup\":\"ScorchDev\",\"CurrentCommit\":\"84de715\",\"RepositoryPath\":\"https://github.com/randorfer/ScorchDev.git\",\"PowerShellModuleFolder\":\"PowerShellModules\"}}"
+                                                                          "Value":  "{\"RunbookExample\":{\"Branch\":\"master\",\"Path\":\"C:\\\\git\\\\RunbookExample\",\"RunbookFolder\":\"Runbooks\",\"HybridWorkerGroup\":\"ScorchDev\",\"CurrentCommit\":-1,\"RepositoryPath\":\"https://github.com/randorfer/RunbookExample.git\",\"PowerShellModuleFolder\":\"PowerShellModules\",\"GlobalsFolder\":\"Globals\"}}"
                                                                       },
                       "ContinuousIntegration-AccessCredentialName":  {
                                                                          "isEncrypted":  false,
                                                                          "Description":  "",
-                                                                         "Value":  "SCORCHDev\\AccessCred"
-                                                                     }
+                                                                         "Value":  "Automation@SCOrchDev.com"
+                                                                     },
+                      "ContinuousIntegration-AutomationAccountName":  {
+                                                                          "isEncrypted":  false,
+                                                                          "Description":  "",
+                                                                          "Value":  "SCORCHDev"
+                                                                      }
                   }
 }

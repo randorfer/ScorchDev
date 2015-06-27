@@ -17,7 +17,9 @@ Workflow Invoke-GitRepositorySync
     $ErrorActionPreference = [System.Management.Automation.ActionPreference]::Stop
 
     $CIVariables = Get-BatchAutomationVariable -Name @('RepositoryInformation',
-                                                       'AccessCredentialName') `
+                                                       'AccessCredentialName',
+                                                       'SubscriptionName',
+                                                       'AutomationAccountName') `
                                                -Prefix 'ContinuousIntegration'
     $AccessCredential = Get-AutomationPSCredential -Name $CIVariables.AccessCredentialName
     Try
@@ -56,9 +58,12 @@ Workflow Invoke-GitRepositorySync
             
             Foreach($SettingsFilePath in $ReturnInformation.SettingsFiles)
             {
-                Publish-SMASettingsFileChange -FilePath $SettingsFilePath `
-                                         -CurrentCommit $RepositoryChange.CurrentCommit `
-                                         -RepositoryName $RepositoryName
+                Publish-AzureAutomationSettingsFileChange -FilePath $SettingsFilePath `
+                                                          -CurrentCommit $RepositoryChange.CurrentCommit `
+                                                          -RepositoryName $RepositoryName `
+                                                          -AccessCredential $AccessCredential `
+                                                          -AutomationAccountName $CIVariables.AutomationAccountName `
+                                                          -SubscriptionName $CIVariables.SubscriptionName
                 Checkpoint-Workflow
             }
             
