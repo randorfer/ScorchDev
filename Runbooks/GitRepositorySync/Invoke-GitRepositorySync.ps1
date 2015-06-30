@@ -72,12 +72,12 @@ Workflow Invoke-GitRepositorySync
                 Try
                 {
                     $PowerShellModuleInformation = Test-ModuleManifest -Path $ModulePath
-                    $ModuleName = $PowerShellModuleInformation.Name -as [string]
-                    $ModuleVersion = $PowerShellModuleInformation.Version -as [string]
-                    $PowerShellModuleInformation = Import-SmaPowerShellModule -ModulePath $ModulePath `
-                                                                              -WebserviceEndpoint $CIVariables.WebserviceEndpoint `
-                                                                              -WebservicePort $CIVariables.WebservicePort `
-                                                                              -Credential $SMACred
+                    $PowerShellModuleInformation = Publish-AzureAutomationPowerShellModule -ModulePath $ModulePath `
+                                                                                           -SubscriptionName $CIVariables.SubscriptionName `
+                                                                                           -AutomationAccountName $CIVariables.AutomationAccountName `
+                                                                                           -Credential $AccessCredential `
+                                                                                           -CurrentCommit $RepositoryChange.CurrentCommit `
+                                                                                           -RepositoryName $RepositoryName
                 }
                 Catch
                 {
