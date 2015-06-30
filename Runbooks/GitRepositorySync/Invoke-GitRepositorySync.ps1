@@ -61,7 +61,7 @@ Workflow Invoke-GitRepositorySync
                 Publish-AzureAutomationSettingsFileChange -FilePath $SettingsFilePath `
                                                           -CurrentCommit $RepositoryChange.CurrentCommit `
                                                           -RepositoryName $RepositoryName `
-                                                          -AccessCredential $AccessCredential `
+                                                          -Credential $AccessCredential `
                                                           -AutomationAccountName $CIVariables.AutomationAccountName `
                                                           -SubscriptionName $CIVariables.SubscriptionName
                 Checkpoint-Workflow
@@ -101,9 +101,12 @@ Workflow Invoke-GitRepositorySync
 
             Foreach($RunbookFilePath in $ReturnInformation.ScriptFiles)
             {
-                Publish-SMARunbookChange -FilePath $RunbookFilePath `
-                                         -CurrentCommit $RepositoryChange.CurrentCommit `
-                                         -RepositoryName $RepositoryName
+                Publish-AzureAutomationRunbookChange -FilePath $RunbookFilePath `
+                                                     -CurrentCommit $RepositoryChange.CurrentCommit `
+                                                     -RepositoryName $RepositoryName `
+                                                     -Credential $AccessCredential `
+                                                     -AutomationAccountName $CIVariables.AutomationAccountName `
+                                                     -SubscriptionName $CIVariables.SubscriptionName
                 Checkpoint-Workflow
             }
             
