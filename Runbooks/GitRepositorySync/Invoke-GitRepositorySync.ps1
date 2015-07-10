@@ -17,11 +17,13 @@ Workflow Invoke-GitRepositorySync
     $ErrorActionPreference = [System.Management.Automation.ActionPreference]::Stop
 
     $CIVariables = Get-BatchAutomationVariable -Name @('RepositoryInformation',
-                                                       'AccessCredentialName',
+                                                       'SubscriptionAccessCredentialName',
                                                        'SubscriptionName',
-                                                       'AutomationAccountName') `
+                                                       'AutomationAccountName',
+                                                       'RunbookWorkerAccessCredenialName') `
                                                -Prefix 'ContinuousIntegration'
-    $AccessCredential = Get-AutomationPSCredential -Name $CIVariables.AccessCredentialName
+    $SubscriptionAccessCredential = Get-AutomationPSCredential -Name $CIVariables.SubscriptionAccessCredentialName
+    $RunbookWorkerAccessCredenial = Get-AutomationPSCredential -Name $CIVariables.RunbookWorkerAccessCredenialName
     Try
     {
         $RepositoryInformation = (ConvertFrom-Json -InputObject $CIVariables.RepositoryInformation)."$RepositoryName"
@@ -43,11 +45,11 @@ Workflow Invoke-GitRepositorySync
                     Update-GitRepository -RepositoryInformation $RepositoryInformation
                 )
             }
-        } -PSComputerName $RunbookWorker -PSCredential $SMACred
+        } -PSComputerName $RunbookWorker -PSCredential $RunbookWorkerAccessCredenial
 
         $RepositoryChangeJSON = Find-GitRepositoryChange -RepositoryInformation $RepositoryInformation
         $RepositoryChange = ConvertFrom-Json -InputObject $RepositoryChangeJSON
-        if("$($RepositoryChange.CurrentCommit)" -ne "$($RepositoryInformation.CurrentCommit)")
+        if($RepositoryChange.CurrentCommit -as [string] -ne $RepositoryInformation.CurrentCommit -as [string])
         {
             Write-Verbose -Message "Processing [$($RepositoryInformation.CurrentCommit)..$($RepositoryChange.CurrentCommit)]"
             Write-Verbose -Message "RepositoryChange [$RepositoryChangeJSON]"
@@ -61,12 +63,13 @@ Workflow Invoke-GitRepositorySync
                 Publish-AzureAutomationSettingsFileChange -FilePath $SettingsFilePath `
                                                           -CurrentCommit $RepositoryChange.CurrentCommit `
                                                           -RepositoryName $RepositoryName `
-                                                          -Credential $AccessCredential `
+                                                          -Credential $SubscriptionAccessCredential `
                                                           -AutomationAccountName $CIVariables.AutomationAccountName `
                                                           -SubscriptionName $CIVariables.SubscriptionName
                 Checkpoint-Workflow
             }
-            
+            # Not yet implemented
+            <#
             Foreach($ModulePath in $ReturnInformation.ModuleFiles)
             {
                 Try
@@ -75,7 +78,7 @@ Workflow Invoke-GitRepositorySync
                     $PowerShellModuleInformation = Publish-AzureAutomationPowerShellModule -ModulePath $ModulePath `
                                                                                            -SubscriptionName $CIVariables.SubscriptionName `
                                                                                            -AutomationAccountName $CIVariables.AutomationAccountName `
-                                                                                           -Credential $AccessCredential `
+                                                                                           -Credential $SubscriptionAccessCredential `
                                                                                            -CurrentCommit $RepositoryChange.CurrentCommit `
                                                                                            -RepositoryName $RepositoryName
                 }
@@ -95,16 +98,15 @@ Workflow Invoke-GitRepositorySync
                     }
                     Write-Warning -Message $Exception -WarningAction Continue
                 }
-                
                 Checkpoint-Workflow
             }
-
+            #>
             Foreach($RunbookFilePath in $ReturnInformation.ScriptFiles)
             {
                 Publish-AzureAutomationRunbookChange -FilePath $RunbookFilePath `
                                                      -CurrentCommit $RepositoryChange.CurrentCommit `
                                                      -RepositoryName $RepositoryName `
-                                                     -Credential $AccessCredential `
+                                                     -Credential $SubscriptionAccessCredential `
                                                      -AutomationAccountName $CIVariables.AutomationAccountName `
                                                      -SubscriptionName $CIVariables.SubscriptionName
                 Checkpoint-Workflow
@@ -112,19 +114,29 @@ Workflow Invoke-GitRepositorySync
             
             if($ReturnInformation.CleanRunbooks)
             {
-                Remove-SmaOrphanRunbook -RepositoryName $RepositoryName
+                Remove-AzureAutomationOrphanRunbook -RepositoryName $RepositoryName `
+                                                    -SubscriptionName $CIVariables.SubscriptionName `
+                                                    -AutomationAccountName $CIVariables.AutomationAccountName `
+                                                    -Credential $SubscriptionAccessCredential `
+                                                    -RepositoryInformation $RepositoryInformation
                 Checkpoint-Workflow
             }
             if($ReturnInformation.CleanAssets)
             {
-                Remove-SmaOrphanAsset -RepositoryName $RepositoryName
+                Remove-AzureAutomationOrphanAsset -RepositoryName $RepositoryName `
+                                                  -SubscriptionName $CIVariables.SubscriptionName `
+                                                  -AutomationAccountName $CIVariables.AutomationAccountName `
+                                                  -Credential $SubscriptionAccessCredential `
+                                                  -RepositoryInformation $RepositoryInformation
                 Checkpoint-Workflow
             }
+            <# Not yet implemented
             if($ReturnInformation.CleanModules)
             {
-                Remove-SmaOrphanModule
+                #Remove-SmaOrphanModule
                 Checkpoint-Workflow
             }
+            #>
             if($ReturnInformation.ModuleFiles)
             {
                 Try
@@ -133,32 +145,37 @@ Workflow Invoke-GitRepositorySync
                     $RepositoryModulePath = "$($RepositoryInformation.Path)\$($RepositoryInformation.PowerShellModuleFolder)"
                     inlinescript
                     {
-                        Add-PSEnvironmentPathLocation -Path $Using:RepositoryModulePath
-                    } -PSComputerName $RunbookWorker -PSCredential $SMACred
+                        $RepositoryModulePath = $Using:RepositoryModulePath
+                        Try
+                        {
+                            Add-PSEnvironmentPathLocation -Path $RepositoryModulePath
+                        }
+                        Catch
+                        {
+                            $Exception = New-Exception -Type 'PowerShellModulePathValidationError' `
+                                               -Message 'Failed to set PSModulePath' `
+                                               -Property @{
+                                'ErrorMessage' = (Convert-ExceptionToString $_) ;
+                                'RepositoryModulePath' = $RepositoryModulePath ;
+                                'RunbookWorker' = $env:COMPUTERNAME ;
+                            }
+                            Write-Warning -Message $Exception -WarningAction Continue
+                        }
+                    } -PSComputerName $RunbookWorker -PSCredential $RunbookWorkerAccessCredenial
                     Write-Verbose -Message 'Finished Validating Module Path on Runbook Wokers'
                 }
                 Catch
                 {
-                    $Exception = New-Exception -Type 'PowerShellModulePathValidationError' `
-                                               -Message 'Failed to set PSModulePath' `
-                                               -Property @{
-                        'ErrorMessage' = (Convert-ExceptionToString $_) ;
-                        'RepositoryModulePath' = $RepositoryModulePath ;
-                        'RunbookWorker' = $RunbookWorker ;
-                    }
-                    Write-Warning -Message $Exception -WarningAction Continue
+                    Write-Exception -Exception $_ -Stream Warning
                 }
                 
                 Checkpoint-Workflow
             }
-            $UpdatedRepositoryInformation = (Set-SmaRepositoryInformationCommitVersion -RepositoryInformation $CIVariables.RepositoryInformation `
-                                                                                       -RepositoryName $RepositoryName `
-                                                                                       -Commit $RepositoryChange.CurrentCommit) -as [string]
-            $VariableUpdate = Set-SmaVariable -Name 'SMAContinuousIntegration-RepositoryInformation' `
-                                              -Value $UpdatedRepositoryInformation `
-                                              -WebServiceEndpoint $CIVariables.WebserviceEndpoint `
-                                              -Port $CIVariables.WebservicePort `
-                                              -Credential $SMACred
+            $UpdatedRepositoryInformation = (Set-RepositoryInformationCommitVersion -RepositoryInformation $CIVariables.RepositoryInformation `
+                                                                                    -RepositoryName $RepositoryName `
+                                                                                    -Commit $RepositoryChange.CurrentCommit) -as [string]
+            $VariableUpdate = Set-AutomationVariable -Name 'ContinuousIntegration-RepositoryInformation' `
+                                                     -Value $UpdatedRepositoryInformation
 
             Write-Verbose -Message "Finished Processing [$($RepositoryInformation.CurrentCommit)..$($RepositoryChange.CurrentCommit)]"
         }

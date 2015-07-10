@@ -12,17 +12,22 @@
                                                                           "isEncrypted":  false,
                                                                           "Description":  "",
                                                                           "Type":  "String",
-                                                                          "Value":  "{\"RunbookExample\":{\"Branch\":\"master\",\"Path\":\"C:\\\\git\\\\RunbookExample\",\"RunbookFolder\":\"Runbooks\",\"HybridWorkerGroup\":\"ScorchDev\",\"CurrentCommit\":-1,\"RepositoryPath\":\"https://github.com/randorfer/RunbookExample.git\",\"PowerShellModuleFolder\":\"PowerShellModules\",\"GlobalsFolder\":\"Globals\"}}"
+                                                                          "Value":  "{\"RunbookExample\":{\"Branch\":\"master\",\"Path\":\"C:\\\\git\\\\RunbookExample\",\"RunbookFolder\":\"Runbooks\",\"HybridWorkerGroup\":\"ScorchDev\",\"CurrentCommit\":\"e8cb9a4\",\"RepositoryPath\":\"https://github.com/randorfer/RunbookExample.git\",\"PowerShellModuleFolder\":\"PowerShellModules\",\"GlobalsFolder\":\"Globals\"}}"
                                                                       },
-                      "ContinuousIntegration-AccessCredentialName":  {
-                                                                         "isEncrypted":  false,
-                                                                         "Description":  "",
-                                                                         "Value":  "Automation@SCOrchDev.com"
-                                                                     },
+                      "ContinuousIntegration-SubscriptionAccessCredentialName":  {
+                                                                                     "isEncrypted":  false,
+                                                                                     "Description":  "",
+                                                                                     "Value":  "Automation@SCOrchDev.com"
+                                                                                 },
                       "ContinuousIntegration-AutomationAccountName":  {
                                                                           "isEncrypted":  false,
                                                                           "Description":  "",
                                                                           "Value":  "SCORCHDev"
-                                                                      }
+                                                                      },
+                      "ContinuousIntegration-RunbookWorkerAccessCredenialName":  {
+                                                                                     "isEncrypted":  false,
+                                                                                     "Description":  "",
+                                                                                     "Value":  "Automation@SCOrchDev.com"
+                                                                                 }
                   }
 }
