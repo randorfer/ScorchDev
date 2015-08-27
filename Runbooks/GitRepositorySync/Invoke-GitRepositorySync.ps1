@@ -30,7 +30,7 @@ Workflow Invoke-GitRepositorySync
     Try
     {
         $RepositoryInformation = (ConvertFrom-JSON -InputObject $CIVariables.RepositoryInformation).$RepositoryName
-        Sync-GitRepositoryToAzureAutomation -RepositoryInformation `
+        Sync-GitRepositoryToAzureAutomation -RepositoryInformation $RepositoryInformation `
                                             -AutomationAccountName $CIVariables.AutomationAccountName `
                                             -SubscriptionName $CIVariables.SubscriptionName `
                                             -SubscriptionAccessCredential $SubscriptionAccessCredential `
