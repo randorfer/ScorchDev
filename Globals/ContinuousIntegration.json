@@ -12,7 +12,7 @@
                                                                           "isEncrypted":  false,
                                                                           "Description":  "",
                                                                           "Type":  "String",
-                                                                          "Value":  "{\"RunbookExample\":{\"Branch\":\"master\",\"Path\":\"C:\\\\git\\\\RunbookExample\",\"RunbookFolder\":\"Runbooks\",\"HybridWorkerGroup\":\"ScorchDev\",\"CurrentCommit\":\"e8cb9a4\",\"RepositoryPath\":\"https://github.com/randorfer/RunbookExample.git\",\"PowerShellModuleFolder\":\"PowerShellModules\",\"GlobalsFolder\":\"Globals\"}}"
+                                                                          "Value":  "{\"SCOrchDev\":{\"Branch\":\"master\",\"Path\":\"C:\\\\git\\\\SCOrchDev\",\"RunbookFolder\":\"Runbooks\",\"HybridWorkerGroup\":\"ScorchDev\",\"CurrentCommit\":\"e8cb9a4\",\"RepositoryPath\":\"https://github.com/randorfer/RunbookExample.git\",\"PowerShellModuleFolder\":\"PowerShellModules\",\"GlobalsFolder\":\"Globals\"}}"
                                                                       },
                       "ContinuousIntegration-SubscriptionAccessCredentialName":  {
                                                                                      "isEncrypted":  false,
