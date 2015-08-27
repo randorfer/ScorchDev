@@ -35,7 +35,8 @@ Workflow Invoke-GitRepositorySync
                                             -SubscriptionName $CIVariables.SubscriptionName `
                                             -SubscriptionAccessCredential $SubscriptionAccessCredential `
                                             -RunbookWorkerAccessCredenial $RunbookWorkerAccessCredenial `
-                                            -RepositoryName $RepositoryName
+                                            -RepositoryName $RepositoryName `
+                                            -RepositoryInformationJSON $CIVariables.RepositoryInformation
     }
     Catch
     {
