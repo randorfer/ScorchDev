@@ -29,7 +29,10 @@ Workflow Invoke-GitRepositorySync
     $RunbookWorkerAccessCredenial = Get-AutomationPSCredential -Name $CIVariables.RunbookWorkerAccessCredenialName
     Try
     {
-        Sync-GitRepositoryToAzureAutomation -CIVariables $CIVariables `
+        $RepositoryInformation = (ConvertFrom-JSON -InputObject $CIVariables.RepositoryInformation).$RepositoryName
+        Sync-GitRepositoryToAzureAutomation -RepositoryInformation `
+                                            -AutomationAccountName $CIVariables.AutomationAccountName `
+                                            -SubscriptionName $CIVariables.SubscriptionName `
                                             -SubscriptionAccessCredential $SubscriptionAccessCredential `
                                             -RunbookWorkerAccessCredenial $RunbookWorkerAccessCredenial `
                                             -RepositoryName $RepositoryName
