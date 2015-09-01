@@ -15,26 +15,30 @@ Workflow Invoke-GitRepositorySync
     
     Write-Verbose -Message "Starting [$WorkflowCommandName]"
     $ErrorActionPreference = [System.Management.Automation.ActionPreference]::Stop
+    
+    $AutomationAccountName = Get-AutomationVariable -Name 'Global-AutomationAccountName'
+    $SubscriptionName = Get-AutomationVariable -Name 'Global-SubscriptionName'
+    $SubscriptionAccessCredentialName = Get-AutomationVariable -Name 'Global-SubscriptionAccessCredentialName'
+    $SubscriptionAccessCredential = Get-AutomationPSCredential -Name $SubscriptionAccessCredentialName
 
     $CIVariables = Get-BatchAutomationVariable -Prefix 'ContinuousIntegration' `
+                                               -AutomationAccountName $AutomationAccountName `
+                                               -SubscriptionName $SubscriptionName `
+                                               -Credential $SubscriptionAccessCredential `
                                                -Name @(
         'RepositoryInformation',
-        'SubscriptionAccessCredentialName',
-        'SubscriptionName',
-        'AutomationAccountName',
-        'RunbookWorkerAccessCredenialName'
+        'RunbookWorkerAccessCredentialName'
     )
                                                
-    $SubscriptionAccessCredential = Get-AutomationPSCredential -Name $CIVariables.SubscriptionAccessCredentialName
-    $RunbookWorkerAccessCredenial = Get-AutomationPSCredential -Name $CIVariables.RunbookWorkerAccessCredenialName
+    $RunbookWorkerAccessCredential = Get-AutomationPSCredential -Name $CIVariables.RunbookWorkerAccessCredentialName
     Try
     {
         $RepositoryInformation = (ConvertFrom-JSON -InputObject $CIVariables.RepositoryInformation).$RepositoryName
         Sync-GitRepositoryToAzureAutomation -RepositoryInformation $RepositoryInformation `
-                                            -AutomationAccountName $CIVariables.AutomationAccountName `
-                                            -SubscriptionName $CIVariables.SubscriptionName `
+                                            -AutomationAccountName $AutomationAccountName `
+                                            -SubscriptionName $SubscriptionName `
                                             -SubscriptionAccessCredential $SubscriptionAccessCredential `
-                                            -RunbookWorkerAccessCredenial $RunbookWorkerAccessCredenial `
+                                            -RunbookWorkerAccessCredenial $RunbookWorkerAccessCredential `
                                             -RepositoryName $RepositoryName `
                                             -RepositoryInformationJSON $CIVariables.RepositoryInformation
     }

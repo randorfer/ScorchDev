@@ -86,7 +86,7 @@ Function Get-AutomationVariable
             }
         }
     }
-    Return $Script:LocalAutomationVariable[$Name]
+    Return ($Script:LocalAutomationVariable[$Name]).Value
 }
 function Update-LocalAutomationVariable
 {

@@ -3,11 +3,11 @@
 
                   },
     "Variables":  {
-                      "ContinuousIntegration-SubscriptionName":  {
-                                                                     "isEncrypted":  false,
-                                                                     "Description":  "",
-                                                                     "Value":  "Visual Studio Ultimate with MSDN"
-                                                                 },
+                      "ContinuousIntegration-RunbookWorkerAccessCredentialName":  {
+                                                                                      "isEncrypted":  false,
+                                                                                      "Description":  "",
+                                                                                      "Value":  "Automation@SCOrchDev.com"
+                                                                                  },
                       "ContinuousIntegration-RepositoryInformation":  {
                                                                           "isEncrypted":  false,
                                                                           "Description":  "",
@@ -24,10 +24,10 @@
                                                                           "Description":  "",
                                                                           "Value":  "SCORCHDev"
                                                                       },
-                      "ContinuousIntegration-RunbookWorkerAccessCredenialName":  {
-                                                                                     "isEncrypted":  false,
-                                                                                     "Description":  "",
-                                                                                     "Value":  "Automation@SCOrchDev.com"
-                                                                                 }
+                      "ContinuousIntegration-SubscriptionName":  {
+                                                                     "isEncrypted":  false,
+                                                                     "Description":  "",
+                                                                     "Value":  "Visual Studio Ultimate with MSDN"
+                                                                 }
                   }
 }
