@@ -26,13 +26,16 @@ Workflow Monitor-GitRepositoryChange
         Try
         {
             $RepositoryInformation = (ConvertFrom-JSON -InputObject $RepositoryInformationJSON).$RepositoryName
-            Sync-GitRepositoryToAzureAutomation -RepositoryInformation $RepositoryInformation `
+            $UpdatedRepositoryInformtion = Sync-GitRepositoryToAzureAutomation -RepositoryInformation $RepositoryInformation `
                                                 -AutomationAccountName $AutomationAccountName `
                                                 -SubscriptionName $SubscriptionName `
                                                 -SubscriptionAccessCredential $SubscriptionAccessCredential `
                                                 -RunbookWorkerAccessCredenial $RunbookWorkerAccessCredential `
                                                 -RepositoryName $RepositoryName `
                                                 -RepositoryInformationJSON $RepositoryInformationJSON
+
+            $VariableUpdate = Set-AutomationVariable -Name 'ContinuousIntegration-RepositoryInformation' `
+                                                     -Value $UpdatedRepositoryInformation
         }
         Catch
         {
