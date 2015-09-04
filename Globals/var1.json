@@ -1,0 +1,9 @@
+﻿{
+    "Variables":  {
+                      "var1":  {
+                                   "isEncrypted":  false,
+                                   "Description":  "",
+                                   "Value":  "cool"
+                               }
+                  }
+}
