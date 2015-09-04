@@ -21,26 +21,20 @@ Workflow Invoke-GitRepositorySync
     $SubscriptionAccessCredentialName = Get-AutomationVariable -Name 'Global-SubscriptionAccessCredentialName'
     $SubscriptionAccessCredential = Get-AutomationPSCredential -Name $SubscriptionAccessCredentialName
 
-    $CIVariables = Get-BatchAutomationVariable -Prefix 'ContinuousIntegration' `
-                                               -AutomationAccountName $AutomationAccountName `
-                                               -SubscriptionName $SubscriptionName `
-                                               -Credential $SubscriptionAccessCredential `
-                                               -Name @(
-        'RepositoryInformation',
-        'RunbookWorkerAccessCredentialName'
-    )
+    $RepositoryInformationJSON = Get-AutomationVariable -Name 'ContinuousIntegration-RepositoryInformation'
+    $RunbookWorkerAccessCredentialName = Get-AutomationVariable -Name 'ContinuousIntegration-RunbookWorkerAccessCredentialName'
                                                
-    $RunbookWorkerAccessCredential = Get-AutomationPSCredential -Name $CIVariables.RunbookWorkerAccessCredentialName
+    $RunbookWorkerAccessCredential = Get-AutomationPSCredential -Name $RunbookWorkerAccessCredentialName
     Try
     {
-        $RepositoryInformation = (ConvertFrom-JSON -InputObject $CIVariables.RepositoryInformation).$RepositoryName
+        $RepositoryInformation = (ConvertFrom-JSON -InputObject $RepositoryInformationJSON).$RepositoryName
         Sync-GitRepositoryToAzureAutomation -RepositoryInformation $RepositoryInformation `
                                             -AutomationAccountName $AutomationAccountName `
                                             -SubscriptionName $SubscriptionName `
                                             -SubscriptionAccessCredential $SubscriptionAccessCredential `
                                             -RunbookWorkerAccessCredenial $RunbookWorkerAccessCredential `
                                             -RepositoryName $RepositoryName `
-                                            -RepositoryInformationJSON $CIVariables.RepositoryInformation
+                                            -RepositoryInformationJSON $RepositoryInformationJSON
     }
     Catch
     {
