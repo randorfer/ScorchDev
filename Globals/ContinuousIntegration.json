@@ -13,6 +13,11 @@
                                                                                       "isEncrypted":  false,
                                                                                       "Description":  "",
                                                                                       "Value":  "Automation@SCOrchDev.com"
-                                                                                  }
+                                                                                  },
+                      "ContinuousIntegration-RepositoryName":  {
+                                                                   "isEncrypted":  false,
+                                                                   "Description":  "",
+                                                                   "Value":  "SCOrchDev"
+                                                               }
                   }
 }
