@@ -3,31 +3,21 @@
 
                   },
     "Variables":  {
-                      "ContinuousIntegration-SubscriptionName":  {
-                                                                     "isEncrypted":  false,
-                                                                     "Description":  "",
-                                                                     "Value":  "Visual Studio Ultimate with MSDN"
-                                                                 },
                       "ContinuousIntegration-RepositoryInformation":  {
                                                                           "isEncrypted":  false,
                                                                           "Description":  "",
                                                                           "Type":  "String",
-                                                                          "Value":  "{\"SCOrchDev\":{\"Branch\":\"master\",\"Path\":\"C:\\\\git\\\\SCOrchDev\",\"RunbookFolder\":\"Runbooks\",\"HybridWorkerGroup\":\"ScorchDev\",\"CurrentCommit\":\"e8cb9a4\",\"RepositoryPath\":\"https://github.com/randorfer/RunbookExample.git\",\"PowerShellModuleFolder\":\"PowerShellModules\",\"GlobalsFolder\":\"Globals\"}}"
+                                                                          "Value":  "{\"SCOrchDev\":{\"Branch\":\"AAIntegration\",\"Path\":\"C:\\\\git\\\\SCOrchDev\",\"RunbookFolder\":\"Runbooks\",\"HybridWorkerGroup\":\"ScorchDev\",\"CurrentCommit\":\"-1\",\"RepositoryPath\":\"https://github.com/randorfer/ScorchDev.git\",\"PowerShellModuleFolder\":\"PowerShellModules\",\"GlobalsFolder\":\"Globals\"}}"
                                                                       },
-                      "ContinuousIntegration-SubscriptionAccessCredentialName":  {
-                                                                                     "isEncrypted":  false,
-                                                                                     "Description":  "",
-                                                                                     "Value":  "Automation@SCOrchDev.com"
-                                                                                 },
-                      "ContinuousIntegration-AutomationAccountName":  {
-                                                                          "isEncrypted":  false,
-                                                                          "Description":  "",
-                                                                          "Value":  "SCORCHDev"
-                                                                      },
-                      "ContinuousIntegration-RunbookWorkerAccessCredenialName":  {
-                                                                                     "isEncrypted":  false,
-                                                                                     "Description":  "",
-                                                                                     "Value":  "Automation@SCOrchDev.com"
-                                                                                 }
+                      "ContinuousIntegration-RunbookWorkerAccessCredentialName":  {
+                                                                                      "isEncrypted":  false,
+                                                                                      "Description":  "",
+                                                                                      "Value":  "Automation@SCOrchDev.com"
+                                                                                  },
+                      "ContinuousIntegration-RepositoryName":  {
+                                                                   "isEncrypted":  false,
+                                                                   "Description":  "",
+                                                                   "Value":  "SCOrchDev"
+                                                               }
                   }
 }

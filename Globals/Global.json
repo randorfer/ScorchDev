@@ -1,0 +1,19 @@
+﻿{
+    "Variables":  {
+                      "Global-SubscriptionName":  {
+                                                      "isEncrypted":  false,
+                                                      "Description":  "",
+                                                      "Value":  "Visual Studio Ultimate with MSDN"
+                                                  },
+                      "Global-SubscriptionAccessCredentialName":  {
+                                                                      "isEncrypted":  false,
+                                                                      "Description":  "",
+                                                                      "Value":  "Automation@SCOrchDev.com"
+                                                                  },
+                      "Global-AutomationAccountName":  {
+                                                           "isEncrypted":  false,
+                                                           "Description":  "",
+                                                           "Value":  "SCORCHDev"
+                                                       }
+                  }
+}
