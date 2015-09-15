@@ -34,8 +34,8 @@ Workflow Monitor-GitRepositoryChange
                                                 -RepositoryName $RepositoryName `
                                                 -RepositoryInformationJSON $RepositoryInformationJSON
 
-            $VariableUpdate = Set-AutomationVariable -Name 'ContinuousIntegration-RepositoryInformation' `
-                                                     -Value $UpdatedRepositoryInformation
+            Set-AutomationVariable -Name 'ContinuousIntegration-RepositoryInformation' `
+                                   -Value $UpdatedRepositoryInformation
         }
         Catch
         {
