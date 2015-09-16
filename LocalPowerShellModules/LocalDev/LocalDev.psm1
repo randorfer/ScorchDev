@@ -301,7 +301,7 @@ Workflow Get-AutomationPSCredential
 
     Try
     {
-        $Val = (Get-PasswordVaultCredential -UserName $Name -WithPassword)
+        $Credential = (Get-PasswordVaultCredential -UserName $Name -AsPSCredential)
         Write-Verbose -Message "Credential [$Name] found in PasswordVault"
     }
     Catch
@@ -312,8 +312,6 @@ Workflow Get-AutomationPSCredential
                             'Name' = $Name 
                         }
     }
-    $SecurePassword = $Val.Password | ConvertTo-SecureString -asPlainText -Force
-    $Credential = New-Object -TypeName System.Management.Automation.PSCredential($Val.Username, $SecurePassword)
     Return $Credential -as [System.Management.Automation.PSCredential]
 }
 
