@@ -37,3 +37,6 @@
 [submodule "PowerShellModules/SCOrchDev-AzureAutomationIntegration"]
 	path = PowerShellModules/SCOrchDev-AzureAutomationIntegration
 	url = https://github.com/randorfer/SCOrchDev-AzureAutomationIntegration
+[submodule "PowerShellModules/SCOrchDev-F5"]
+	path = PowerShellModules/SCOrchDev-F5
+	url = https://randorfer:Robin410@github.com/randorfer/SCOrchDev-F5
