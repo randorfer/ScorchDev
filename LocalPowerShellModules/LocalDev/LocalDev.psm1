@@ -303,6 +303,11 @@ Workflow Get-AutomationPSCredential
     {
         $Credential = (Get-PasswordVaultCredential -UserName $Name -AsPSCredential)
         Write-Verbose -Message "Credential [$Name] found in PasswordVault"
+        if(($Credential -as [array]).count -gt 1)
+        {
+            Write-Verbose -Message "Found more than 1 [$(($Credential -as [array]).count)] objects. Using the first"
+            $Credential = $Credential[0]
+        }
     }
     Catch
     {
