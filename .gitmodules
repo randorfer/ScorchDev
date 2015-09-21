@@ -37,3 +37,6 @@
 [submodule "PowerShellModules/SCOrchDev-GitIntegration"]
 	path = PowerShellModules/SCOrchDev-GitIntegration
 	url = https://github.com/randorfer/SCOrchDev-GitIntegration
+[submodule "PowerShellModules/SCOrchDev-F5"]
+	path = PowerShellModules/SCOrchDev-F5
+	url = https://randorfer:Robin410@github.com/randorfer/SCOrchDev-F5
