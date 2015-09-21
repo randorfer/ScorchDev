@@ -40,3 +40,6 @@
 [submodule "PowerShellModules/SCOrchDev-F5"]
 	path = PowerShellModules/SCOrchDev-F5
 	url = https://randorfer:Robin410@github.com/randorfer/SCOrchDev-F5
+[submodule "PowerShellModules/EWSMail"]
+	path = PowerShellModules/EWSMail
+	url = https://randorfer:Robin410@github.com/randorfer/EWSMail
