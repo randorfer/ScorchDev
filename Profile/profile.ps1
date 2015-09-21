@@ -1,4 +1,4 @@
-# SMA setup
+﻿# SMA setup
 
 ## Modules
 $env:AutomationWorkspace = 'C:\GIT\ScorchDev'
