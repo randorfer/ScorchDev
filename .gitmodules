@@ -22,9 +22,6 @@
 [submodule "PowerShellModules/SCOrchDev-SMA"]
 	path = PowerShellModules/SCOrchDev-SMA
 	url = https://github.com/randorfer/SCOrchDev-SMA
-[submodule "PowerShellModules/SCOrchDev-SmaGitIntegration"]
-	path = PowerShellModules/SCOrchDev-SmaGitIntegration
-	url = https://github.com/randorfer/SCOrchDev-SmaGitIntegration
 [submodule "PowerShellModules/SCOrchDev-SQL"]
 	path = PowerShellModules/SCOrchDev-SQL
 	url = https://github.com/randorfer/SCOrchDev-SQL
