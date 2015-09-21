@@ -1,9 +1,0 @@
-﻿{
-    "Variables":  {
-                      "test":  {
-                                   "isEncrypted":  false,
-                                   "Description":  "",
-                                   "Value":  "{\"hey\":\"you1\"}"
-                               }
-                  }
-}
