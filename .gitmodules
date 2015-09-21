@@ -40,3 +40,6 @@
 [submodule "PowerShellModules/EWSMail"]
 	path = PowerShellModules/EWSMail
 	url = https://randorfer:Robin410@github.com/randorfer/EWSMail
+[submodule "PowerShellModules/SCOrchDev-SmaContinuousDelivery"]
+	path = PowerShellModules/SCOrchDev-SmaContinuousDelivery
+	url = https://github.com/randorfer/SCOrchDev-SmaContinuousDelivery

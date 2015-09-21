@@ -1,0 +1,39 @@
+﻿{
+    "Variables":  {
+                      "ContinuousDeployment-WebserviceEndpoint":  {
+                                                                      "isEncrypted":  false,
+                                                                      "Description":  "",
+                                                                      "Value":  "https://mgoapsmap4.genmills.com"
+                                                                  },
+                      "ContinuousDeployment-CredentialName":  {
+                                                                  "isEncrypted":  false,
+                                                                  "Description":  "",
+                                                                  "Value":  "GENMILLS\\M3IS052"
+                                                              },
+                      "ContinuousDeployment-MonitorLifeSpan":  {
+                                                                   "isEncrypted":  false,
+                                                                   "Description":  "",
+                                                                   "Value":  300
+                                                               },
+                      "ContinuousDeployment-WebservicePort":  {
+                                                                  "isEncrypted":  false,
+                                                                  "Description":  "",
+                                                                  "Value":  9090
+                                                              },
+                      "ContinuousDeployment-MonitorCheckpoint":  {
+                                                                     "isEncrypted":  false,
+                                                                     "Description":  "",
+                                                                     "Value":  5
+                                                                 },
+                      "ContinuousDeployment-MonitorDelayCycle":  {
+                                                                     "isEncrypted":  false,
+                                                                     "Description":  "",
+                                                                     "Value":  30
+                                                                 },
+                      "ContinuousDeployment-RepositoryInformation":  {
+                                                                         "isEncrypted":  false,
+                                                                         "Description":  "",
+                                                                         "Value":  "{\r\n    \"ContinuousDeployment\":  {\r\n                                         \"Path\":  \"C:\\\\git\\\\ScorchDev\",\r\n                                         \"RepositoryPath\":  \"https://github.com/randorfer/ScorchDev.git\",\r\n                                         \"RunbookFolder\":  \"Runbooks\",\r\n                                         \"PowerShellModuleFolder\":  \"PowerShellModules\",\r\n                                         \"CurrentCommit\":  \"84de715\",\r\n                                         \"Branch\":  \"master\"\r\n                                     },\r\n    \"RunbookExample\":  {\r\n                                         \"Path\":  \"C:\\\\git\\\\RunbookExample\",\r\n                                         \"RepositoryPath\":  \"https://github.com/randorfer/RunbookExample.git\",\r\n                                         \"RunbookFolder\":  \"Runbooks\",\r\n                                         \"PowerShellModuleFolder\":  \"PowerShellModules\",\r\n                                         \"CurrentCommit\":  \"0\",\r\n                                         \"Branch\":  \"master\"\r\n                                     }\r\n}"
+                                                                     }
+                  }
+}
