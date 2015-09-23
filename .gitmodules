@@ -36,10 +36,10 @@
 	url = https://github.com/randorfer/SCOrchDev-GitIntegration
 [submodule "PowerShellModules/SCOrchDev-F5"]
 	path = PowerShellModules/SCOrchDev-F5
-	url = https://randorfer:Robin410@github.com/randorfer/SCOrchDev-F5
+	url = https://github.com/randorfer/SCOrchDev-F5
 [submodule "PowerShellModules/EWSMail"]
 	path = PowerShellModules/EWSMail
-	url = https://randorfer:Robin410@github.com/randorfer/EWSMail
+	url = https://github.com/randorfer/EWSMail
 [submodule "PowerShellModules/SCOrchDev-SmaContinuousDelivery"]
 	path = PowerShellModules/SCOrchDev-SmaContinuousDelivery
 	url = https://github.com/randorfer/SCOrchDev-SmaContinuousDelivery
