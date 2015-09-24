@@ -33,7 +33,7 @@
                       "ContinuousDeployment-RepositoryInformation":  {
                                                                          "isEncrypted":  false,
                                                                          "Description":  "",
-                                                                         "Value":  "{\"ContinuousDeployment\":{\"Path\":\"D:\\\\git\\\\ScorchDev\",\"GlobalsPath\":\"Globals\",\"RepositoryPath\":\"https://github.com/randorfer/ScorchDev.git\",\"RunbookFolder\":\"Runbooks\",\"PowerShellModuleFolder\":\"PowerShellModules\",\"CurrentCommit\":\"-1\",\"Branch\":\"module_update\"},\"RunbookExample\":{\"Path\":\"D:\\\\git\\\\RunbookExample\",\"RepositoryPath\":\"https://github.com/randorfer/RunbookExample.git\",\"RunbookFolder\":\"Runbooks\",\"GlobalsPath\":\"Globals\",\"PowerShellModuleFolder\":\"PowerShellModules\",\"CurrentCommit\":\"-1\",\"Branch\":\"master\"}}"
+                                                                         "Value":  "{\"ContinuousDeployment\":{\"Path\":\"D:\\\\git\\\\ScorchDev\",\"GlobalsFolder\":\"Globals\",\"RepositoryPath\":\"https://github.com/randorfer/ScorchDev.git\",\"RunbookFolder\":\"Runbooks\",\"PowerShellModuleFolder\":\"PowerShellModules\",\"CurrentCommit\":\"-1\",\"Branch\":\"module_update\"},\"RunbookExample\":{\"Path\":\"D:\\\\git\\\\RunbookExample\",\"RepositoryPath\":\"https://github.com/randorfer/RunbookExample.git\",\"RunbookFolder\":\"Runbooks\",\"GlobalsFolder\":\"Globals\",\"PowerShellModuleFolder\":\"PowerShellModules\",\"CurrentCommit\":\"-1\",\"Branch\":\"master\"}}"
                                                                      }
                   }
 }
