@@ -1,0 +1,39 @@
+﻿{
+    "Variables":  {
+                      "ContinuousDeployment-WebserviceEndpoint":  {
+                                                                      "isEncrypted":  false,
+                                                                      "Description":  "",
+                                                                      "Value":  "https://mgoapsmap4.genmills.com"
+                                                                  },
+                      "ContinuousDeployment-CredentialName":  {
+                                                                  "isEncrypted":  false,
+                                                                  "Description":  "",
+                                                                  "Value":  "GENMILLS\\M3IS052"
+                                                              },
+                      "ContinuousDeployment-MonitorLifeSpan":  {
+                                                                   "isEncrypted":  false,
+                                                                   "Description":  "",
+                                                                   "Value":  300
+                                                               },
+                      "ContinuousDeployment-WebservicePort":  {
+                                                                  "isEncrypted":  false,
+                                                                  "Description":  "",
+                                                                  "Value":  9090
+                                                              },
+                      "ContinuousDeployment-MonitorCheckpoint":  {
+                                                                     "isEncrypted":  false,
+                                                                     "Description":  "",
+                                                                     "Value":  5
+                                                                 },
+                      "ContinuousDeployment-MonitorDelayCycle":  {
+                                                                     "isEncrypted":  false,
+                                                                     "Description":  "",
+                                                                     "Value":  30
+                                                                 },
+                      "ContinuousDeployment-RepositoryInformation":  {
+                                                                         "isEncrypted":  false,
+                                                                         "Description":  "",
+                                                                         "Value":  "{\"ContinuousDeployment\":{\"Path\":\"D:\\\\git\\\\ScorchDev\",\"GlobalsFolder\":\"Globals\",\"RepositoryPath\":\"https://github.com/randorfer/ScorchDev.git\",\"RunbookFolder\":\"Runbooks\",\"PowerShellModuleFolder\":\"PowerShellModules\",\"CurrentCommit\":\"-1\",\"Branch\":\"module_update\"},\"RunbookExample\":{\"Path\":\"D:\\\\git\\\\RunbookExample\",\"RepositoryPath\":\"https://github.com/randorfer/RunbookExample.git\",\"RunbookFolder\":\"Runbooks\",\"GlobalsFolder\":\"Globals\",\"PowerShellModuleFolder\":\"PowerShellModules\",\"CurrentCommit\":\"-1\",\"Branch\":\"master\"}}"
+                                                                     }
+                  }
+}

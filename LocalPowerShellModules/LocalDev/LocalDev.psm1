@@ -1,7 +1,5 @@
-﻿$Script:LocalSMAVariableLastUpdate = (Get-Date)
-$Script:LocalSMAVariables = $null
-$Script:CurrentSettingsFile = $null
-$env:LocalSMAVariableWarn = Select-FirstValid -Value $env:LocalSMAVariableWarn, $true -FilterScript { $_ -ne $null }
+﻿#requires -Version 3 -Modules SCOrchDev-Exception, SCOrchDev-PasswordVault, SCOrchDev-Utility
+$Script:LocalAutomationVariable = @{}
 
 <#
 .SYNOPSIS
@@ -25,7 +23,7 @@ function Import-Workflow
 {
     param(
         [Parameter(Mandatory=$True)]  [String] $WorkflowName,
-        [Parameter(Mandatory=$False)] [String] $Path = $env:SMARunbookPath
+        [Parameter(Mandatory=$False)] [String] $Path = $env:AutomationWorkflowPath
     )
 
     # TODO: Make $CompileStack a more appropriate data structure.
@@ -64,77 +62,40 @@ function Import-Workflow
 
 <#
 .SYNOPSIS
-    Returns the named automation variable, referencing local XML files to find values.
+    Returns the named automation variable, referencing local JSON files to find values.
 
 .PARAMETER Name
     The name of the variable to retrieve.
 #>
 Function Get-AutomationVariable
 {
-    Param( [Parameter(Mandatory=$True)]  [String] $Name )
-
-    $LocalSMAVariableWarn = ConvertTo-Boolean -InputString (Select-FirstValid -Value $env:LocalSMAVariableWarn, 'True' -FilterScript { $_ -ne $null })
-    # Check to see if local variables are overridden in the environment - if so, pull directly from SMA.
-    if((-not (Test-IsNullOrEmpty $env:AutomationWebServiceEndpoint)) -and (-not $env:LocalAuthoring))
-    {
-        if($LocalSMAVariableWarn)
-        {
-            Write-Warning -Message "Getting variable [$Name] from endpoint [$env:AutomationWebServiceEndpoint]"
-        }
-        # FIXME: Don't hardcode credential name.
-        $Var = Get-SMAVariable -Name $Name -WebServiceEndpoint $env:AutomationWebServiceEndpoint
-        return $Var
-    }
-
-    if($LocalSMAVariableWarn)
-    {
-        Write-Warning -Message "Getting variable [$Name] from local JSON"
-    }
-    If(Test-UpdateLocalAutomationVariable)
+    Param(
+        [Parameter(Mandatory=$True)]
+        [String]
+        $Name 
+    )
+    
+    If(-not $SCRIPT:LocalAutomationVariable.ContainsKey($Name))
     {
         Update-LocalAutomationVariable
-    }
-    If(-not $Script:LocalSMAVariables.ContainsKey($Name))
-    {
-        Write-Warning -Message "Couldn't find variable $Name" -WarningAction 'Continue'
-        Write-Warning -Message 'Do you need to update your local variables? Try running Update-LocalAutomationVariable.'
-        Throw-Exception -Type 'VariableDoesNotExist' `
-                        -Message "Couldn't find variable $Name" `
-                        -Property @{
-            'Variable' = $Name;
+        If(-not $SCRIPT:LocalAutomationVariable.ContainsKey($Name))
+        {
+            Write-Warning -Message "Couldn't find variable $Name" -WarningAction 'Continue'
+            Throw-Exception -Type 'VariableDoesNotExist' `
+                            -Message "Couldn't find variable $Name" `
+                            -Property @{
+                'Variable' = $Name;
+            }
         }
     }
-    Return $Script:LocalSMAVariables[$Name]
+    Return ($LocalAutomationVariable[$Name]).Value
 }
-
-function Test-UpdateLocalAutomationVariable
-{
-    param( )
-
-    $UpdateInterval = Select-FirstValid -Value ([Math]::Abs($env:LocalSMAVariableUpdateInterval)), 10 `
-                                        -FilterScript { $_ -ne $null }
-    if(Test-IsNullOrEmpty $Script:LocalSMAVariables)
-    {
-        return $True
-    }
-    elseif($UpdateInterval -eq 0)
-    {
-        return $False
-    }
-    elseif((Get-Date).AddSeconds(-1 * $UpdateInterval) -gt $Script:LocalSMAVariableLastUpdate)
-    {
-        return $True
-    }
-    return $False
-}
-
 function Update-LocalAutomationVariable
 {
     param()
 
-    Write-Verbose -Message 'Updating SMA variables in memory'
-    $Script:LocalSMAVariableLastUpdate = Get-Date
-    $FilesToProcess = (Get-ChildItem -Path $env:SMARunbookPath -Include '*.json' -Recurse).FullName
+    Write-Verbose -Message 'Updating variables in memory'
+    $FilesToProcess = (Get-ChildItem -Path $env:AutomationGlobalsPath -Include '*.json' -Recurse).FullName
     Read-SmaJSONVariables -Path $FilesToProcess
 }
 
@@ -148,10 +109,13 @@ function Update-LocalAutomationVariable
 Function Read-SmaJSONVariables
 {
     Param(
-        [Parameter(Mandatory=$True)]  [AllowNull()] [String[]] $Path
+        [Parameter(Mandatory=$True)]
+        [AllowNull()]
+        [String[]]
+        $Path
     )
 
-    $Script:LocalSMAVariables = @{}
+    $Script:LocalAutomationVariable = @{}
     ForEach($_Path in $Path)
     {
         Try
@@ -170,7 +134,7 @@ Function Read-SmaJSONVariables
             {
                 $Var = $JSON.Variables."$VariableName"
                 $retVar = New-Object -TypeName 'PSObject' -Property @{ 'Name' = $VariableName; 'Value' = $var.Value }
-                $Script:LocalSMAVariables[$VariableName] = $retVar
+                $Script:LocalAutomationVariable[$VariableName] = $retVar
             }
         }
     }
@@ -208,52 +172,29 @@ Function Read-SmaJSONVariables
         A boolean flag representing if this value should be encrypted in SMA
 
 #>
-Function Set-LocalDevAutomationVariable
+Function Set-AutomationVariable
 {
     Param(
-        [Parameter(Mandatory=$False)] $SettingsFilePath,
         [Parameter(Mandatory=$True)]  $Name,
         [Parameter(Mandatory=$True)]  $Value,
         [Parameter(Mandatory=$False)] $Prefix = [System.String]::Empty,
         [Parameter(Mandatory=$False)] $Description = [System.String]::Empty,
         [Parameter(Mandatory=$False)] $isEncrypted = $False
-        )
-    if(-not $SettingsFilePath)
+    )
+    if(-not $Prefix)
     {
-        if(-not $Script:CurrentSettingsFile)
-        {
-            Throw-Exception -Type 'Variable File Not Set' `
-                            -Message 'The variable file path has not been set'
-        }
-        $SettingsFilePath = $Script:CurrentSettingsFile
+        $Prefix = $Name.Split('-')[0]
     }
     else
     {
-        if($Script:CurrentSettingsFile -ne $SettingsFilePath)
-        {
-            Write-Warning -Message "Setting Default Variable file to [$SettingsFilePath]" `
-                          -WarningAction 'Continue'
-            $Script:CurrentSettingsFile = $SettingsFilePath
-        }
+        $Name = "$Prefix-$Name"
     }
-
-    if(Test-IsNullOrEmpty $Prefix)
+    $SettingsFilePath = "$($Env:AutomationGlobalsPath)\$($Prefix).json"
+    if(-not (Test-Path -Path $SettingsFilePath))
     {
-        if($SettingsFilePath -Match '.*\\(.+)\.json$')
-        {
-            $Prefix = $Matches[1]
-        }
-        else
-        {
-            Throw-Exception -Type 'UndeterminableDefaultPrefix' `
-                            -Message 'Could not determine what the default prefix should be' `
-                            -Property @{ 'SettingsFilePath' = $SettingsFilePath }
-        }
-    }
-
-    if($Name -notlike "$($Prefix)-*")
-    {
-        $Name = "$($Prefix)-$($Name)"
+        $Null = New-Item -ItemType File `
+                         -Path $settingsFilePath `
+                         -Force
     }
 
     $SettingsVars = ConvertFrom-JSON -InputObject ((Get-Content -Path $SettingsFilePath) -as [String])
@@ -281,60 +222,49 @@ Function Set-LocalDevAutomationVariable
     }
     else
     {
-        $SettingsVars.Variables.Add($Name, @{ 'Value' = $Value ;
-                                                'Description' = $Description ;
-                                                'isEncrypted' = $isEncrypted })
+        $SettingsVars.Variables.Add(
+            $Name, @{ 
+                'Value' = $Value ;
+                'Description' = $Description ;
+                'isEncrypted' = $isEncrypted 
+            }
+        )
     }
     
-    Set-Content -Path $SettingsFilePath -Value (ConvertTo-JSON $SettingsVars)
+    Set-Content -Path $SettingsFilePath -Value (ConvertTo-JSON $SettingsVars) -Encoding UTF8
     Read-SmaJSONVariables $SettingsFilePath
 }
 
-Function Remove-LocalDevAutomationVariable
+Function Remove-AutomationVariable
 {
     Param(
-        [Parameter(Mandatory=$False)] $SettingsFilePath,
-        [Parameter(Mandatory=$True)]  $Name,
-        [Parameter(Mandatory=$False)] $Prefix
-        )
-    if(-not $SettingsFilePath)
+        [Parameter(Mandatory=$True)]
+        [string]        
+        $Name,
+
+        [Parameter(Mandatory=$False)]
+        [string]
+        $Prefix
+    )
+    if(-not $Prefix)
     {
-        if(-not $Script:CurrentSettingsFile)
-        {
-            Throw-Exception -Type 'Variable File Not Set' `
-                            -Message 'The variable file path has not been set'
-        }
-        $SettingsFilePath = $Script:CurrentSettingsFile
+        $Prefix = $Name.Split('-')[0]
     }
     else
     {
-        if($Script:CurrentSettingsFile -ne $SettingsFilePath)
-        {
-            Write-Warning -Message "Setting Default Variable file to [$SettingsFilePath]" `
-                          -WarningAction 'Continue'
-            $Script:CurrentSettingsFile = $SettingsFilePath
-        }
+        $Name = "$Prefix-$Name"
     }
-
-    if(Test-IsNullOrEmpty $Prefix)
+    $SettingsFilePath = "$($Env:AutomationGlobalsPath)\$($Prefix).json"
+    if(-not (Test-Path $SettingsFilePath))
     {
-        if($SettingsFilePath -Match '.*\\(.+)\.json$')
-        {
-            $Prefix = $Matches[1]
-        }
-        else
-        {
-            Throw-Exception -Type 'UndeterminableDefaultPrefix' `
-                            -Message 'Could not determine what the default prefix should be' `
-                            -Property @{ 'SettingsFilePath' = $SettingsFilePath }
-        }
+        Throw-Exception -Type 'SettingsFileNotFound' `
+                        -Message 'Could not find the settings file for the target variable.' `
+                        -Property @{
+                            'SettingsFilePath' = $SettingsFilePath ;
+                            'VariableName' = $Name ;
+                            'VariablePrefix' = $Prefix ;
+                        }
     }
-
-    if($Name -notlike "$($Prefix)-*")
-    {
-        $Name = "$($Prefix)-$($Name)"
-    }
-    
     $SettingsVars = ConvertFrom-JSON -InputObject ((Get-Content -Path $SettingsFilePath) -as [String])
     if(-not $SettingsVars) { $SettingsVars = @{} }
     else
@@ -350,13 +280,13 @@ Function Remove-LocalDevAutomationVariable
     if($SettingsVars.Variables.ContainsKey($Name))
     {
         $SettingsVars.Variables.Remove($Name)
-        Set-Content -Path $SettingsFilePath -Value (ConvertTo-JSON $SettingsVars)
+        Set-Content -Path $SettingsFilePath -Value (ConvertTo-JSON $SettingsVars) -Encoding UTF8
         Read-SmaJSONVariables $SettingsFilePath
     }
     else
     {
         Write-Warning (New-Exception -Type 'Variable Not found' `
-                                     -Message 'The variable was not found in the current variable file. Try specifiying the file' `
+                                     -Message 'The variable was not found in the current variable file.' `
                                      -Property @{ 'VariableName' = $Name ;
                                                   'CurrentFilePath' = $SettingsFilePath ;
                                                   'VariableJSON' = $SettingsVars }) `
@@ -368,146 +298,103 @@ Workflow Get-AutomationPSCredential
     [OutputType([System.Management.Automation.PSCredential])]
     param(
         [Parameter(Mandatory=$true)]
-        [string] $Name
+        [string]
+        $Name
     )
 
     Try
     {
-        $Val = (Get-PasswordVaultCredential -UserName $Name -WithPassword)
+        $Credential = (Get-PasswordVaultCredential -UserName $Name -AsPSCredential)
         Write-Verbose -Message "Credential [$Name] found in PasswordVault"
+        if(($Credential -as [array]).count -gt 1)
+        {
+            Write-Verbose -Message "Found more than 1 [$(($Credential -as [array]).count)] objects. Using the first"
+            $Credential = $Credential[0]
+        }
     }
     Catch
     {
-        $Val = Get-AutomationAsset -Type PSCredential -Name $Name
-        if($Val) 
-        {
-            $SecurePassword = $Val.Password | ConvertTo-SecureString -asPlainText -Force
-            $Credential = New-Object -TypeName System.Management.Automation.PSCredential($Val.Username, $SecurePassword)
-        }
-        else
-        {
-            Throw-Exception -Type 'CredentialNotFound' `
-                            -Message 'Could not find credential' `
-                            -Parameter @{ 'Name' = $Name }
-        }
-
-        $ExceptionInfo = Get-ExceptionInfo -Exception $_
-        Switch -CaseSensitive ($ExceptionInfo.Type)
-        {
-            'CredentialNotFound'
-            {
-                Write-Verbose -Message "Storing [$Name] in Password Vault"
-                Set-PasswordVaultCredential -UserName $Name -Resource "LocalDev:$([guid]::NewGuid())" -Password $Val.Password
-            }
-        }
+        Throw-Exception -Type 'CredentialNotFound' `
+                        -Message 'Could not find credential. Please set it up in the local password vault using Set-PasswordVaultCredential' `
+                        -Property @{ 
+                            'Name' = $Name 
+                        }
     }
-    $SecurePassword = $Val.Password | ConvertTo-SecureString -asPlainText -Force
-    $Credential = New-Object -TypeName System.Management.Automation.PSCredential($Val.Username, $SecurePassword)
-    $Credential
+    Return $Credential -as [System.Management.Automation.PSCredential]
 }
 
-<#
-.SYNOPSIS
-    Gets one or credentials using Get-AutomationPSCredential.
-
-.DESCRIPTION
-    Get-BatchAutomationPSCredential takes a hashtable which maps a friendly name to
-    a credential name. Each credential in the hashtable will be retrieved using
-    Get-AutomationPSCredential, will be accessible by its friendly name via the
-    returned object.
-
-.PARAMETER Alias
-    A hashtable mapping credential friendly names to a name passed to Get-AutomationPSCredential.
-
-.EXAMPLE
-    PS > $Creds = Get-BatchAutomationPSCredential -Alias @{'TestCred' = 'GENMILLS\M3IS052'; 'TestCred2' = 'GENMILLS\M2IS254'}
-
-    PS > $Creds.TestCred
-
-
-    PSComputerName        : localhost
-    PSSourceJobInstanceId : e2d9e9dc-2740-49ef-87d6-34e3334324e4
-    UserName              : GENMILLS\M3IS052
-    Password              : System.Security.SecureString
-
-    PS > $Creds.TestCred2
-
-
-    PSComputerName        : localhost
-    PSSourceJobInstanceId : 383da6c1-03f7-4b74-afc6-30e901972a5e
-    UserName              : GENMILLS.com\M2IS254
-    Password              : System.Security.SecureString
-#>
-
-Workflow Get-BatchAutomationPSCredential
-{
-    param(
-        [Parameter(Mandatory=$True)] [Hashtable] $Alias
-    )
-
-    $Creds = New-Object -TypeName 'PSObject'
-    foreach($Key in $Alias.Keys)
-    {
-        $Cred = Get-AutomationPSCredential -Name $Alias[$Key]
-        Add-Member -InputObject $Creds -Name $Key -Value $Cred -MemberType NoteProperty -Force
-        Write-Verbose -Message "Credential [$($Key)] = [$($Alias[$Key])]"
-    }
-    return $Creds
-}
-
-Function Set-LocalDevAutomationSchedule
+Function Set-AutomationSchedule
 {
     Param(
-        [Parameter(Mandatory=$False)][String]    $SettingsFilePath,
-        [Parameter(Mandatory=$True)] [String]    $Name,
-        [Parameter(Mandatory=$False)][String]    $Prefix = [System.String]::Emptpy,
-        [Parameter(Mandatory=$False)][String]    $Description = [System.String]::Emptpy,
-        [Parameter(Mandatory=$False)]            $NextRun = $null,
-        [Parameter(Mandatory=$False)]            $ExpirationTime = $null,
-        [Parameter(Mandatory=$False)][Int]       $DayInterval = $null,
-        [Parameter(Mandatory=$False)][String]    $RunbookName = [System.String]::Emptpy,
-        [Parameter(Mandatory=$False)][HashTable] $Parameter = @{}
-        )
-    if(-not $SettingsFilePath)
+        [Parameter(Mandatory=$True)]
+        [String]
+        $Name,
+
+        [Parameter(Mandatory=$False)]
+        [String]
+        $Prefix = [System.String]::Emptpy,
+        
+        [Parameter(Mandatory=$False)]
+        [String]
+        $Description = [System.String]::Emptpy,
+
+        [Parameter(Mandatory=$False)]
+        [DateTime]
+        $NextRun = $null,
+
+        [Parameter(Mandatory=$False)]
+        [DateTime]
+        $ExpirationTime = $null,
+
+        [Parameter(Mandatory=$False)]
+        [Int]
+        $DayInterval = $null,
+
+        [Parameter(Mandatory=$False)]
+        [String]
+        $RunbookName = [System.String]::Emptpy,
+
+        [Parameter(Mandatory=$False)]
+        [HashTable]
+        $Parameter = @{}
+    )
+    if(-not $Prefix)
     {
-        if(-not $Script:CurrentSettingsFile)
-        {
-            Throw-Exception -Type 'Settings File Not Set' `
-                            -Message 'The settings file path has not been set'
-        }
-        $SettingsFilePath = $Script:CurrentSettingsFile
+        $Prefix = $Name.Split('-')[0]
     }
     else
     {
-        if($Script:CurrentSettingsFile -ne $SettingsFilePath)
-        {
-            Write-Warning -Message "Setting Default Variable file to [$SettingsFilePath]" `
-                          -WarningAction 'Continue'
-            $Script:CurrentSettingsFile = $SettingsFilePath
-        }
+        $Name = "$Prefix-$Name"
     }
-
-    if(Test-IsNullOrEmpty $Prefix)
+    $SettingsFilePath = "$($Env:AutomationGlobalsPath)\$($Prefix).json"
+    if(-not (Test-Path -Path $SettingsFilePath))
     {
-        if($SettingsFilePath -Match '.*\\(.+)\.json$')
-        {
-            $Prefix = $Matches[1]
-        }
-        else
-        {
-            Throw-Exception -Type 'UndeterminableDefaultPrefix' `
-                            -Message 'Could not determine what the default prefix should be' `
-                            -Property @{ 'SettingsFilePath' = $SettingsFilePath }
-        }
-    }
-
-    if($Name -notlike "$($Prefix)-*")
-    {
-        $Name = "$($Prefix)-$($Name)"
+        New-Item -ItemType File `
+                 -Path $settingsFilePath
     }
 
     $SettingsVars = ConvertFrom-JSON -InputObject ((Get-Content -Path $SettingsFilePath) -as [String])
-    if(Test-IsNullOrEmpty $SettingsVars.Schedules)
+    if(-not $SettingsVars) { $SettingsVars = @{} }
+    else
+    {
+        $SettingsVars = ConvertFrom-PSCustomObject $SettingsVars
+    }
+
+    if(-not $SettingsVars.ContainsKey('Schedules'))
+    {
+        $SettingsVars.Add('Schedules',@{}) | out-null
+    }
+    if($SettingsVars.Schedules.GetType().name -eq 'PSCustomObject') { $SettingsVars.Schedules = ConvertFrom-PSCustomObject $SettingsVars.Schedules }
+    if($SettingsVars.Schedules.ContainsKey($Name))
+    {
+        if($Description)    { $SettingsVars.Schedules."$Name".Description    = $Description }
+        if($NextRun)        { $SettingsVars.Schedules."$Name".NextRun        = $NextRun }
+        if($ExpirationTime) { $SettingsVars.Schedules."$Name".ExpirationTime = $ExpirationTime }
+        if($DayInterval)    { $SettingsVars.Schedules."$Name".DayInterval    = $DayInterval }
+        if($RunbookName)    { $SettingsVars.Schedules."$Name".RunbookName    = $RunbookName }
+        if($Parameter)      { $SettingsVars.Schedules."$Name".Parameter      = $(ConvertTo-Json $Parameter) }
+    }
+    else
     {
         if(-not $ExpirationTime -or
            -not $NextRun -or
@@ -522,99 +409,47 @@ Function Set-LocalDevAutomationSchedule
                                          'DayInterval' = $DayInterval ;
                                          'RunbookName' = $RunbookName ; }
         }
-        Add-Member -InputObject $SettingsVars `
-                   -MemberType NoteProperty `
-                   -Value @{ $Name = @{'Description' = $Description ;
-                                       'ExpirationTime' = $ExpirationTime -as [DateTime] ;
-                                       'NextRun' = $NextRun -as [DateTime] ;
-                                       'DayInterval' = $DayInterval ;
-                                       'RunbookName' = $RunbookName ;
-                                       'Parameter' = $(ConvertTo-JSON $Parameter) }} `
-                   -Name Schedules `
-                   -Force
-    }
-    else
-    {
-        if(($SettingsVars.Schedules | Get-Member -MemberType NoteProperty).Name -Contains $Name)
-        {
-            if($Description)    { $SettingsVars.Schedules."$Name".Description    = $Description }
-            if($NextRun)        { $SettingsVars.Schedules."$Name".NextRun        = $NextRun }
-            if($ExpirationTime) { $SettingsVars.Schedules."$Name".ExpirationTime = $ExpirationTime }
-            if($DayInterval)    { $SettingsVars.Schedules."$Name".DayInterval    = $DayInterval }
-            if($RunbookName)    { $SettingsVars.Schedules."$Name".RunbookName    = $RunbookName }
-            if($Parameter)      { $SettingsVars.Schedules."$Name".Parameter      = $(ConvertTo-Json $Parameter) }
-        }
-        else
-        {
-            if(-not $ExpirationTime -or
-           -not $NextRun -or
-           -not $DayInterval -or
-           -not $RunbookName )
-            {
-                Throw-Exception -Type 'MinimumNewParametersNotFound' `
-                                -Message 'The minimum set of input parameters for creating a new schedule was not supplied. Look at nulls' `
-                                -Property @{ 'Name' = $Name ;
-                                             'ExpirationTime' = $ExpirationTime ;
-                                             'NextRun' = $NextRun ;
-                                             'DayInterval' = $DayInterval ;
-                                             'RunbookName' = $RunbookName ; }
+
+        $SettingsVars.Schedules.Add(
+            $Name, @{ 
+                'Description' = $Description ;
+                'ExpirationTime' = $ExpirationTime -as [DateTime] ;
+                'NextRun' = $NextRun -as [DateTime] ;
+                'DayInterval' = $DayInterval ;
+                'RunbookName' = $RunbookName ;
+                'Parameter' = $(ConvertTo-JSON $Parameter)
             }
-            Add-Member -InputObject $SettingsVars.Schedules `
-                       -MemberType NoteProperty `
-                       -Value @{'Description' = $Description ;
-                                'ExpirationTime' = $ExpirationTime -as [DateTime] ;
-                                'NextRun' = $NextRun -as [DateTime] ;
-                                'DayInterval' = $DayInterval ;
-                                'RunbookName' = $RunbookName ;
-                                'Parameter' = $(ConvertTo-JSON $Parameter) } `
-                       -Name $Name
-        }
+        )
     }
     
-    Set-Content -Path $SettingsFilePath -Value (ConvertTo-JSON $SettingsVars)
+    Set-Content -Path $SettingsFilePath -Value (ConvertTo-JSON $SettingsVars) -Encoding UTF8
 }
-Function Remove-LocalDevAutomationSchedule
+Function Remove-AutomationSchedule
 {
     Param(
-        [Parameter(Mandatory=$False)] $SettingsFilePath,
-        [Parameter(Mandatory=$True)]  $Name,
-        [Parameter(Mandatory=$False)] $Prefix
-        )
-    if(-not $SettingsFilePath)
-    {
-        if(-not $Script:CurrentSettingsFile)
-        {
-            Throw-Exception -Type 'Variable File Not Set' `
-                            -Message 'The variable file path has not been set'
-        }
-        $SettingsFilePath = $Script:CurrentSettingsFile
-    }
-    else
-    {
-        if($Script:CurrentSettingsFile -ne $SettingsFilePath)
-        {
-            Write-Warning -Message "Setting Default Variable file to [$SettingsFilePath]" `
-                          -WarningAction 'Continue'
-            $Script:CurrentSettingsFile = $SettingsFilePath
-        }
-    }
-    if(Test-IsNullOrEmpty $Prefix)
-    {
-        if($SettingsFilePath -Match '.*\\(.+)\.json$')
-        {
-            $Prefix = $Matches[1]
-        }
-        else
-        {
-            Throw-Exception -Type 'UndeterminableDefaultPrefix' `
-                            -Message 'Could not determine what the default prefix should be' `
-                            -Property @{ 'SettingsFilePath' = $SettingsFilePath }
-        }
-    }
+        [Parameter(Mandatory=$False)]
+        $SettingsFilePath,
 
-    if($Name -notlike "$($Prefix)-*")
+        [Parameter(Mandatory=$True)] 
+        $Name,
+
+        [Parameter(Mandatory=$False)]
+        $Prefix
+    )
+    if(-not $Prefix)
     {
-        $Name = "$($Prefix)-$($Name)"
+        $Prefix = $Name.Split('-')[0]
+    }
+    $SettingsFilePath = "$($Env:AutomationGlobalsPath)\$($Prefix).json"
+    if(-not (Test-Path $SettingsFilePath))
+    {
+        Throw-Exception -Type 'SettingsFileNotFound' `
+                        -Message 'Could not find the settings file for the target variable.' `
+                        -Property @{
+                            'SettingsFilePath' = $SettingsFilePath ;
+                            'ScheduleName' = $Name ;
+                            'SchedulePrefix' = $Prefix ;
+                        }
     }
     $SettingsVars = ConvertFrom-JSON -InputObject ((Get-Content -Path $SettingsFilePath) -as [String])
     if(Test-IsNullOrEmpty $SettingsVars.Schedules)
@@ -624,7 +459,7 @@ Function Remove-LocalDevAutomationSchedule
     if(($SettingsVars.Schedules | Get-Member -MemberType NoteProperty).Name -Contains $Name)
     {
         $SettingsVars.Schedules = $SettingsVars.Schedules | Select-Object -Property * -ExcludeProperty $Name
-        Set-Content -Path $SettingsFilePath -Value (ConvertTo-JSON $SettingsVars)
+        Set-Content -Path $SettingsFilePath -Value (ConvertTo-JSON $SettingsVars) -Encoding UTF8
     }
     else
     {

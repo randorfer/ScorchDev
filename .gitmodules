@@ -22,9 +22,6 @@
 [submodule "PowerShellModules/SCOrchDev-SMA"]
 	path = PowerShellModules/SCOrchDev-SMA
 	url = https://github.com/randorfer/SCOrchDev-SMA
-[submodule "PowerShellModules/SCOrchDev-SmaGitIntegration"]
-	path = PowerShellModules/SCOrchDev-SmaGitIntegration
-	url = https://github.com/randorfer/SCOrchDev-SmaGitIntegration
 [submodule "PowerShellModules/SCOrchDev-SQL"]
 	path = PowerShellModules/SCOrchDev-SQL
 	url = https://github.com/randorfer/SCOrchDev-SQL
@@ -37,3 +34,12 @@
 [submodule "PowerShellModules/SCOrchDev-GitIntegration"]
 	path = PowerShellModules/SCOrchDev-GitIntegration
 	url = https://github.com/randorfer/SCOrchDev-GitIntegration
+[submodule "PowerShellModules/SCOrchDev-F5"]
+	path = PowerShellModules/SCOrchDev-F5
+	url = https://github.com/randorfer/SCOrchDev-F5
+[submodule "PowerShellModules/EWSMail"]
+	path = PowerShellModules/EWSMail
+	url = https://github.com/randorfer/EWSMail
+[submodule "PowerShellModules/SCOrchDev-SmaContinuousDelivery"]
+	path = PowerShellModules/SCOrchDev-SmaContinuousDelivery
+	url = https://github.com/randorfer/SCOrchDev-SmaContinuousDelivery
