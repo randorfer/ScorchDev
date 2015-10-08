@@ -486,4 +486,75 @@ Function Set-AutomationActivityMetadata
                                 'ListOfCommands' = $ListOfCommands }
     Write-Verbose -Message "$Inputs"
 }
+
+Function Export-SmaVariableToLocalDev
+{
+    Param(
+        [Parameter(
+            Mandatory = $False,
+            Position = 0,
+            ValueFromPipeline    
+        )]
+        [String]
+        $WebServiceEndpoint = 'https://localhost',
+
+        [Parameter(
+            Mandatory = $False,
+            Position = 1,
+            ValueFromPipeline    
+        )]
+        [int]
+        $Port = 9090
+    )
+
+    $ErrorActionPreference = [System.Management.Automation.ActionPreference]::Stop
+    $CompletedParameters = Write-StartingMessage
+    $SmaVariable = Get-SmaVariablePaged -WebServiceEndpoint $WebServiceEndpoint -Port $Port
+
+    foreach($_SmaVariable in $SmaVariable)
+    {
+        $ErrorActionPreference = 'Continue'
+        Set-AutomationVariable -Name $_SmaVariable.Name `
+                               -Value $_SmaVariable.Value `
+                               -Description (Select-FirstValid $_SmaVariable.Description,'') `
+                               -isEncrypted $_SmaVariable.IsEncrypted
+    }
+
+    Write-CompletedMessage @CompletedParams
+}
+
+Function Export-SmaRunbookToLocalDev
+{
+    Param(
+        [Parameter(
+            Mandatory = $False,
+            Position = 0,
+            ValueFromPipeline    
+        )]
+        [String]
+        $WebServiceEndpoint = 'https://localhost',
+
+        [Parameter(
+            Mandatory = $False,
+            Position = 1,
+            ValueFromPipeline    
+        )]
+        [int]
+        $Port = 9090
+    )
+
+    $ErrorActionPreference = [System.Management.Automation.ActionPreference]::Stop
+    $CompletedParameters = Write-StartingMessage
+    $SmaRunbook = Get-SMARunbookPaged -WebServiceEndpoint $WebServiceEndpoint -Port $Port
+
+    foreach($_SmaRunbook in $SmaRunbook)
+    {
+        $RBDefinition = Get-SmaRunbookDefinition -Id $_SmaRunbook.RunbookID -WebServiceEndpoint $WebServiceEndpoint -Port $Port -Type Published
+        $RunbookPath = "$env:AutomationWorkflowPath\$(if($_SmaRunbook.RunbookName.Contains('-')){$_SmaRunbook.RunbookName.Split('-')[1]}else{'system'})\$($_SmaRunbook.RunbookName).ps1"
+        if(-not (Test-Path $RunbookPath)) { $Null = New-Item -ItemType file -Path $RunbookPath -Force }
+        Set-Content -Value $RBDefinition.Content -Path $RunbookPath
+    }
+
+    Write-CompletedMessage @CompletedParams
+}
 Export-ModuleMember -Function * -Verbose:$false
