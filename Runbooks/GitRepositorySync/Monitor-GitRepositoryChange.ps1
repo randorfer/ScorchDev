@@ -16,36 +16,37 @@ Workflow Monitor-GitRepositoryChange
                                               -Name 'AutomationAccountName',
                                                     'SubscriptionName',
                                                     'SubscriptionAccessCredentialName',
+                                                    'RunbookWorkerAccessCredentialName',
                                                     'ResourceGroupName'
-    
-    $Vars = Get-BatchAutomationVariable -Prefix 'ContinuousIntegration' `
-                                        -Name 'RunbookWorkerAccessCredentialName', `
-                                              'RepositoryName'
     do
     {
-        $NextRun = (Get-Date).AddMinutes(1)
+        $NextRun = (Get-Date).AddSeconds(30)
         
         $RepositoryInformationJSON = Get-AutomationVariable -Name 'ContinuousIntegration-RepositoryInformation'
-        $SubscriptionAccessCredential = Get-AutomationPSCredential -Name $SubscriptionAccessCredentialName
-        $RunbookWorkerAccessCredential = Get-AutomationPSCredential -Name $RunbookWorkerAccessCredentialName
-        Try
+        $SubscriptionAccessCredential = Get-AutomationPSCredential -Name $GlobalVars.SubscriptionAccessCredentialName
+        $RunbookWorkerAccessCredential = Get-AutomationPSCredential -Name $GlobalVars.RunbookWorkerAccessCredentialName
+        
+        $RepositoryInformation = $RepositoryInformationJSON | ConvertFrom-Json | ConvertFrom-PSCustomObject
+        Foreach($RepositoryName in $RepositoryInformation.Keys -as [array])
         {
-            $RepositoryInformation = (ConvertFrom-JSON -InputObject $RepositoryInformationJSON).$RepositoryName
-            $UpdatedRepositoryInformtion = Sync-GitRepositoryToAzureAutomation -RepositoryInformation $RepositoryInformation `
-                                                                               -AutomationAccountName $AutomationAccountName `
-                                                                               -SubscriptionName $SubscriptionName `
-                                                                               -SubscriptionAccessCredential $SubscriptionAccessCredential `
-                                                                               -RunbookWorkerAccessCredenial $RunbookWorkerAccessCredential `
-                                                                               -RepositoryName $RepositoryName `
-                                                                               -RepositoryInformationJSON $RepositoryInformationJSON `
-                                                                               -ResourceGroupName $ResourceGroupName
+            Try
+            {
+                $UpdatedRepositoryInformation = Sync-GitRepositoryToAzureAutomation -RepositoryInformation $RepositoryInformation.$RepositoryName `
+                                                                                   -AutomationAccountName $GlobalVars.AutomationAccountName `
+                                                                                   -SubscriptionName $GlobalVars.SubscriptionName `
+                                                                                   -SubscriptionAccessCredential $SubscriptionAccessCredential `
+                                                                                   -RunbookWorkerAccessCredenial $RunbookWorkerAccessCredential `
+                                                                                   -RepositoryName $RepositoryName `
+                                                                                   -RepositoryInformationJSON $RepositoryInformationJSON `
+                                                                                   -ResourceGroupName $GlobalVars.ResourceGroupName
 
-            Set-AutomationVariable -Name 'ContinuousIntegration-RepositoryInformation' `
-                                   -Value $UpdatedRepositoryInformation
-        }
-        Catch
-        {
-            Write-Exception -Stream Warning -Exception $_
+                Set-AutomationVariable -Name 'ContinuousIntegration-RepositoryInformation' `
+                                       -Value $UpdatedRepositoryInformation
+            }
+            Catch
+            {
+                Write-Exception -Stream Warning -Exception $_
+            }
         }
 
         do

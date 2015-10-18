@@ -7,17 +7,7 @@
                                                                           "isEncrypted":  false,
                                                                           "Description":  "",
                                                                           "Type":  "String",
-                                                                          "Value":  "{\"SCOrchDev\":{\"Branch\":\"AAIntegration\",\"Path\":\"C:\\\\git\\\\SCOrchDev\",\"RunbookFolder\":\"Runbooks\",\"HybridWorkerGroup\":\"ScorchDev\",\"CurrentCommit\":\"-1\",\"RepositoryPath\":\"https://github.com/randorfer/ScorchDev.git\",\"PowerShellModuleFolder\":\"PowerShellModules\",\"GlobalsFolder\":\"Globals\"}}"
-                                                                      },
-                      "ContinuousIntegration-RunbookWorkerAccessCredentialName":  {
-                                                                                      "isEncrypted":  false,
-                                                                                      "Description":  "",
-                                                                                      "Value":  "M3IS052@genmills.com"
-                                                                                  },
-                      "ContinuousIntegration-RepositoryName":  {
-                                                                   "isEncrypted":  false,
-                                                                   "Description":  "",
-                                                                   "Value":  "SCOrchDev"
-                                                               }
+                                                                          "Value":  "{\"SCOrchDev\":{\"Branch\":\"AAIntegration\",\"Path\":\"C:\\\\git\\\\SCOrchDev\",\"RunbookFolder\":\"Runbooks\",\"HybridWorkerGroup\":\"ScorchDev\",\"CurrentCommit\":\"6372a0d\",\"RepositoryPath\":\"https://github.com/randorfer/ScorchDev.git\",\"PowerShellModuleFolder\":\"PowerShellModules\",\"GlobalsFolder\":\"Globals\"}}"
+                                                                      }
                   }
 }
