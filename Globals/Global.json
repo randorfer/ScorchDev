@@ -3,17 +3,22 @@
                       "Global-SubscriptionName":  {
                                                       "isEncrypted":  false,
                                                       "Description":  "",
-                                                      "Value":  "Visual Studio Ultimate with MSDN"
+                                                      "Value":  "Hybrid Cloud Project"
                                                   },
                       "Global-SubscriptionAccessCredentialName":  {
                                                                       "isEncrypted":  false,
                                                                       "Description":  "",
-                                                                      "Value":  "Automation@SCOrchDev.com"
+                                                                      "Value":  "M3IS052@genmills.com"
                                                                   },
+                      "Global-ResourceGroupName":  {
+                                                       "isEncrypted":  false,
+                                                       "Description":  "",
+                                                       "Value":  "AzureAutomation"
+                                                   },
                       "Global-AutomationAccountName":  {
                                                            "isEncrypted":  false,
                                                            "Description":  "",
-                                                           "Value":  "SCORCHDev"
+                                                           "Value":  "GeneralMills"
                                                        }
                   }
 }

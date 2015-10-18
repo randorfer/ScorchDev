@@ -12,7 +12,7 @@
                       "ContinuousIntegration-RunbookWorkerAccessCredentialName":  {
                                                                                       "isEncrypted":  false,
                                                                                       "Description":  "",
-                                                                                      "Value":  "Automation@SCOrchDev.com"
+                                                                                      "Value":  "M3IS052@genmills.com"
                                                                                   },
                       "ContinuousIntegration-RepositoryName":  {
                                                                    "isEncrypted":  false,

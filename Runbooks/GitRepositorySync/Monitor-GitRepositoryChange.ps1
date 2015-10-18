@@ -1,4 +1,5 @@
-﻿<#
+﻿#requires -Version 3
+<#
 .Synopsis
     Check GIT repository for new commits. If found sync the changes into
     the current SMA environment
@@ -11,11 +12,15 @@ Workflow Monitor-GitRepositoryChange
     )
     $ErrorActionPreference = [System.Management.Automation.ActionPreference]::Stop
     
-    $AutomationAccountName = Get-AutomationVariable -Name 'Global-AutomationAccountName'
-    $SubscriptionName = Get-AutomationVariable -Name 'Global-SubscriptionName'
-    $SubscriptionAccessCredentialName = Get-AutomationVariable -Name 'Global-SubscriptionAccessCredentialName'
-    $RunbookWorkerAccessCredentialName = Get-AutomationVariable -Name 'ContinuousIntegration-RunbookWorkerAccessCredentialName'
-    $RepositoryName = Get-AutomationVariable -Name 'ContinuousIntegration-RepositoryName'
+    $GlobalVars = Get-BatchAutomationVariable -Prefix 'Global' `
+                                              -Name 'AutomationAccountName',
+                                                    'SubscriptionName',
+                                                    'SubscriptionAccessCredentialName',
+                                                    'ResourceGroupName'
+    
+    $Vars = Get-BatchAutomationVariable -Prefix 'ContinuousIntegration' `
+                                        -Name 'RunbookWorkerAccessCredentialName', `
+                                              'RepositoryName'
     do
     {
         $NextRun = (Get-Date).AddMinutes(1)
@@ -32,7 +37,8 @@ Workflow Monitor-GitRepositoryChange
                                                                                -SubscriptionAccessCredential $SubscriptionAccessCredential `
                                                                                -RunbookWorkerAccessCredenial $RunbookWorkerAccessCredential `
                                                                                -RepositoryName $RepositoryName `
-                                                                               -RepositoryInformationJSON $RepositoryInformationJSON
+                                                                               -RepositoryInformationJSON $RepositoryInformationJSON `
+                                                                               -ResourceGroupName $ResourceGroupName
 
             Set-AutomationVariable -Name 'ContinuousIntegration-RepositoryInformation' `
                                    -Value $UpdatedRepositoryInformation
