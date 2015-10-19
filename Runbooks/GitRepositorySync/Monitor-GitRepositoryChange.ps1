@@ -26,27 +26,21 @@ Workflow Monitor-GitRepositoryChange
         $SubscriptionAccessCredential = Get-AutomationPSCredential -Name $GlobalVars.SubscriptionAccessCredentialName
         $RunbookWorkerAccessCredential = Get-AutomationPSCredential -Name $GlobalVars.RunbookWorkerAccessCredentialName
         
-        $RepositoryInformation = $RepositoryInformationJSON | ConvertFrom-Json | ConvertFrom-PSCustomObject
-        Foreach($RepositoryName in $RepositoryInformation.Keys -as [array])
+        Try
         {
-            Try
-            {
-                $UpdatedRepositoryInformation = Sync-GitRepositoryToAzureAutomation -RepositoryInformation $RepositoryInformation.$RepositoryName `
-                                                                                   -AutomationAccountName $GlobalVars.AutomationAccountName `
-                                                                                   -SubscriptionName $GlobalVars.SubscriptionName `
-                                                                                   -SubscriptionAccessCredential $SubscriptionAccessCredential `
-                                                                                   -RunbookWorkerAccessCredenial $RunbookWorkerAccessCredential `
-                                                                                   -RepositoryName $RepositoryName `
-                                                                                   -RepositoryInformationJSON $RepositoryInformationJSON `
-                                                                                   -ResourceGroupName $GlobalVars.ResourceGroupName
+            $UpdatedRepositoryInformation = Sync-GitRepositoryToAzureAutomation -AutomationAccountName $GlobalVars.AutomationAccountName `
+                                                                                -SubscriptionName $GlobalVars.SubscriptionName `
+                                                                                -SubscriptionAccessCredential $SubscriptionAccessCredential `
+                                                                                -RunbookWorkerAccessCredenial $RunbookWorkerAccessCredential `
+                                                                                -RepositoryInformationJSON $RepositoryInformationJSON `
+                                                                                -ResourceGroupName $GlobalVars.ResourceGroupName
 
-                Set-AutomationVariable -Name 'ContinuousIntegration-RepositoryInformation' `
-                                       -Value $UpdatedRepositoryInformation
-            }
-            Catch
-            {
-                Write-Exception -Stream Warning -Exception $_
-            }
+            Set-AutomationVariable -Name 'ContinuousIntegration-RepositoryInformation' `
+                                    -Value $UpdatedRepositoryInformation
+        }
+        Catch
+        {
+            Write-Exception -Stream Warning -Exception $_
         }
 
         do
