@@ -1,4 +1,4 @@
 workflow invoke-test
 {
-    Write-Verbose -Message 'asdf'
+    Write-Verbose -Message '1'
 }
