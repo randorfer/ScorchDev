@@ -17,15 +17,16 @@ $Global:AutomationWorkspace = @{
 }
 Foreach($_AutomationWorkspace in $Global:AutomationWorkspace.Keys)
 {
-    $PowerShellModulePath = "$($Global:AutomationWorkspace.$_AutomationWorkspace.Workspace)\$ModulePath"
-    $LocalPowerShellModulePath = "$($Global:AutomationWorkspace.$_AutomationWorkspace.Workspace)\$LocalPowerShellModulePath"
+    
+    $PowerShellModulePath = "$($Global:AutomationWorkspace.$_AutomationWorkspace.Workspace)\$($Global:AutomationWorkspace.$_AutomationWorkspace.ModulePath)"
+    $LocalPowerShellModulePath = "$($Global:AutomationWorkspace.$_AutomationWorkspace.Workspace)\$($Global:AutomationWorkspace.$_AutomationWorkspace.LocalPowerShellModulePath)"
 
     if(Test-Path -Path $PowerShellModulePath) { $env:PSModulePath = "$PowerShellModulePath;$env:PSModulePath" }
     if(Test-Path -Path $LocalPowerShellModulePath) { $env:PSModulePath = "$LocalPowerShellModulePath;$env:PSModulePath" }
 }
 
 $env:LocalAuthoring = $true
-$env:AutomationDefaultWorkspace = 'RunbookExample'
+$Global:AutomationDefaultWorkspace = 'RunbookExample'
 
 # Set up debugging
 $VerbosePreference = 'Continue'
