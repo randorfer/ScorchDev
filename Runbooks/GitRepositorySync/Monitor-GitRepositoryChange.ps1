@@ -43,7 +43,6 @@ do
     do
     {
         Start-Sleep -Seconds 5
-        Checkpoint-Workflow
         $Sleeping = (Get-Date) -lt $NextRun
     } while($Sleeping)
 }
