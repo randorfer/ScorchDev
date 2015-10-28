@@ -93,7 +93,7 @@ function Update-LocalAutomationVariable
     param()
 
     Write-Verbose -Message 'Updating variables in memory'
-    $FilesToProcess = (Get-ChildItem -Path $env:AutomationGlobalsPath -Include '*.json' -Recurse).FullName
+    $FilesToProcess = (Get-ChildItem -Path $env:LocalDevGlobalsPath -Include '*.json' -Recurse).FullName
     Read-SmaJSONVariables -Path $FilesToProcess
 }
 
