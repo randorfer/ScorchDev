@@ -23,6 +23,8 @@ $RunbookWorkerAccessCredential = Get-AutomationPSCredential -Name $GlobalVars.Ru
         
 Try
 {
+    Connect-AzureRmAccount -Credential $SubscriptionAccessCredential -SubscriptionName $GlobalVars.SubscriptionName
+
     $UpdatedRepositoryInformation = Sync-GitRepositoryToAzureAutomation -AutomationAccountName $GlobalVars.AutomationAccountName `
                                                                         -SubscriptionName $GlobalVars.SubscriptionName `
                                                                         -SubscriptionAccessCredential $SubscriptionAccessCredential `
