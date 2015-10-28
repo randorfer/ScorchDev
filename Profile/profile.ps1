@@ -1,18 +1,37 @@
-# SMA setup
-
 ## Modules
-$env:AutomationWorkspace = 'C:\GIT\ScorchDev'
-$env:AutomationModulePath = "$env:AutomationWorkspace\PowerShellModules"
-$env:AutomationGlobalsPath = "$env:AutomationWorkspace\Globals"
-$env:AutomationWorkflowPath = "$env:AutomationWorkspace\Runbooks"
-$env:PSModulePath = "$env:AutomationModulePath;$env:AutomationWorkspace\LocalPowerShellModules;$env:PSModulePath"
+$Global:AutomationWorkspace = @{
+    'SCOrchDev' = @{
+        'Workspace' = 'C:\GIT\SCOrchDev'
+        'ModulePath' = 'PowerShellModules'
+        'GlobalPath' = 'Globals'
+        'LocalPowerShellModulePath' = 'LocalPowerShellModules'
+        'RunbookPath' = 'Runbooks'
+    }
+    'RunbookExample' = @{
+        'Workspace' = 'C:\GIT\RunbookExample'
+        'ModulePath' = 'PowerShellModules'
+        'GlobalPath' = 'Globals'
+        'LocalPowerShellModulePath' = 'LocalPowerShellModules'
+        'RunbookPath' = 'Runbooks'
+    }
+}
+Foreach($_AutomationWorkspace in $Global:AutomationWorkspace.Keys)
+{
+    $PowerShellModulePath = "$($Global:AutomationWorkspace.$_AutomationWorkspace.Workspace)\$ModulePath"
+    $LocalPowerShellModulePath = "$($Global:AutomationWorkspace.$_AutomationWorkspace.Workspace)\$LocalPowerShellModulePath"
+
+    if(Test-Path -Path $PowerShellModulePath) { $env:PSModulePath = "$PowerShellModulePath;$env:PSModulePath" }
+    if(Test-Path -Path $LocalPowerShellModulePath) { $env:PSModulePath = "$LocalPowerShellModulePath;$env:PSModulePath" }
+}
+
 $env:LocalAuthoring = $true
+$env:AutomationDefaultWorkspace = 'RunbookExample'
 
 # Set up debugging
 $VerbosePreference = 'Continue'
 $DebugPreference = 'Continue'
 
 # Load posh-git example profile
-. "$env:AutomationModulePath\posh-git\profile.example.ps1"
+. "$(((Get-Module -Name Posh-Git -ListAvailable).Path -as [System.IO.FileInfo]).Directory)\profile.example.ps1"
 
 Set-StrictMode -Version 1

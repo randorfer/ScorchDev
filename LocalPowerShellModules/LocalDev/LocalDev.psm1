@@ -21,7 +21,7 @@ function Import-Workflow
 {
     param(
         [Parameter(Mandatory=$True)]  [String] $WorkflowName,
-        [Parameter(Mandatory=$False)] [String] $Path = $env:AutomationWorkflowPath
+        [Parameter(Mandatory=$False)] [String] $Path = (Get-CurrentLocalDevWorkspaceRunbookPath)
     )
 
     # TODO: Make $CompileStack a more appropriate data structure.
@@ -93,7 +93,7 @@ function Update-LocalAutomationVariable
     param()
 
     Write-Verbose -Message 'Updating variables in memory'
-    $FilesToProcess = (Get-ChildItem -Path $env:LocalDevGlobalsPath -Include '*.json' -Recurse).FullName
+    $FilesToProcess = (Get-ChildItem -Path (Get-CurrentLocalDevWorkspaceGlobalPath) -Include '*.json' -Recurse).FullName
     Read-SmaJSONVariables -Path $FilesToProcess
 }
 
@@ -187,7 +187,7 @@ Function Set-AutomationVariable
     {
         $Name = "$Prefix-$Name"
     }
-    $SettingsFilePath = "$($Env:AutomationGlobalsPath)\$($Prefix).json"
+    $SettingsFilePath = "$(Get-CurrentLocalDevWorkspaceGlobalPath)\$($Prefix).json"
     if(-not (Test-Path -Path $SettingsFilePath))
     {
         New-Item -ItemType File `
@@ -251,7 +251,7 @@ Function Remove-AutomationVariable
     {
         $Name = "$Prefix-$Name"
     }
-    $SettingsFilePath = "$($Env:AutomationGlobalsPath)\$($Prefix).json"
+    $SettingsFilePath = "$(Get-CurrentLocalDevWorkspaceGlobalPath)\$($Prefix).json"
     if(-not (Test-Path $SettingsFilePath))
     {
         Throw-Exception -Type 'SettingsFileNotFound' `
@@ -363,7 +363,7 @@ Function Set-AutomationSchedule
     {
         $Name = "$Prefix-$Name"
     }
-    $SettingsFilePath = "$($Env:AutomationGlobalsPath)\$($Prefix).json"
+    $SettingsFilePath = "$(Get-CurrentLocalDevWorkspaceGlobalPath)\$($Prefix).json"
     if(-not (Test-Path -Path $SettingsFilePath))
     {
         New-Item -ItemType File `
@@ -437,7 +437,7 @@ Function Remove-AutomationSchedule
     {
         $Prefix = $Name.Split('-')[0]
     }
-    $SettingsFilePath = "$($Env:AutomationGlobalsPath)\$($Prefix).json"
+    $SettingsFilePath = "$(Get-CurrentLocalDevWorkspaceGlobalPath)\$($Prefix).json"
     if(-not (Test-Path $SettingsFilePath))
     {
         Throw-Exception -Type 'SettingsFileNotFound' `
@@ -482,5 +482,50 @@ Function Set-AutomationActivityMetadata
                                 'ModuleVersion' = $ModuleVersion;
                                 'ListOfCommands' = $ListOfCommands }
     Write-Verbose -Message "$Inputs"
+}
+
+
+Function Get-LocalDevWorkspace
+{
+    $Global:AutomationWorkspace.Keys
+}
+Function Get-CurrentLocalDevWorkspace
+{
+    $Global:AutomationDefaultWorkspace
+}
+Function Get-CurrentLocalDevWorkspaceRunbookPath
+{
+    $CurrentWorkspace = $Global:AutomationWorkspace.$Global:AutomationDefaultWorkspace
+    "$($CurrentWorkspace.Workspace)\$($CurrentWorkspace.RunbookPath)"
+}
+
+Function Get-CurrentLocalDevWorkspacePowerShellModulePath
+{
+    $CurrentWorkspace = $Global:AutomationWorkspace.$Global:AutomationDefaultWorkspace
+    "$($CurrentWorkspace.Workspace)\$($CurrentWorkspace.ModulePath)"
+}
+
+Function Get-CurrentLocalDevWorkspaceGlobalPath
+{
+    $CurrentWorkspace = $Global:AutomationWorkspace.$Global:AutomationDefaultWorkspace
+    "$($CurrentWorkspace.Workspace)\$($CurrentWorkspace.GlobalPath)"
+}
+Function Select-LocalDevWorkspace
+{
+    Param($Workspace)
+
+    if((Get-LocalDevWorkspace) -contains $Workspace)
+    {
+        $global:AutomationDefaultWorkspace = $Workspace
+    }
+    else
+    {
+        Throw-Exception -Type 'WorkspaceNotDefined' `
+                        -Message 'The target workspace is not defined in your $Global:AutomationWorkspace variable. Please configure' `
+                        -Property @{
+                            'Current Workspaces' = (Get-LocalDevWorkspace)
+                        }
+
+    }
 }
 Export-ModuleMember -Function * -Verbose:$false
