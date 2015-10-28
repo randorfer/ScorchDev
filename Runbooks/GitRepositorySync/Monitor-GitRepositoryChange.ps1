@@ -17,14 +17,14 @@ $GlobalVars = Get-BatchAutomationVariable -Prefix 'Global' `
                                                 'ResourceGroupName'
 do
 {
-    $NextRun = (Get-Date).AddSeconds(30)
-        
-    $RepositoryInformationJSON = Get-AutomationVariable -Name 'ContinuousIntegration-RepositoryInformation'
-    $SubscriptionAccessCredential = Get-AutomationPSCredential -Name $GlobalVars.SubscriptionAccessCredentialName
-    $RunbookWorkerAccessCredential = Get-AutomationPSCredential -Name $GlobalVars.RunbookWorkerAccessCredentialName
-        
     Try
     {
+        $NextRun = (Get-Date).AddSeconds(30)
+        
+        $RepositoryInformationJSON = Get-AutomationVariable -Name 'ContinuousIntegration-RepositoryInformation'
+        $SubscriptionAccessCredential = Get-AutomationPSCredential -Name $GlobalVars.SubscriptionAccessCredentialName
+        $RunbookWorkerAccessCredential = Get-AutomationPSCredential -Name $GlobalVars.RunbookWorkerAccessCredentialName
+
         Connect-AzureRmAccount -Credential $SubscriptionAccessCredential -SubscriptionName $GlobalVars.SubscriptionName
 
         $UpdatedRepositoryInformation = Sync-GitRepositoryToAzureAutomation -AutomationAccountName $GlobalVars.AutomationAccountName `
@@ -35,13 +35,13 @@ do
                                                                             -ResourceGroupName $GlobalVars.ResourceGroupName
 
         Set-AutomationVariable -Name 'ContinuousIntegration-RepositoryInformation' `
-                                -Value $UpdatedRepositoryInformation
+                               -Value $UpdatedRepositoryInformation
+        
+        Start-SleepUntil -DateTime $NextRun
     }
     Catch
     {
         Write-Exception -Stream Warning -Exception $_
     }
-
-    Start-SleepUntil -DateTime $NextRun
 }
 while($true)
