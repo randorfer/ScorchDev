@@ -1,29 +1,34 @@
 ﻿{
     "Variables":  {
-                      "Global-SubscriptionName":  {
-                                                      "isEncrypted":  false,
-                                                      "Description":  "",
-                                                      "Value":  "Hybrid Cloud Project"
-                                                  },
+                      "Global-RunbookWorkerAccessCredentialName":  {
+                                                                       "isEncrypted":  false,
+                                                                       "Description":  "",
+                                                                       "Value":  "M3IS052@genmills.com"
+                                                                   },
                       "Global-SubscriptionAccessCredentialName":  {
                                                                       "isEncrypted":  false,
                                                                       "Description":  "",
                                                                       "Value":  "M3IS052@genmills.com"
                                                                   },
-                      "Global-ResourceGroupName":  {
-                                                       "isEncrypted":  false,
-                                                       "Description":  "",
-                                                       "Value":  "AzureAutomation"
-                                                   },
+                      "Global-SubscriptionName":  {
+                                                      "isEncrypted":  false,
+                                                      "Description":  "",
+                                                      "Value":  "Hybrid Cloud Project"
+                                                  },
                       "Global-AutomationAccountName":  {
                                                            "isEncrypted":  false,
                                                            "Description":  "",
                                                            "Value":  "GeneralMills"
                                                        },
-                      "Global-RunbookWorkerAccessCredentialName":  {
-                                                                       "isEncrypted":  false,
-                                                                       "Description":  "",
-                                                                       "Value":  "M3IS052@genmills.com"
-                                                                   }
+                      "Global-ResourceGroupName":  {
+                                                       "isEncrypted":  false,
+                                                       "Description":  "",
+                                                       "Value":  "AzureAutomation"
+                                                   },
+                      "Global-HybridRunbookWorker":  {
+                                                         "isEncrypted":  false,
+                                                         "Description":  "",
+                                                         "Value":  "{\"ryan\":[\"IO\"],\"GLab\":[\"GLAB-AZMYSQL1.genmills.com\"]}"
+                                                     }
                   }
 }

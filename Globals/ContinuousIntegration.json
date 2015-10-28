@@ -7,7 +7,7 @@
                                                                           "isEncrypted":  false,
                                                                           "Description":  "",
                                                                           "Type":  "String",
-                                                                          "Value":  "{\"SCOrchDev\":{\"Branch\":\"AAIntegration\",\"Path\":\"C:\\\\git\\\\SCOrchDev\",\"RunbookFolder\":\"Runbooks\",\"HybridWorkerGroup\":\"ScorchDev\",\"CurrentCommit\":\"6372a0d\",\"RepositoryPath\":\"https://github.com/randorfer/ScorchDev.git\",\"PowerShellModuleFolder\":\"PowerShellModules\",\"GlobalsFolder\":\"Globals\"}}"
+                                                                          "Value":  "{\"SCOrchDev\":{\"Branch\":\"AAIntegration\",\"Path\":\"C:\\\\git\\\\SCOrchDev\",\"RunbookFolder\":\"Runbooks\",\"HybridWorkerGroup\":\"GLab\",\"CurrentCommit\":\"a94243a\",\"RepositoryPath\":\"https://github.com/randorfer/ScorchDev.git\",\"PowerShellModuleFolder\":\"PowerShellModules\",\"GlobalsFolder\":\"Globals\"},\"RunbookExample\":{\"Branch\":\"master\",\"Path\":\"C:\\\\git\\\\RunbookExample\",\"RunbookFolder\":\"Runbooks\",\"HybridWorkerGroup\":\"GLab\",\"CurrentCommit\":\"11d24e7\",\"RepositoryPath\":\"https://github.com/randorfer/RunbookExample.git\",\"PowerShellModuleFolder\":\"PowerShellModules\",\"GlobalsFolder\":\"Globals\"}}"
                                                                       }
                   }
 }
