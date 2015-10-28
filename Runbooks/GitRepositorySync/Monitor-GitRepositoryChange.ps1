@@ -40,10 +40,16 @@ do
         Write-Exception -Stream Warning -Exception $_
     }
 
-    do
+    $SleepSeconds = ($NextRun - (Get-Date)).TotalSeconds
+    if($SleepSeconds -gt 0)
     {
-        Start-Sleep -Seconds 5
-        $Sleeping = (Get-Date) -lt $NextRun
-    } while($Sleeping)
+        Write-Verbose -Message "Sleeping for [$SleepSeconds]"
+        Start-Sleep -Seconds $SleepSeconds
+    }
+    else
+    {
+        Write-Verbose -Message 'Starting next check immediately'
+    }
+    
 }
 while($true)
