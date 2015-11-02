@@ -12,7 +12,7 @@ workflow Deploy-Integration
     {
         Publish-SMARunbookChange -FilePath $RunbookFile.FullName -CurrentCommit $currentcommit -RepositoryName $repositoryname
     }
-    Foreach($SettingsFile in (Get-ChildItem -Path ..\Runbooks -Recurse -Filter *.json))
+    Foreach($SettingsFile in (Get-ChildItem -Path ..\Globals -Recurse -Filter *.json))
     {
         Publish-SMASettingsFileChange -FilePath $SettingsFile.FullName -CurrentCommit $currentcommit -RepositoryName $repositoryname
     }
