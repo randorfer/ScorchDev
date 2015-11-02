@@ -1,6 +1,4 @@
-﻿#requires -Version 3 -Modules SCOrchDev-Exception, SCOrchDev-PasswordVault, SCOrchDev-Utility
-$Script:LocalAutomationVariable = @{}
-
+﻿$Script:LocalAutomationVariable = @{}
 <#
 .SYNOPSIS
     Returns a scriptblock that, when dot-sourced, will import a workflow and all its dependencies.
@@ -23,7 +21,7 @@ function Import-Workflow
 {
     param(
         [Parameter(Mandatory=$True)]  [String] $WorkflowName,
-        [Parameter(Mandatory=$False)] [String] $Path = $env:AutomationWorkflowPath
+        [Parameter(Mandatory=$False)] [String] $Path = (Get-CurrentLocalDevWorkspaceRunbookPath)
     )
 
     # TODO: Make $CompileStack a more appropriate data structure.
@@ -75,10 +73,10 @@ Function Get-AutomationVariable
         $Name 
     )
     
-    If(-not $SCRIPT:LocalAutomationVariable.ContainsKey($Name))
+    If(-not $Script:LocalAutomationVariable.ContainsKey($Name))
     {
         Update-LocalAutomationVariable
-        If(-not $SCRIPT:LocalAutomationVariable.ContainsKey($Name))
+        If(-not $Script:LocalAutomationVariable.ContainsKey($Name))
         {
             Write-Warning -Message "Couldn't find variable $Name" -WarningAction 'Continue'
             Throw-Exception -Type 'VariableDoesNotExist' `
@@ -88,14 +86,14 @@ Function Get-AutomationVariable
             }
         }
     }
-    Return ($LocalAutomationVariable[$Name]).Value
+    Return ($Script:LocalAutomationVariable[$Name]).Value
 }
 function Update-LocalAutomationVariable
 {
     param()
 
     Write-Verbose -Message 'Updating variables in memory'
-    $FilesToProcess = (Get-ChildItem -Path $env:AutomationGlobalsPath -Include '*.json' -Recurse).FullName
+    $FilesToProcess = (Get-ChildItem -Path (Get-CurrentLocalDevWorkspaceGlobalPath) -Include '*.json' -Recurse).FullName
     Read-SmaJSONVariables -Path $FilesToProcess
 }
 
@@ -189,12 +187,11 @@ Function Set-AutomationVariable
     {
         $Name = "$Prefix-$Name"
     }
-    $SettingsFilePath = "$($Env:AutomationGlobalsPath)\$($Prefix).json"
+    $SettingsFilePath = "$(Get-CurrentLocalDevWorkspaceGlobalPath)\$($Prefix).json"
     if(-not (Test-Path -Path $SettingsFilePath))
     {
-        $Null = New-Item -ItemType File `
-                         -Path $settingsFilePath `
-                         -Force
+        New-Item -ItemType File `
+                 -Path $settingsFilePath
     }
 
     $SettingsVars = ConvertFrom-JSON -InputObject ((Get-Content -Path $SettingsFilePath) -as [String])
@@ -254,7 +251,7 @@ Function Remove-AutomationVariable
     {
         $Name = "$Prefix-$Name"
     }
-    $SettingsFilePath = "$($Env:AutomationGlobalsPath)\$($Prefix).json"
+    $SettingsFilePath = "$(Get-CurrentLocalDevWorkspaceGlobalPath)\$($Prefix).json"
     if(-not (Test-Path $SettingsFilePath))
     {
         Throw-Exception -Type 'SettingsFileNotFound' `
@@ -366,7 +363,7 @@ Function Set-AutomationSchedule
     {
         $Name = "$Prefix-$Name"
     }
-    $SettingsFilePath = "$($Env:AutomationGlobalsPath)\$($Prefix).json"
+    $SettingsFilePath = "$(Get-CurrentLocalDevWorkspaceGlobalPath)\$($Prefix).json"
     if(-not (Test-Path -Path $SettingsFilePath))
     {
         New-Item -ItemType File `
@@ -440,7 +437,7 @@ Function Remove-AutomationSchedule
     {
         $Prefix = $Name.Split('-')[0]
     }
-    $SettingsFilePath = "$($Env:AutomationGlobalsPath)\$($Prefix).json"
+    $SettingsFilePath = "$(Get-CurrentLocalDevWorkspaceGlobalPath)\$($Prefix).json"
     if(-not (Test-Path $SettingsFilePath))
     {
         Throw-Exception -Type 'SettingsFileNotFound' `
@@ -487,74 +484,48 @@ Function Set-AutomationActivityMetadata
     Write-Verbose -Message "$Inputs"
 }
 
-Function Export-SmaVariableToLocalDev
+
+Function Get-LocalDevWorkspace
 {
-    Param(
-        [Parameter(
-            Mandatory = $False,
-            Position = 0,
-            ValueFromPipeline    
-        )]
-        [String]
-        $WebServiceEndpoint = 'https://localhost',
-
-        [Parameter(
-            Mandatory = $False,
-            Position = 1,
-            ValueFromPipeline    
-        )]
-        [int]
-        $Port = 9090
-    )
-
-    $ErrorActionPreference = [System.Management.Automation.ActionPreference]::Stop
-    $CompletedParameters = Write-StartingMessage
-    $SmaVariable = Get-SmaVariablePaged -WebServiceEndpoint $WebServiceEndpoint -Port $Port
-
-    foreach($_SmaVariable in $SmaVariable)
-    {
-        $ErrorActionPreference = 'Continue'
-        Set-AutomationVariable -Name $_SmaVariable.Name `
-                               -Value $_SmaVariable.Value `
-                               -Description (Select-FirstValid $_SmaVariable.Description,'') `
-                               -isEncrypted $_SmaVariable.IsEncrypted
-    }
-
-    Write-CompletedMessage @CompletedParams
+    $Global:AutomationWorkspace.Keys
+}
+Function Get-CurrentLocalDevWorkspace
+{
+    $Global:AutomationDefaultWorkspace
+}
+Function Get-CurrentLocalDevWorkspaceRunbookPath
+{
+    $CurrentWorkspace = $Global:AutomationWorkspace.$Global:AutomationDefaultWorkspace
+    "$($CurrentWorkspace.Workspace)\$($CurrentWorkspace.RunbookPath)"
 }
 
-Function Export-SmaRunbookToLocalDev
+Function Get-CurrentLocalDevWorkspacePowerShellModulePath
 {
-    Param(
-        [Parameter(
-            Mandatory = $False,
-            Position = 0,
-            ValueFromPipeline    
-        )]
-        [String]
-        $WebServiceEndpoint = 'https://localhost',
+    $CurrentWorkspace = $Global:AutomationWorkspace.$Global:AutomationDefaultWorkspace
+    "$($CurrentWorkspace.Workspace)\$($CurrentWorkspace.ModulePath)"
+}
 
-        [Parameter(
-            Mandatory = $False,
-            Position = 1,
-            ValueFromPipeline    
-        )]
-        [int]
-        $Port = 9090
-    )
+Function Get-CurrentLocalDevWorkspaceGlobalPath
+{
+    $CurrentWorkspace = $Global:AutomationWorkspace.$Global:AutomationDefaultWorkspace
+    "$($CurrentWorkspace.Workspace)\$($CurrentWorkspace.GlobalPath)"
+}
+Function Select-LocalDevWorkspace
+{
+    Param($Workspace)
 
-    $ErrorActionPreference = [System.Management.Automation.ActionPreference]::Stop
-    $CompletedParameters = Write-StartingMessage
-    $SmaRunbook = Get-SMARunbookPaged -WebServiceEndpoint $WebServiceEndpoint -Port $Port
-
-    foreach($_SmaRunbook in $SmaRunbook)
+    if((Get-LocalDevWorkspace) -contains $Workspace)
     {
-        $RBDefinition = Get-SmaRunbookDefinition -Id $_SmaRunbook.RunbookID -WebServiceEndpoint $WebServiceEndpoint -Port $Port -Type Published
-        $RunbookPath = "$env:AutomationWorkflowPath\$(if($_SmaRunbook.RunbookName.Contains('-')){$_SmaRunbook.RunbookName.Split('-')[1]}else{'system'})\$($_SmaRunbook.RunbookName).ps1"
-        if(-not (Test-Path $RunbookPath)) { $Null = New-Item -ItemType file -Path $RunbookPath -Force }
-        Set-Content -Value $RBDefinition.Content -Path $RunbookPath
+        $global:AutomationDefaultWorkspace = $Workspace
     }
+    else
+    {
+        Throw-Exception -Type 'WorkspaceNotDefined' `
+                        -Message 'The target workspace is not defined in your $Global:AutomationWorkspace variable. Please configure' `
+                        -Property @{
+                            'Current Workspaces' = (Get-LocalDevWorkspace)
+                        }
 
-    Write-CompletedMessage @CompletedParams
+    }
 }
 Export-ModuleMember -Function * -Verbose:$false
