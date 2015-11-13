@@ -38,17 +38,16 @@ Try
     $Recipient = $GithubData.Pusher.Email
     $PathsToCheck = $GithubData.head_commit.added | ForEach-Object { "$($_RepositoryInformation.Path)\$($_.Replace('/','\'))" }
     $PathsToCheck += $GithubData.head_commit.modified | ForEach-Object { "$($_RepositoryInformation.Path)\$($_.Replace('/','\'))" }
-    $Results = $PathsToCheck | ForEach-Object { Invoke-IntegrationTest -Path $_ }
-    $TempDirectory = New-TempDirectory
-    $ResultFile = "$TempDirectory\Results.txt"
-    $Results | ConvertTo-Json -Depth ([int]::MaxValue) > $ResultFile
-    Send-MailMessage -To $Recipient `
-                     -Attachments $ResultFile `
-                     -SmtpServer $Vars.SmtpServer `
-                     -Subject 'Integration Test Result' `
-                     -From $Vars.From `
-                     -BodyAsHtml  `
-                     -Body "<a href='$($GithubData.compare)'>See Change</a><br />$($GithubData.head_commit | ConvertTo-Json)"
+    $Result = Invoke-IntegrationTest -Path $PathsToCheck
+    Foreach($Key in $Result.Keys)
+    {
+        Send-MailMessage -To $Recipient `
+                         -SmtpServer $Vars.SmtpServer `
+                         -Subject "Integration Test Result [$Key]" `
+                         -From $Vars.From `
+                         -BodyAsHtml  `
+                         -Body "<a href='$($GithubData.head_commit)'>Change</a><br />$($Result.Key)"
+    }
 }
 Catch
 {
