@@ -46,7 +46,7 @@ Try
                          -Subject "Integration Test Result [$Key]" `
                          -From $Vars.From `
                          -BodyAsHtml  `
-                         -Body "<a href='$($GithubData.head_commit)'>Change</a><br />$($Result.Key)"
+                         -Body "<a href='$($GithubData.head_commit.url)'>Change</a><br />$($Result.$Key)"
     }
 }
 Catch
