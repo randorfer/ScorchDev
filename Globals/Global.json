@@ -3,32 +3,32 @@
                       "Global-RunbookWorkerAccessCredentialName":  {
                                                                        "isEncrypted":  false,
                                                                        "Description":  "",
-                                                                       "Value":  "M3IS052@genmills.com"
+                                                                       "Value":  "Automation@scorchdev.com"
                                                                    },
-                      "Global-SubscriptionAccessCredentialName":  {
-                                                                      "isEncrypted":  false,
-                                                                      "Description":  "",
-                                                                      "Value":  "M3IS052@genmills.com"
-                                                                  },
                       "Global-SubscriptionName":  {
                                                       "isEncrypted":  false,
                                                       "Description":  "",
-                                                      "Value":  "Hybrid Cloud Project"
+                                                      "Value":  "Visual Studio Enterprise with MSDN"
                                                   },
-                      "Global-AutomationAccountName":  {
-                                                           "isEncrypted":  false,
-                                                           "Description":  "",
-                                                           "Value":  "GeneralMills"
-                                                       },
                       "Global-ResourceGroupName":  {
                                                        "isEncrypted":  false,
                                                        "Description":  "",
-                                                       "Value":  "AzureAutomation"
+                                                       "Value":  "SCOrchDev"
                                                    },
+                      "Global-AutomationAccountName":  {
+                                                           "isEncrypted":  false,
+                                                           "Description":  "",
+                                                           "Value":  "SCOrchDev"
+                                                       },
+                      "Global-SubscriptionAccessCredentialName":  {
+                                                                      "isEncrypted":  false,
+                                                                      "Description":  "",
+                                                                      "Value":  "Automation@scorchdev.com"
+                                                                  },
                       "Global-HybridRunbookWorker":  {
                                                          "isEncrypted":  false,
                                                          "Description":  "",
-                                                         "Value":  "{\"ryan\":[\"IO\"],\"GLab\":[\"GLAB-AZMYSQL1.genmills.com\"]}"
+                                                         "Value":  "{\"USEast\":[\"omsa1.scorchdev.com\",\"omsa2.scorchdev.com\"]}"
                                                      }
                   }
 }
