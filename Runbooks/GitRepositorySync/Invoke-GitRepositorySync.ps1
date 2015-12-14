@@ -2,7 +2,7 @@
 <#
 .Synopsis
     Check GIT repository for new commits. If found sync the changes into
-    the current SMA environment
+    the Azure Automation Environment
 #>
 Param(
 )
