@@ -9,7 +9,37 @@
         Mandatory = $True
     )]
     [String]
-    $RepositoryName
+    $RepositoryName,
+
+    [Parameter(
+        Mandatory = $True
+    )]
+    [String]
+    $Credential,
+
+    [Parameter(
+        Mandatory = $True
+    )]
+    [String]
+    $AutomationAccountName,
+
+    [Parameter(
+        Mandatory = $True
+    )]
+    [String]
+    $SubscriptionName,
+
+    [Parameter(
+        Mandatory = $True
+    )]
+    [String]
+    $ResourceGroupName,
+
+    [Parameter(
+        Mandatory = $False
+    )]
+    [String]
+    $Tenant
 )
     
 $CompletedParams = Write-StartingMessage -CommandName 'Deploy Integration'
@@ -19,10 +49,24 @@ $CurrentCommit = Get-GitCurrentCommit -Path $Path
 
 Foreach($RunbookFile in (Get-ChildItem -Path "$($Path)\Runbooks" -Recurse -Filter *.ps1))
 {
-    Publish-SMARunbookChange -FilePath $RunbookFile.FullName -CurrentCommit $CurrentCommit -RepositoryName $RepositoryName
+    Publish-AzureAutomationRunbookChange -FilePath $RunbookFile.FullName `
+                                         -CurrentCommit $CurrentCommit `
+                                         -RepositoryName $RepositoryName `
+                                         -Credential $Credential `
+                                         -AutomationAccountName $AutomationAccountName `
+                                         -SubscriptionName $SubscriptionName `
+                                         -ResourceGroupName $ResourceGroupName `
+                                         -Tenant $Tenant
 }
 Foreach($SettingsFile in (Get-ChildItem -Path "$($Path)\Globals" -Recurse -Filter *.json))
 {
-    Publish-SMASettingsFileChange -FilePath $SettingsFile.FullName -CurrentCommit $CurrentCommit -RepositoryName $RepositoryName
+    Publish-AzureAutomationSettingsFileChange -FilePath $RunbookFile.FullName `
+                                              -CurrentCommit $CurrentCommit `
+                                              -RepositoryName $RepositoryName `
+                                              -Credential $Credential `
+                                              -AutomationAccountName $AutomationAccountName `
+                                              -SubscriptionName $SubscriptionName `
+                                              -ResourceGroupName $ResourceGroupName `
+                                              -Tenant $Tenant
 }
 Write-CompletedMessage @CompletedParams
