@@ -3,7 +3,7 @@
                       "Global-RunbookWorkerAccessCredentialName":  {
                                                                        "isEncrypted":  false,
                                                                        "Description":  "",
-                                                                       "Value":  "automation@scorchdev.com"
+                                                                       "Value":  "omsa@scorchdev.com"
                                                                    },
                       "Global-Tenant":  {
                                             "isEncrypted":  false,
