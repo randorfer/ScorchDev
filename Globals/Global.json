@@ -3,12 +3,17 @@
                       "Global-RunbookWorkerAccessCredentialName":  {
                                                                        "isEncrypted":  false,
                                                                        "Description":  "",
-                                                                       "Value":  "Automation@scorchdev.com"
+                                                                       "Value":  "automation@scorchdev.com"
                                                                    },
+                      "Global-Tenant":  {
+                                            "isEncrypted":  false,
+                                            "Description":  "",
+                                            "Value":  "72f988bf-86f1-41af-91ab-2d7cd011db47"
+                                        },
                       "Global-SubscriptionName":  {
                                                       "isEncrypted":  false,
                                                       "Description":  "",
-                                                      "Value":  "Visual Studio Enterprise with MSDN"
+                                                      "Value":  "Microsoft Azure Internal Consumption"
                                                   },
                       "Global-ResourceGroupName":  {
                                                        "isEncrypted":  false,
@@ -23,12 +28,12 @@
                       "Global-SubscriptionAccessCredentialName":  {
                                                                       "isEncrypted":  false,
                                                                       "Description":  "",
-                                                                      "Value":  "Automation@scorchdev.com"
+                                                                      "Value":  "6640d6a4-7a7c-45b9-b0a9-bbc055bf8684"
                                                                   },
                       "Global-HybridRunbookWorker":  {
                                                          "isEncrypted":  false,
                                                          "Description":  "",
-                                                         "Value":  "{\"USEast\":[\"omsa1.scorchdev.com\",\"omsa2.scorchdev.com\"]}"
+                                                         "Value":  "{\"USEast\":[\"sco-oms-wrk-01.scorchdev.com\"]}"
                                                      }
                   }
 }

@@ -15,7 +15,8 @@ $GlobalVars = Get-BatchAutomationVariable -Prefix 'Global' `
                                                 'SubscriptionName',
                                                 'SubscriptionAccessCredentialName',
                                                 'RunbookWorkerAccessCredentialName',
-                                                'ResourceGroupName'
+                                                'ResourceGroupName',
+                                                'Tenant'
 
 $SubscriptionAccessCredential = Get-AutomationPSCredential -Name $GlobalVars.SubscriptionAccessCredentialName
 $RunbookWorkerAccessCredential = Get-AutomationPSCredential -Name $GlobalVars.RunbookWorkerAccessCredentialName
@@ -23,14 +24,15 @@ $RunbookWorkerAccessCredential = Get-AutomationPSCredential -Name $GlobalVars.Ru
 Try
 {
     $RepositoryInformationJSON = Get-AutomationVariable -Name 'ContinuousIntegration-RepositoryInformation'
-    Connect-AzureRmAccount -Credential $SubscriptionAccessCredential -SubscriptionName $GlobalVars.SubscriptionName
+    Connect-AzureRmAccount -Credential $SubscriptionAccessCredential -SubscriptionName $GlobalVars.SubscriptionName -Tenant $GlobalVars.Tenant
 
     $UpdatedRepositoryInformation = Sync-GitRepositoryToAzureAutomation -AutomationAccountName $GlobalVars.AutomationAccountName `
                                                                         -SubscriptionName $GlobalVars.SubscriptionName `
                                                                         -SubscriptionAccessCredential $SubscriptionAccessCredential `
                                                                         -RunbookWorkerAccessCredenial $RunbookWorkerAccessCredential `
                                                                         -RepositoryInformationJSON $RepositoryInformationJSON `
-                                                                        -ResourceGroupName $GlobalVars.ResourceGroupName
+                                                                        -ResourceGroupName $GlobalVars.ResourceGroupName `
+                                                                        -Tenant $GlobalVars.Tenant
 
     Set-AutomationVariable -Name 'ContinuousIntegration-RepositoryInformation' `
                             -Value $UpdatedRepositoryInformation
