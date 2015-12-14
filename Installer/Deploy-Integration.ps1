@@ -14,7 +14,7 @@
     [Parameter(
         Mandatory = $True
     )]
-    [String]
+    [pscredential]
     $Credential,
 
     [Parameter(
@@ -49,7 +49,9 @@ $CurrentCommit = Get-GitCurrentCommit -Path $Path
 
 Foreach($RunbookFile in (Get-ChildItem -Path "$($Path)\Runbooks" -Recurse -Filter *.ps1))
 {
-    Publish-AzureAutomationRunbookChange -FilePath $RunbookFile.FullName `
+    Try
+    {
+        Publish-AzureAutomationRunbookChange -FilePath $RunbookFile.FullName `
                                          -CurrentCommit $CurrentCommit `
                                          -RepositoryName $RepositoryName `
                                          -Credential $Credential `
@@ -57,10 +59,17 @@ Foreach($RunbookFile in (Get-ChildItem -Path "$($Path)\Runbooks" -Recurse -Filte
                                          -SubscriptionName $SubscriptionName `
                                          -ResourceGroupName $ResourceGroupName `
                                          -Tenant $Tenant
+    }
+    Catch
+    {
+        Write-Exception -Exception $_ -Stream Warning
+    }
 }
 Foreach($SettingsFile in (Get-ChildItem -Path "$($Path)\Globals" -Recurse -Filter *.json))
 {
-    Publish-AzureAutomationSettingsFileChange -FilePath $RunbookFile.FullName `
+    Try
+    {
+        Publish-AzureAutomationSettingsFileChange -FilePath $SettingsFile.FullName `
                                               -CurrentCommit $CurrentCommit `
                                               -RepositoryName $RepositoryName `
                                               -Credential $Credential `
@@ -68,5 +77,10 @@ Foreach($SettingsFile in (Get-ChildItem -Path "$($Path)\Globals" -Recurse -Filte
                                               -SubscriptionName $SubscriptionName `
                                               -ResourceGroupName $ResourceGroupName `
                                               -Tenant $Tenant
+    }
+    Catch
+    {
+        Write-Exception -Exception $_ -Stream Warning
+    }
 }
 Write-CompletedMessage @CompletedParams
