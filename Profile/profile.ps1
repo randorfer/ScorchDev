@@ -1,4 +1,4 @@
-﻿## Modules
+## Modules
 $Global:AutomationWorkspace = @{
     'SCOrchDev' = @{
         'Workspace' = 'C:\GIT\SCOrchDev'
