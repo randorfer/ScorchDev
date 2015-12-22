@@ -10,7 +10,7 @@ Param(
 $ErrorActionPreference = [System.Management.Automation.ActionPreference]::Stop
 $CompletedParameters = Write-StartingMessage -CommandName 'Invoke-GitRepositoryIntegrationTest'
 
-$Vars = Get-BatchAutomationVariable -Name  'EmailExchangeVersion', 'EmailWebserviceURL', 'EmailCredentialName' `
+$Vars = Get-BatchAutomationVariable -Name  'EmailExchangeVersion', 'EmailWebserviceURL', 'EmailCredentialName', 'RepositoryInformation' `
                                     -Prefix 'ContinuousIntegration'
 
 $EmailCredential = Get-AutomationPSCredential -Name $Vars.EmailCredentialName
