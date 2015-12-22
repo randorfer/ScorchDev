@@ -9,13 +9,13 @@
 @{
 
 # Script module or binary module file associated with this manifest.
-RootModule = '.\SCOrchDev-GitIntegration.psm1'
+RootModule = '.\SCOrchDev-AzureAutomationIntegration.psm1'
 
 # Version number of this module.
 ModuleVersion = '2.2.0'
 
 # ID used to uniquely identify this module
-GUID = 'd3492bd8-9bac-4605-a21b-539589a94b3b'
+GUID = '1dafd04a-a2c2-4245-a2ba-69bfcd6bfe0a'
 
 # Author of this module
 Author = 'Ryan Andorfer'
@@ -27,7 +27,7 @@ CompanyName = 'SCOrchDev'
 Copyright = '(c) SCOrchDev. All rights reserved.'
 
 # Description of the functionality provided by this module
-Description = 'Git integration for Azure Automation continuous deployment'
+Description = 'Integration wrapper for Azure Automation'
 
 # Minimum version of the Windows PowerShell engine required by this module
 PowerShellVersion = '4.0'
@@ -48,7 +48,7 @@ PowerShellVersion = '4.0'
 # ProcessorArchitecture = ''
 
 # Modules that must be imported into the global environment prior to importing this module
-RequiredModules = @('SCOrchDev-Utility', 'SCOrchDev-Exception', 'SCOrchDev-File')
+RequiredModules = @('SCOrchDev-Utility', 'SCOrchDev-GitIntegration', 'SCOrchDev-Exception')
 
 # Assemblies that must be loaded prior to importing this module
 # RequiredAssemblies = @()
@@ -78,10 +78,10 @@ VariablesToExport = '*'
 AliasesToExport = '*'
 
 # List of all modules packaged with this module
-ModuleList = @('SCOrchDev-GitIntegration')
+ModuleList = @('SCOrchDev-AzureAutomationIntegration')
 
 # List of all files packaged with this module
-FileList = @('SCOrchDev-GitIntegration.psd1', 'SCOrchDev-GitIntegration.psm1', 'SCOrchDev-GitIntegration.tests.ps1', 'LICENSE', 'README.md')
+FileList = @('SCOrchDev-AzureAutomationIntegration.psd1', 'SCOrchDev-AzureAutomationIntegration.psm1', 'LICENSE', 'README.md', 'SCOrchDev-AzureAutomationIntegration.tests.ps1')
 
 # Private data to pass to the module specified in RootModule/ModuleToProcess
 # PrivateData = ''
@@ -91,5 +91,4 @@ FileList = @('SCOrchDev-GitIntegration.psd1', 'SCOrchDev-GitIntegration.psm1', '
 
 # Default prefix for commands exported from this module. Override the default prefix using Import-Module -Prefix.
 # DefaultCommandPrefix = ''
-
 }
