@@ -8,11 +8,6 @@
                                                                        "Description":  "",
                                                                        "Value":  "https://outlook.office365.com/EWS/Exchange.asmx"
                                                                    },
-                      "ContinuousIntegration-EmailCredentialName":  {
-                                                                        "isEncrypted":  false,
-                                                                        "Description":  "",
-                                                                        "Value":  "ryan.andorfer@microsoft.com"
-                                                                    },
                       "ContinuousIntegration-RepositoryInformation":  {
                                                                           "isEncrypted":  false,
                                                                           "Description":  "",
@@ -23,6 +18,11 @@
                                                                          "isEncrypted":  false,
                                                                          "Description":  "",
                                                                          "Value":  "Exchange2010_SP2"
-                                                                     }
+                                                                     },
+                      "ContinuousIntegration-EmailCredentialName":  {
+                                                                        "isEncrypted":  false,
+                                                                        "Description":  "",
+                                                                        "Value":  "ryanand@microsoft.com"
+                                                                    }
                   }
 }
