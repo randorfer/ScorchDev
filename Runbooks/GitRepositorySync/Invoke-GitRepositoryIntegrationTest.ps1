@@ -10,9 +10,10 @@ Param(
 $ErrorActionPreference = [System.Management.Automation.ActionPreference]::Stop
 $CompletedParameters = Write-StartingMessage -CommandName 'Invoke-GitRepositoryIntegrationTest'
 
-$Vars = Get-BatchAutomationVariable -Name  'From', 'SmtpServer', 'RepositoryInformation' `
+$Vars = Get-BatchAutomationVariable -Name  'EmailExchangeVersion', 'EmailWebserviceURL', 'EmailCredentialName' `
                                     -Prefix 'ContinuousIntegration'
 
+$EmailCredential = Get-AutomationPSCredential -Name $Vars.EmailCredentialName
 Try
 {
     $RepositoryInformation = $Vars.RepositoryInformation | ConvertFrom-Json | ConvertFrom-PSCustomObject
@@ -39,14 +40,18 @@ Try
     $PathsToCheck = $GithubData.head_commit.added | ForEach-Object { "$($_RepositoryInformation.Path)\$($_.Replace('/','\'))" }
     $PathsToCheck += $GithubData.head_commit.modified | ForEach-Object { "$($_RepositoryInformation.Path)\$($_.Replace('/','\'))" }
     $Result = Invoke-IntegrationTest -Path $PathsToCheck
+    
+    $EWSConnection = New-EWSMailboxConnection -exchangeVersion $Vars.EmailExchangeVersion `
+                                              -Credential $EmailCredential `
+                                              -webserviceURL $Vars.EmailWebserviceURL
+
     Foreach($Key in $Result.Keys)
     {
-        Send-MailMessage -To $Recipient `
-                         -SmtpServer $Vars.SmtpServer `
-                         -Subject "Integration Test Result [$Key]" `
-                         -From $Vars.From `
-                         -BodyAsHtml  `
-                         -Body "<a href='$($GithubData.head_commit.url)'>Change</a><br />$($Result.$Key)"
+        Send-EWSEmail -MailboxConnection $EWSConnection `
+                      -Recipients $Recipient `
+                      -Subject "Integration Test Result [$Key]" `
+                      -Body "<a href='$($GithubData.head_commit.url)'>Change</a><br />$($Result.$Key)" `
+                      -bodyFormat HTML
     }
 }
 Catch

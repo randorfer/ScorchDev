@@ -3,21 +3,26 @@
 
                   },
     "Variables":  {
+                      "ContinuousIntegration-EmailWebserviceURL":  {
+                                                                       "isEncrypted":  false,
+                                                                       "Description":  "",
+                                                                       "Value":  "https://outlook.office365.com/EWS/Exchange.asmx"
+                                                                   },
+                      "ContinuousIntegration-EmailCredentialName":  {
+                                                                        "isEncrypted":  false,
+                                                                        "Description":  "",
+                                                                        "Value":  "ryan.andorfer@microsoft.com"
+                                                                    },
                       "ContinuousIntegration-RepositoryInformation":  {
                                                                           "isEncrypted":  false,
                                                                           "Description":  "",
                                                                           "Type":  "String",
                                                                           "Value":  "{\r\n    \"SCOrchDev\":  {\r\n                      \"GlobalsFolder\":  \"Globals\",\r\n                      \"Branch\":  \"master\",\r\n                      \"Path\":  \"C:\\\\git\\\\SCOrchDev\",\r\n                      \"RunbookFolder\":  \"Runbooks\",\r\n                      \"DSCFolder\":  \"DSC\",\r\n                      \"HybridWorkerGroup\":  \"USEast\",\r\n                      \"CurrentCommit\":  \"a94243a\",\r\n                      \"RepositoryPath\":  \"https://github.com/randorfer/ScorchDev.git\",\r\n                      \"PowerShellModuleFolder\":  \"PowerShellModules\"\r\n                  },\r\n    \"RunbookExample\":  {\r\n                           \"GlobalsFolder\":  \"Globals\",\r\n                           \"Branch\":  \"master\",\r\n                           \"Path\":  \"C:\\\\git\\\\RunbookExample\",\r\n                           \"RunbookFolder\":  \"Runbooks\",\r\n                           \"DSCFolder\":  \"DSC\",\r\n                           \"HybridWorkerGroup\":  \"USEast\",\r\n                           \"CurrentCommit\":  \"11d24e7\",\r\n                           \"RepositoryPath\":  \"https://github.com/randorfer/RunbookExample.git\",\r\n                           \"PowerShellModuleFolder\":  \"PowerShellModules\"\r\n                       }\r\n}"
                                                                       },
-                      "ContinuousIntegration-SmtpServer":  {
-                                                               "isEncrypted":  false,
-                                                               "Description":  "",
-                                                               "Value":  "UPDATE"
-                                                           },
-                      "ContinuousIntegration-From":  {
-                                                         "isEncrypted":  false,
-                                                         "Description":  "",
-                                                         "Value":  "UPDATE"
-                                                     }
+                      "ContinuousIntegration-EmailExchangeVersion":  {
+                                                                         "isEncrypted":  false,
+                                                                         "Description":  "",
+                                                                         "Value":  "Exchange2010_SP2"
+                                                                     }
                   }
 }
