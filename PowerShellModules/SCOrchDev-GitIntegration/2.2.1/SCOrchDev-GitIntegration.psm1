@@ -188,7 +188,7 @@ Function Get-GitRepositoryAssetName
 {
     Param([Parameter(Mandatory=$false)][string] $Path = [string]::EmptyString)
     $ErrorActionPreference = [System.Management.Automation.ActionPreference]::Stop
-    $CompletedParameters = Write-StartingMessage
+    $CompletedParameters = Write-StartingMessage -Stream Debug
     $Assets = @{ 'Variable' = @() ;
                  'Schedule' = @() }
     $AssetFiles = Get-ChildItem -Path $Path `
@@ -428,7 +428,7 @@ Function Group-AssetsByRepository
 {
     Param([Parameter(Mandatory=$True)] $InputObject)
     $ErrorActionPreference = [System.Management.Automation.ActionPreference]::Stop
-    $CompletedParameters = Write-StartingMessage
+    $CompletedParameters = Write-StartingMessage -Stream Debug
     ConvertTo-Hashtable -InputObject $InputObject `
                         -KeyName 'Description' `
                         -KeyFilterScript { 
