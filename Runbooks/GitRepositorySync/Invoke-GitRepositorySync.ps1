@@ -16,7 +16,8 @@ $GlobalVars = Get-BatchAutomationVariable -Prefix 'Global' `
                                                 'SubscriptionAccessCredentialName',
                                                 'RunbookWorkerAccessCredentialName',
                                                 'ResourceGroupName',
-                                                'Tenant'
+                                                'Tenant',
+                                                'StorageAccountName'
 
 $SubscriptionAccessCredential = Get-AutomationPSCredential -Name $GlobalVars.SubscriptionAccessCredentialName
 $RunbookWorkerAccessCredential = Get-AutomationPSCredential -Name $GlobalVars.RunbookWorkerAccessCredentialName
@@ -32,7 +33,8 @@ Try
                                                                         -RunbookWorkerAccessCredenial $RunbookWorkerAccessCredential `
                                                                         -RepositoryInformationJSON $RepositoryInformationJSON `
                                                                         -ResourceGroupName $GlobalVars.ResourceGroupName `
-                                                                        -Tenant $GlobalVars.Tenant
+                                                                        -Tenant $GlobalVars.Tenant `
+                                                                        -StorageAccountName $GlobalVars.StorageAccountName
 
     Set-AutomationVariable -Name 'ContinuousIntegration-RepositoryInformation' `
                             -Value $UpdatedRepositoryInformation

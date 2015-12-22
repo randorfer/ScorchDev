@@ -5,6 +5,11 @@
                                                                        "Description":  "",
                                                                        "Value":  "omsa@scorchdev.com"
                                                                    },
+                      "Global-StorageAccountName":  {
+                                                        "isEncrypted":  false,
+                                                        "Description":  "",
+                                                        "Value":  "scodev"
+                                                    },
                       "Global-Tenant":  {
                                             "isEncrypted":  false,
                                             "Description":  "",
