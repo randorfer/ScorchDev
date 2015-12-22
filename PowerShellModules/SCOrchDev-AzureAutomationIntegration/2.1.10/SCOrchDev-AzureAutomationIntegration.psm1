@@ -1080,8 +1080,14 @@ Function Sync-IndividualGitRepositoryToAzureAutomation
             Foreach($ModuleFilePath in $ReturnInformation.ModuleFiles)
             {
                 Publish-AzureAutomationPowerShellModule -FilePath $ModuleFilePath `
-                                                            -StorageAccountName $StorageAccountName `
-                                                            @CommonPublishAzureAutomationParam
+                                                        -StorageAccountName $StorageAccountName `
+                                                        -CurrentCommit $RepositoryChange.CurrentCommit `
+                                                        -RepositoryName $RepositoryName `
+                                                        -Credential $SubscriptionAccessCredential `
+                                                        -AutomationAccountName $AutomationAccountName `
+                                                        -SubscriptionName $SubscriptionName `
+                                                        -ResourceGroupName $ResourceGroupName `
+                                                        -Tenant $Tenant
             }
 
             if($ReturnInformation.CleanRunbooks)
