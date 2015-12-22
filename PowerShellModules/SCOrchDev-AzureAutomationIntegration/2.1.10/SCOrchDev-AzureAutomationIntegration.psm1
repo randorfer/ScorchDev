@@ -1043,37 +1043,6 @@ Function Sync-IndividualGitRepositoryToAzureAutomation
                                                         -PowerShellModuleFolder $RepositoryInformation.PowerShellModuleFolder `
                                                         -DSCFolder $RepositoryInformation.DSCFolder
 
-            if($ReturnInformation.CleanRunbooks)
-            {
-                Remove-AzureAutomationOrphanRunbook -RepositoryName $RepositoryName `
-                                                    -Credential $SubscriptionAccessCredential `
-                                                    -AutomationAccountName $AutomationAccountName `
-                                                    -ResourceGroupName $ResourceGroupName `
-                                                    -SubscriptionName $SubscriptionName `
-                                                    -RepositoryInformation $RepositoryInformation `
-                                                    -Tenant $Tenant
-            }
-            if($ReturnInformation.CleanAssets)
-            {
-                Remove-AzureAutomationOrphanAsset -RepositoryName $RepositoryName `
-                                                  -Credential $SubscriptionAccessCredential `
-                                                  -AutomationAccountName $AutomationAccountName `
-                                                  -ResourceGroupName $ResourceGroupName `
-                                                  -SubscriptionName $SubscriptionName `
-                                                  -RepositoryInformation $RepositoryInformation `
-                                                  -Tenant $Tenant
-            }
-            if($ReturnInformation.CleanDSC)
-            {
-                Remove-AzureAutomationOrphanDSC -RepositoryName $RepositoryName `
-                                                -Credential $SubscriptionAccessCredential `
-                                                -AutomationAccountName $AutomationAccountName `
-                                                -ResourceGroupName $ResourceGroupName `
-                                                -SubscriptionName $SubscriptionName `
-                                                -RepositoryInformation $RepositoryInformation `
-                                                -Tenant $Tenant
-            }
-                
             Foreach($SettingsFilePath in $ReturnInformation.SettingsFiles)
             {
                 Publish-AzureAutomationSettingsFileChange -FilePath $SettingsFilePath `
@@ -1113,6 +1082,37 @@ Function Sync-IndividualGitRepositoryToAzureAutomation
                 Publish-AzureAutomationPowerShellModule -FilePath $ModuleFilePath `
                                                             -StorageAccountName $StorageAccountName `
                                                             @CommonPublishAzureAutomationParam
+            }
+
+            if($ReturnInformation.CleanRunbooks)
+            {
+                Remove-AzureAutomationOrphanRunbook -RepositoryName $RepositoryName `
+                                                    -Credential $SubscriptionAccessCredential `
+                                                    -AutomationAccountName $AutomationAccountName `
+                                                    -ResourceGroupName $ResourceGroupName `
+                                                    -SubscriptionName $SubscriptionName `
+                                                    -RepositoryInformation $RepositoryInformation `
+                                                    -Tenant $Tenant
+            }
+            if($ReturnInformation.CleanAssets)
+            {
+                Remove-AzureAutomationOrphanAsset -RepositoryName $RepositoryName `
+                                                  -Credential $SubscriptionAccessCredential `
+                                                  -AutomationAccountName $AutomationAccountName `
+                                                  -ResourceGroupName $ResourceGroupName `
+                                                  -SubscriptionName $SubscriptionName `
+                                                  -RepositoryInformation $RepositoryInformation `
+                                                  -Tenant $Tenant
+            }
+            if($ReturnInformation.CleanDSC)
+            {
+                Remove-AzureAutomationOrphanDSC -RepositoryName $RepositoryName `
+                                                -Credential $SubscriptionAccessCredential `
+                                                -AutomationAccountName $AutomationAccountName `
+                                                -ResourceGroupName $ResourceGroupName `
+                                                -SubscriptionName $SubscriptionName `
+                                                -RepositoryInformation $RepositoryInformation `
+                                                -Tenant $Tenant
             }
 
             $UpdatedRepositoryInformation = (Update-RepositoryInformationCommitVersion -RepositoryInformationJSON $RepositoryInformationJSON `
