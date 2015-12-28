@@ -28,7 +28,7 @@
                       "Global-AutomationAccountName":  {
                                                            "isEncrypted":  false,
                                                            "Description":  "",
-                                                           "Value":  "SCOrchDev"
+                                                           "Value":  "SCOrchDev-Staging"
                                                        },
                       "Global-SubscriptionAccessCredentialName":  {
                                                                       "isEncrypted":  false,
@@ -38,7 +38,7 @@
                       "Global-HybridRunbookWorker":  {
                                                          "isEncrypted":  false,
                                                          "Description":  "",
-                                                         "Value":  "{\"USEast\":[\"sco-oms-wrk-01.scorchdev.com\"]}"
+                                                         "Value":  "{\"USEast\":[\"sco-oms-wrk-02.scorchdev.com\"]}"
                                                      }
                   }
 }
