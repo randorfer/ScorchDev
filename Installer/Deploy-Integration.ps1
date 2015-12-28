@@ -83,4 +83,23 @@ Foreach($SettingsFile in (Get-ChildItem -Path "$($Path)\Globals" -Recurse -Filte
         Write-Exception -Exception $_ -Stream Warning
     }
 }
+
+Foreach($SettingsFile in (Get-ChildItem -Path "$($Path)\DSC" -Recurse -Filter *.PS1))
+{
+    Try
+    {
+        Publish-AzureAutomationDSCChange  -FilePath $SettingsFile.FullName `
+                                              -CurrentCommit $CurrentCommit `
+                                              -RepositoryName $RepositoryName `
+                                              -Credential $Credential `
+                                              -AutomationAccountName $AutomationAccountName `
+                                              -SubscriptionName $SubscriptionName `
+                                              -ResourceGroupName $ResourceGroupName `
+                                              -Tenant $Tenant
+    }
+    Catch
+    {
+        Write-Exception -Exception $_ -Stream Warning
+    }
+}
 Write-CompletedMessage @CompletedParams
