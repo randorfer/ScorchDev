@@ -39,7 +39,13 @@
         Mandatory = $False
     )]
     [String]
-    $Tenant
+    $Tenant,
+
+     [Parameter(
+        Mandatory = $False
+    )]
+    [String]
+    $StorageAccountName
 )
     
 $CompletedParams = Write-StartingMessage -CommandName 'Deploy Integration'
@@ -96,6 +102,27 @@ Foreach($SettingsFile in (Get-ChildItem -Path "$($Path)\DSC" -Recurse -Filter *.
                                               -SubscriptionName $SubscriptionName `
                                               -ResourceGroupName $ResourceGroupName `
                                               -Tenant $Tenant
+    }
+    Catch
+    {
+        Write-Exception -Exception $_ -Stream Warning
+    }
+}
+
+
+Foreach($SettingsFile in (Get-ChildItem -Path "$($Path)\PowerShellModules" -Recurse -Filter *.psd1))
+{
+    Try
+    {
+        Publish-AzureAutomationPowerShellModule -FilePath $SettingsFile.FullName `
+                                                -CurrentCommit $CurrentCommit `
+                                                -RepositoryName $RepositoryName `
+                                                -Credential $Credential `
+                                                -AutomationAccountName $AutomationAccountName `
+                                                -SubscriptionName $SubscriptionName `
+                                                -ResourceGroupName $ResourceGroupName `
+                                                -Tenant $Tenant `
+                                                -StorageAccountName $StorageAccountName
     }
     Catch
     {
