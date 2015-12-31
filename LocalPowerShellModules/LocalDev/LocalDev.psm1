@@ -1,4 +1,5 @@
-﻿$Script:LocalAutomationVariable = @{}
+﻿$Env:LocalAutomationVariable = @{} | ConvertTo-JSON
+
 <#
 .SYNOPSIS
     Returns a scriptblock that, when dot-sourced, will import a workflow and all its dependencies.
@@ -73,10 +74,13 @@ Function Get-AutomationVariable
         $Name 
     )
     
-    If(-not $Script:LocalAutomationVariable.ContainsKey($Name))
+    $LocalAutomationVariable = $Env:LocalAutomationVariable | ConvertFrom-Json | ConvertFrom-PSCustomObject
+
+    If(-not $LocalAutomationVariable.ContainsKey($Name))
     {
         Update-LocalAutomationVariable
-        If(-not $Script:LocalAutomationVariable.ContainsKey($Name))
+        $LocalAutomationVariable = $Env:LocalAutomationVariable | ConvertFrom-Json | ConvertFrom-PSCustomObject
+        If(-not $LocalAutomationVariable.ContainsKey($Name))
         {
             Write-Warning -Message "Couldn't find variable $Name" -WarningAction 'Continue'
             Throw-Exception -Type 'VariableDoesNotExist' `
@@ -86,7 +90,7 @@ Function Get-AutomationVariable
             }
         }
     }
-    Return ($Script:LocalAutomationVariable[$Name]).Value
+    Return ($LocalAutomationVariable[$Name]).Value
 }
 function Update-LocalAutomationVariable
 {
@@ -113,7 +117,7 @@ Function Read-SmaJSONVariables
         $Path
     )
 
-    $Script:LocalAutomationVariable = @{}
+    $LocalAutomationVariable = @{}
     ForEach($_Path in $Path)
     {
         Try
@@ -132,10 +136,12 @@ Function Read-SmaJSONVariables
             {
                 $Var = $JSON.Variables."$VariableName"
                 $retVar = New-Object -TypeName 'PSObject' -Property @{ 'Name' = $VariableName; 'Value' = $var.Value }
-                $Script:LocalAutomationVariable[$VariableName] = $retVar
+                
+                $LocalAutomationVariable[$VariableName] = $retVar
             }
         }
     }
+    $Env:LocalAutomationVariable = $LocalAutomationVariable | ConvertTo-Json -Depth ([int]::MaxValue)
 }
 <#
     .Synopsis
@@ -487,27 +493,31 @@ Function Set-AutomationActivityMetadata
 
 Function Get-LocalDevWorkspace
 {
-    $Global:AutomationWorkspace.Keys
+    $AutomationWorkspace = $Env:AutomationWorkspace | ConvertFrom-Json | ConvertFrom-PSCustomObject
+    $AutomationWorkspace.Keys
 }
 Function Get-CurrentLocalDevWorkspace
 {
-    $Global:AutomationDefaultWorkspace
+    $Env:AutomationDefaultWorkspace
 }
 Function Get-CurrentLocalDevWorkspaceRunbookPath
 {
-    $CurrentWorkspace = $Global:AutomationWorkspace.$Global:AutomationDefaultWorkspace
+    $AutomationWorkspace = $Env:AutomationWorkspace | ConvertFrom-Json | ConvertFrom-PSCustomObject
+    $CurrentWorkspace = $AutomationWorkspace.$Env:AutomationDefaultWorkspace
     "$($CurrentWorkspace.Workspace)\$($CurrentWorkspace.RunbookPath)"
 }
 
 Function Get-CurrentLocalDevWorkspacePowerShellModulePath
 {
-    $CurrentWorkspace = $Global:AutomationWorkspace.$Global:AutomationDefaultWorkspace
+    $AutomationWorkspace = $Env:AutomationWorkspace | ConvertFrom-Json | ConvertFrom-PSCustomObject
+    $CurrentWorkspace = $AutomationWorkspace.$Env:AutomationDefaultWorkspace
     "$($CurrentWorkspace.Workspace)\$($CurrentWorkspace.ModulePath)"
 }
 
 Function Get-CurrentLocalDevWorkspaceGlobalPath
 {
-    $CurrentWorkspace = $Global:AutomationWorkspace.$Global:AutomationDefaultWorkspace
+    $AutomationWorkspace = $Env:AutomationWorkspace | ConvertFrom-Json | ConvertFrom-PSCustomObject
+    $CurrentWorkspace = $AutomationWorkspace.$Env:AutomationDefaultWorkspace
     "$($CurrentWorkspace.Workspace)\$($CurrentWorkspace.GlobalPath)"
 }
 Function Select-LocalDevWorkspace
@@ -516,12 +526,12 @@ Function Select-LocalDevWorkspace
 
     if((Get-LocalDevWorkspace) -contains $Workspace)
     {
-        $global:AutomationDefaultWorkspace = $Workspace
+        $Env:AutomationDefaultWorkspace = $Workspace
     }
     else
     {
         Throw-Exception -Type 'WorkspaceNotDefined' `
-                        -Message 'The target workspace is not defined in your $Global:AutomationWorkspace variable. Please configure' `
+                        -Message 'The target workspace is not defined in your $Env:AutomationWorkspace variable. Please configure' `
                         -Property @{
                             'Current Workspaces' = (Get-LocalDevWorkspace)
                         }

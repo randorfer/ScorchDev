@@ -1,5 +1,8 @@
-## Modules
-$Global:AutomationWorkspace = @{
+# Set up debugging
+$VerbosePreference = 'Continue'
+$DebugPreference = 'Continue'
+
+$AutomationWorkspace = @{
     'SCOrchDev' = @{
         'Workspace' = 'C:\GIT\SCOrchDev'
         'ModulePath' = 'PowerShellModules'
@@ -15,18 +18,19 @@ $Global:AutomationWorkspace = @{
         'RunbookPath' = 'Runbooks'
     }
 }
-Foreach($_AutomationWorkspace in $Global:AutomationWorkspace.Keys)
+
+Foreach($_AutomationWorkspace in $AutomationWorkspace.Keys)
 {
-    
-    $PowerShellModulePath = "$($Global:AutomationWorkspace.$_AutomationWorkspace.Workspace)\$($Global:AutomationWorkspace.$_AutomationWorkspace.ModulePath)"
-    $LocalPowerShellModulePath = "$($Global:AutomationWorkspace.$_AutomationWorkspace.Workspace)\$($Global:AutomationWorkspace.$_AutomationWorkspace.LocalPowerShellModulePath)"
+    $PowerShellModulePath = "$($AutomationWorkspace.$_AutomationWorkspace.Workspace)\$($AutomationWorkspace.$_AutomationWorkspace.ModulePath)"
+    $LocalPowerShellModulePath = "$($AutomationWorkspace.$_AutomationWorkspace.Workspace)\$($AutomationWorkspace.$_AutomationWorkspace.LocalPowerShellModulePath)"
 
     if(Test-Path -Path $PowerShellModulePath) { $env:PSModulePath = "$PowerShellModulePath;$env:PSModulePath" }
     if(Test-Path -Path $LocalPowerShellModulePath) { $env:PSModulePath = "$LocalPowerShellModulePath;$env:PSModulePath" }
 }
 
-$env:LocalAuthoring = $true
-$Global:AutomationDefaultWorkspace = 'RunbookExample'
+$Env:LocalAuthoring = $true
+$Env:AutomationDefaultWorkspace = 'RunbookExample'
+$Env:AutomationWorkspace = $AutomationWorkspace | ConvertTo-Json
 
 # Set up debugging
 $VerbosePreference = 'Continue'
