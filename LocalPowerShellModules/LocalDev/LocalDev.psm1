@@ -296,7 +296,7 @@ Function Remove-AutomationVariable
                       -WarningAction 'Continue'
     }
 }
-Workflow Get-AutomationPSCredential 
+Function Get-AutomationPSCredential 
 {
     [OutputType([System.Management.Automation.PSCredential])]
     param(
@@ -304,24 +304,48 @@ Workflow Get-AutomationPSCredential
         [string]
         $Name
     )
-
-    Try
+    $ErrorActionPreference = 'Stop'
+    if([Environment]::OSVersion.Version -ge (new-object 'Version' 6,1))
     {
-        $Credential = (Get-PasswordVaultCredential -UserName $Name -AsPSCredential)
-        Write-Verbose -Message "Credential [$Name] found in PasswordVault"
-        if(($Credential -as [array]).count -gt 1)
+        Try
         {
-            Write-Verbose -Message "Found more than 1 [$(($Credential -as [array]).count)] objects. Using the first"
-            $Credential = $Credential[0]
+            $Credential = (Get-PasswordVaultCredential -UserName $Name -AsPSCredential)
+            Write-Verbose -Message "Credential [$Name] found in PasswordVault"
+            if(($Credential -as [array]).count -gt 1)
+            {
+                Write-Verbose -Message "Found more than 1 [$(($Credential -as [array]).count)] objects. Using the first"
+                $Credential = $Credential[0]
+            }
+        }
+        Catch
+        {
+            Throw-Exception -Type 'CredentialNotFound' `
+                            -Message 'Could not find credential. Please set it up in the local password vault using Set-PasswordVaultCredential' `
+                            -Property @{ 
+                                'Name' = $Name 
+                            }
         }
     }
-    Catch
+    else
     {
-        Throw-Exception -Type 'CredentialNotFound' `
-                        -Message 'Could not find credential. Please set it up in the local password vault using Set-PasswordVaultCredential' `
-                        -Property @{ 
-                            'Name' = $Name 
-                        }
+        Try
+        {
+            $Credential = (Get-StoredCredential -Name $Name)
+            Write-Verbose -Message "Credential [$Name] found in Credential  Manager"
+            if(($Credential -as [array]).count -gt 1)
+            {
+                Write-Verbose -Message "Found more than 1 [$(($Credential -as [array]).count)] objects. Using the first"
+                $Credential = $Credential[0]
+            }
+        }
+        Catch
+        {
+            Throw-Exception -Type 'CredentialNotFound' `
+                            -Message 'Could not find credential. Please set it up in Credential Manager. To add credentials open up Control Panel>User Accounts>Credential Manager and click "Add a gereric credential". The "Internet or network address" field will be the Name required by the Get-StoredCredential function.' `
+                            -Property @{ 
+                                'Name' = $Name 
+                            }
+        }
     }
     Return $Credential -as [System.Management.Automation.PSCredential]
 }
