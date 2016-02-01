@@ -1,0 +1,37 @@
+version: 1.0.{build}
+pull_requests:
+  do_not_increment_build_number: true
+os: WMF 5
+environment:
+  DevDeploymentURI:
+    secure: Povc/ZMJNsRYfKgrXCQnHb8U0zLY8K3j8nf/rSoUwnqy4NwO03pdd+lK9kBhKuOW+mHFA7s5xy+T+zUxwPQhsdH+mvOsW5rR5+hzkO1pSF4bCio+0XYELzNvlBMbDy5eWpgPNguVqT5C216H/L7SpA==
+  ProdDeploymentURI:
+    secure: Povc/ZMJNsRYfKgrXCQnHb8U0zLY8K3j8nf/rSoUwnqy4NwO03pdd+lK9kBhKuOWYOi/vyrq8u2Su9wqc3iNDIYcaNxcwP3ucCDItASrDIQv0wD4uq+LlDnwH6NJ9z6xjtkjNivG2FcF6KAUdjVaCA==
+clone_folder: c:\git\ScorchDev
+init:
+- ps: $env:PSModulePath = "$($env:PSModulePath);c:\git\ScorchDev\PowerShellModules"
+install:
+- cmd: cinst -y pester
+nuget:
+  disable_publish_on_pr: true
+build:
+  verbosity: minimal
+test_script:
+- ps: >-
+    $ClonePath = 'c:\git\SCOrchDev'
+
+    $res = Invoke-Pester -Path $ClonePath -OutputFormat NUnitXml -OutputFile TestsResults.xml -PassThru
+
+    (New-Object 'System.Net.WebClient').UploadFile("https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path "$ClonePath\TestsResults.xml"))
+
+    if ($res.FailedCount -gt 0) { throw "$($res.FailedCount) tests failed."}
+deploy_script:
+- ps: >-
+    if($env:Branch -eq 'master')
+    {
+        Invoke-WebRequest -Method Post -Uri $ProdDeploymentURI
+    }
+    elseif($env:Branch -eq 'vNext')
+    {
+        Invoke-WebRequest -Method Post -Uri DevDeploymentURI
+    }
