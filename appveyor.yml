@@ -28,10 +28,12 @@ deploy_script:
 - ps: >-
 
     Get-ChildItem env:
+    
     if($env:Branch -eq 'master')
     {
         Invoke-WebRequest -Method Post -Uri $ProdDeploymentURI
     }
+    
     elseif($env:Branch -eq 'vNext')
     {
         Invoke-WebRequest -Method Post -Uri DevDeploymentURI
