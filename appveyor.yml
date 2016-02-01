@@ -27,8 +27,6 @@ test_script:
 deploy_script:
 - ps: >-
 
-    Get-ChildItem env:
-    
     if($env:APPVEYOR_REPO_BRANCH -eq 'master')
     {
         Invoke-WebRequest -Method Post -Uri $env:ProdDeploymentURI
