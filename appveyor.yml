@@ -29,12 +29,12 @@ deploy_script:
 
     Get-ChildItem env:
     
-    if($env:Branch -eq 'master')
+    if($env:APPVEYOR_REPO_BRANCH -eq 'master')
     {
         Invoke-WebRequest -Method Post -Uri $ProdDeploymentURI
     }
     
-    elseif($env:Branch -eq 'vNext')
+    elseif($env:APPVEYOR_REPO_BRANCH -eq 'vNext')
     {
         Invoke-WebRequest -Method Post -Uri DevDeploymentURI
     }
