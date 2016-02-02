@@ -27,4 +27,5 @@ test_script:
 deploy_script:
 - ps: >-
     & c:\git\SCOrchDev\Profile\profile.ps1
+
     & c:\git\SCOrchDev\AppVeyor\deploy.ps1
