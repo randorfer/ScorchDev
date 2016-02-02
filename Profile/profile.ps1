@@ -32,11 +32,6 @@ $Env:LocalAuthoring = $true
 $Env:AutomationDefaultWorkspace = 'RunbookExample'
 $Env:AutomationWorkspace = $AutomationWorkspace | ConvertTo-Json
 
-# Set up debugging
-$VerbosePreference = 'Continue'
-$DebugPreference = 'Continue'
-
-
 if((Get-Module -Name posh-git -ListAvailable) -as [bool])
 {
     # use this instead (see about_Modules for more information):
