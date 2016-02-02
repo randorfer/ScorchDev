@@ -27,13 +27,4 @@ test_script:
 deploy_script:
 - ps: >-
     & c:\git\SCOrchDev\Profile\profile.ps1
-
-    if($env:APPVEYOR_REPO_BRANCH -eq 'master')
-    {
-        Invoke-WebRequest -Method Post -Uri $env:ProdDeploymentURI
-    }
-    
-    elseif($env:APPVEYOR_REPO_BRANCH -eq 'vNext')
-    {
-        Invoke-WebRequest -Method Post -Uri $env:DevDeploymentURI
-    }
+    & c:\git\SCOrchDev\AppVeyor\deploy.ps1
