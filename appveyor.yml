@@ -24,6 +24,7 @@ test_script:
     if ($res.FailedCount -gt 0) { throw "$($res.FailedCount) tests failed."}
 deploy_script:
 - ps: >-
+    & c:\git\SCOrchDev\Profile\profile.ps1
 
     if($env:APPVEYOR_REPO_BRANCH -eq 'master')
     {
