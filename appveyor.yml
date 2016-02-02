@@ -7,6 +7,8 @@ environment:
     secure: Povc/ZMJNsRYfKgrXCQnHb8U0zLY8K3j8nf/rSoUwnqy4NwO03pdd+lK9kBhKuOW+mHFA7s5xy+T+zUxwPQhsdH+mvOsW5rR5+hzkO1pSF4bCio+0XYELzNvlBMbDy5eWpgPNguVqT5C216H/L7SpA==
   ProdDeploymentURI:
     secure: Povc/ZMJNsRYfKgrXCQnHb8U0zLY8K3j8nf/rSoUwnqy4NwO03pdd+lK9kBhKuOWYOi/vyrq8u2Su9wqc3iNDIYcaNxcwP3ucCDItASrDIQv0wD4uq+LlDnwH6NJ9z6xjtkjNivG2FcF6KAUdjVaCA==
+  AccessCredentialPassword:
+    secure: +ssIq4M39yXq/VqooAUE56V8KUTDbxgQqB2SgG+edn2P16qNYtIzLWyEUlLhYqC7
 clone_folder: c:\git\ScorchDev
 init:
 - ps: $env:PSModulePath = "$($env:PSModulePath);c:\git\ScorchDev\PowerShellModules"
