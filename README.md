@@ -1,5 +1,5 @@
 ﻿# ScorchDev
-Continuous Deployment for Service Management Automation
+Continuous Deployment for OMS Automation
 
 Master Branch Status: [![Build status](https://ci.appveyor.com/api/projects/status/x2ok9ch7xksiynbj/branch/master?svg=true)](https://ci.appveyor.com/project/randorfer/scorchdev/branch/master)
 
