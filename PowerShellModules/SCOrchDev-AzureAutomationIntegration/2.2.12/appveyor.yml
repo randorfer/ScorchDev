@@ -1,0 +1,20 @@
+version: 1.0.{build}
+pull_requests:
+  do_not_increment_build_number: true
+os: WMF 5
+environment:
+clone_folder: c:\git\PowerShellModules
+init:
+- ps: $env:PSModulePath = "$($env:PSModulePath);c:\Git\PowerShellMdoules;c:\git\ScorchDev\PowerShellModules"
+install:
+- cmd: cinst -y pester
+nuget:
+  disable_publish_on_pr: true
+build: false
+test_script:
+- ps: >-
+    $res = Invoke-Pester -Path "$($env:clone_path)\Tests" -OutputFormat NUnitXml -OutputFile c:\TestsResults.xml -PassThru
+
+    (New-Object 'System.Net.WebClient').UploadFile("https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)", "c:\TestsResults.xml")
+
+    if ($res.FailedCount -gt 0) { throw "$($res.FailedCount) tests failed."}
