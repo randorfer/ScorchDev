@@ -29,3 +29,5 @@ test_script:
 deploy_script:
 - ps: >-
     & c:\git\SCOrchDev\AppVeyor\deploy.ps1
+
+    Get-Content -Path 'C:\Users\appveyor\AppData\Roaming\Windows Azure Powershell\AzureDataCollectionProfile.json'
