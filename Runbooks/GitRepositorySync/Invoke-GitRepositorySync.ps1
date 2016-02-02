@@ -1,4 +1,3 @@
-#requires -Version 3
 <#
 .Synopsis
     Check GIT repository for new commits. If found sync the changes into
