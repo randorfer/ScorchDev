@@ -50,7 +50,7 @@ do
                                                 -StartTime $StartTime `
                                                 @AzureRMAutomationParameters
     $StartTime = (Get-Date)
-    $JobOutput | Format-Table Stream, Summary
+    $JobOutput | % { & "Write-$($_.Type)" $_.Summary }
     if($JobStatus.Status -notin ('New', 'Activating' , 'Running'))
     {
         break
