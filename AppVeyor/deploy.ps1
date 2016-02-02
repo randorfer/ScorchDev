@@ -1,4 +1,6 @@
 $DebugPreference = 'SilentlyContinue'
+$CompletedParams = Write-StartingMessage -CommandName 'Start Azure Automation Deployment'
+Get-ChildItem -Path env:
 Select-LocalDevWorkspace SCOrchDev
 $GlobalVars = Get-BatchAutomationVariable -Prefix 'Global' `
                                           -Name 'AutomationAccountName', 
@@ -15,13 +17,13 @@ Connect-AzureRmAccount -Credential $SubscriptionAccessCredential `
                        -SubscriptionName $GlobalVars.SubscriptionName `
                        -Tenant $GlobalVars.Tenant
 
-$StartTime = (Get-Date)
 $AzureRMAutomationParameters = @{
     'ResourceGroupName' = $GlobalVars.ResourceGroupName
     'AutomationAccountName' = $GlobalVars.AutomationAccountName
 }
 
 # Wait for any running jobs to completed
+$WaitCompleteParam = Write-StartingMessage -CommandName 'Wait for currently running deployments to complete'
 Do
 {
     $ActivatingJob = Get-AzureRmAutomationJob -RunbookName 'Invoke-GitRepositorySync' -Status Activating @AzureRMAutomationParameters
@@ -36,7 +38,10 @@ Do
     Start-Sleep -Seconds 5
 }
 While($true)
+Write-CompletedMessage @WaitCompleteParam
 
+$ImportJobCOmpletedParam = Write-StartingMessage -CommandName 'Import Job'
+$StartTime = (Get-Date)
 $JobStatus = Start-AzureRmAutomationRunbook -Name 'Invoke-GitRepositorySync' `
                                             -RunOn $GlobalVars.HybridWorkerGroup `
                                             @AzureRMAutomationParameters
@@ -58,3 +63,5 @@ do
     Start-Sleep -Seconds 5
 }
 while($true)
+Write-CompletedMessage @ImportJobCOmpletedParam
+Write-CompletedMessage @CompletedParams
