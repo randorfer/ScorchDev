@@ -17,9 +17,7 @@ nuget:
 build: false
 test_script:
 - ps: >-
-    $ClonePath = 'c:\git\SCOrchDev'
-
-    $res = Invoke-Pester -Path "$ClonePath\Tests" -OutputFormat NUnitXml -OutputFile c:\TestsResults.xml -PassThru
+    $res = Invoke-Pester -Path "$($env:clone_path)\Tests" -OutputFormat NUnitXml -OutputFile c:\TestsResults.xml -PassThru
 
     (New-Object 'System.Net.WebClient').UploadFile("https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)", "c:\TestsResults.xml")
 
