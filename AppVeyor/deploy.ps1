@@ -21,6 +21,22 @@ $AzureRMAutomationParameters = @{
     'AutomationAccountName' = $GlobalVars.AutomationAccountName
 }
 
+# Wait for any running jobs to completed
+Do
+{
+    $ActivatingJob = Get-AzureRmAutomationJob -RunbookName 'Invoke-GitRepositorySync' -Status Activating @AzureRMAutomationParameters
+    $RunningJob = Get-AzureRmAutomationJob -RunbookName 'Invoke-GitRepositorySync' -Status Running @AzureRMAutomationParameters
+    $StartingJob= Get-AzureRmAutomationJob -RunbookName 'Invoke-GitRepositorySync' -Status Starting @AzureRMAutomationParameters
+    
+    if(-not ($ActivatingJob -as [bool] -or $RunningJob -as [bool] -or $StartingJob -as [bool]))
+    {
+        break
+    }
+    Write-Verbose -Message 'Waiting for currenty repo sync to complete'
+    Start-Sleep -Seconds 5
+}
+While($true)
+
 $JobStatus = Start-AzureRmAutomationRunbook -Name 'Invoke-GitRepositorySync' `
                                             -RunOn $GlobalVars.HybridWorkerGroup `
                                             @AzureRMAutomationParameters
@@ -34,7 +50,7 @@ do
                                                 -StartTime $StartTime `
                                                 @AzureRMAutomationParameters
     $StartTime = (Get-Date)
-    $JobOutput | % { & "Write-$($_.Type)" -Message $_.Summary }
+    $JobOutput | Format-Table Stream, Summary
     if($JobStatus.Status -notin ('New', 'Activating' , 'Running'))
     {
         break
