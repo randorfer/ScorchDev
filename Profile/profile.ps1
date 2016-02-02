@@ -36,7 +36,24 @@ $Env:AutomationWorkspace = $AutomationWorkspace | ConvertTo-Json
 $VerbosePreference = 'Continue'
 $DebugPreference = 'Continue'
 
-# Load posh-git example profile
-. "$(((Get-Module -Name Posh-Git -ListAvailable).Path -as [System.IO.FileInfo]).Directory)\profile.example.ps1"
+
+if((Get-Module -Name posh-git -ListAvailable) -as [bool])
+{
+    # use this instead (see about_Modules for more information):
+    Import-Module posh-git
+
+
+    # Set up a simple prompt, adding the git prompt parts inside git repos
+    function global:prompt {
+        $realLASTEXITCODE = $LASTEXITCODE
+
+        Write-Host($pwd.ProviderPath) -nonewline
+
+        Write-VcsStatus
+
+        $global:LASTEXITCODE = $realLASTEXITCODE
+        return "> "
+    }
+}
 
 Set-StrictMode -Version 1
