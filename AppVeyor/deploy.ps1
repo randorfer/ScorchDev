@@ -1,7 +1,7 @@
 $DebugPreference = 'SilentlyContinue'
 $CompletedParams = Write-StartingMessage -CommandName 'Start Azure Automation Deployment'
 
-New-Item -Path 'C:\Users\appveyor\AppData\Roaming\Windows Azure Powershell' -ItemType File -Name 'AzureDataCollectionProfile.json' -Value '{"enableAzureDataCollection":false}'
+New-Item -Path 'C:\Users\appveyor\AppData\Roaming\Windows Azure Powershell' -ItemType File -Name 'AzureDataCollectionProfile.json' -Value '{"enableAzureDataCollection":false}' -Force
 
 Select-LocalDevWorkspace SCOrchDev
 $GlobalVars = Get-BatchAutomationVariable -Prefix 'Global' `
