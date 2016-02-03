@@ -1,6 +1,6 @@
 $DebugPreference = 'SilentlyContinue'
 $CompletedParams = Write-StartingMessage -CommandName 'Start Azure Automation Deployment'
-Get-ChildItem -Path env:
+
 Select-LocalDevWorkspace SCOrchDev
 $GlobalVars = Get-BatchAutomationVariable -Prefix 'Global' `
                                           -Name 'AutomationAccountName', 

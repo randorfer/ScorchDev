@@ -12,6 +12,7 @@ environment:
 clone_folder: c:\git\ScorchDev
 init:
 - ps: $env:PSModulePath = "$($env:PSModulePath);c:\git\ScorchDev\PowerShellModules"
+- ps: New-Item -Path 'C:\Users\appveyor\AppData\Roaming\Windows Azure Powershell' -ItemType File -Name 'AzureDataCollectionProfile.json' -Value '{"enableAzureDataCollection":false}'
 install:
 - cmd: cinst -y pester
 nuget:
@@ -29,5 +30,3 @@ test_script:
 deploy_script:
 - ps: >-
     & c:\git\SCOrchDev\AppVeyor\deploy.ps1
-
-    Get-Content -Path 'C:\Users\appveyor\AppData\Roaming\Windows Azure Powershell\AzureDataCollectionProfile.json'
