@@ -9,13 +9,13 @@
 @{
 
 # Script module or binary module file associated with this manifest.
-RootModule = '.\SCOrchDev-AzureAutomationIntegration.psm1'
+RootModule = '.\SCOrchDev-Exception.psm1'
 
 # Version number of this module.
-ModuleVersion = '2.2.10'
+ModuleVersion = '2.2.1'
 
 # ID used to uniquely identify this module
-GUID = '1dafd04a-a2c2-4245-a2ba-69bfcd6bfe0a'
+GUID = '41d1dfce-c2f0-42e5-b4b0-43eac2226fcd'
 
 # Author of this module
 Author = 'Ryan Andorfer'
@@ -27,7 +27,75 @@ CompanyName = 'SCOrchDev'
 Copyright = '(c) SCOrchDev. All rights reserved.'
 
 # Description of the functionality provided by this module
-Description = 'Integration wrapper for Azure Automation'
+Description = @'
+Used for wrapping and handling custom exceptions.
+
+This is designed to make good error handling routines for enterprise automation like what is written for SMA.
+Using this library you can make routines (like below) that behave consistantly in PowerShell and PowerShell worfklow.
+The module also has functions for throwing meaningful errors to any PowerShell stream or converting an exception to a
+string for usage in other functions.
+
+Example:
+
+Function Test-Throw-Function
+{
+    try
+    {
+        Throw-Exception -Type 'CustomTypeA' `
+                        -Message 'MessageA' `
+                        -Property @{
+                            'a' = 'b'
+                        }
+    }
+    catch
+    {
+        $Exception = $_
+        $ExceptionInfo = Get-ExceptionInfo -Exception $Exception
+        Switch -CaseSensitive ($ExceptionInfo.Type)
+        {
+            'CustomTypeA'
+            {
+                Write-Exception -Exception $Exception -Stream Verbose
+                $a = $_
+            }
+            Default
+            {
+                Write-Warning -Message 'unhandled' -WarningAction Continue
+            }
+        }
+    }
+}
+
+
+Workflow Test-Throw-Workflow
+{
+    try
+    {
+        Throw-Exception -Type 'CustomTypeA' `
+                        -Message 'MessageA' `
+                        -Property @{
+                            'a' = 'b'
+                        }
+    }
+    catch
+    {
+        $Exception = $_
+        $ExceptionInfo = Get-ExceptionInfo -Exception $Exception
+        Switch -CaseSensitive ($ExceptionInfo.Type)
+        {
+            'CustomTypeA'
+            {
+                Write-Exception -Exception $Exception -Stream Verbose
+                $a = $_
+            }
+            Default
+            {
+                Write-Warning -Message 'unhandled' -WarningAction Continue
+            }
+        }
+    }
+}
+'@
 
 # Minimum version of the Windows PowerShell engine required by this module
 PowerShellVersion = '4.0'
@@ -48,7 +116,7 @@ PowerShellVersion = '4.0'
 # ProcessorArchitecture = ''
 
 # Modules that must be imported into the global environment prior to importing this module
-RequiredModules = @('SCOrchDev-Utility', 'SCOrchDev-GitIntegration', 'SCOrchDev-Exception')
+#RequiredModules = @('SCOrchDev-Utility')
 
 # Assemblies that must be loaded prior to importing this module
 # RequiredAssemblies = @()
@@ -78,10 +146,10 @@ VariablesToExport = '*'
 AliasesToExport = '*'
 
 # List of all modules packaged with this module
-ModuleList = @('SCOrchDev-AzureAutomationIntegration')
+ModuleList = @('SCOrchDev-Exception')
 
 # List of all files packaged with this module
-FileList = @('SCOrchDev-AzureAutomationIntegration.psd1', 'SCOrchDev-AzureAutomationIntegration.psm1', 'LICENSE', 'README.md', 'SCOrchDev-AzureAutomationIntegration.tests.ps1')
+FileList = @('SCOrchDev-Exception.psd1', 'SCOrchDev-Exception.psm1', 'LICENSE', 'README.md', 'SCOrchDev-Exception.Tests.ps1')
 
 # Private data to pass to the module specified in RootModule/ModuleToProcess
 # PrivateData = ''
@@ -91,4 +159,5 @@ FileList = @('SCOrchDev-AzureAutomationIntegration.psd1', 'SCOrchDev-AzureAutoma
 
 # Default prefix for commands exported from this module. Override the default prefix using Import-Module -Prefix.
 # DefaultCommandPrefix = ''
+
 }
