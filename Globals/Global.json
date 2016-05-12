@@ -25,6 +25,11 @@
                                                       "Description":  "",
                                                       "Value":  "Microsoft Azure Internal Consumption"
                                                   },
+                      "Global-SyncTarget":  {
+                                                "isEncrypted":  false,
+                                                "Description":  "",
+                                                "Value":  "[\"sco-oms-wrk-01.scorchdev.com\"]"
+                                            },
                       "Global-AutomationAccountName":  {
                                                            "isEncrypted":  false,
                                                            "Description":  "",
