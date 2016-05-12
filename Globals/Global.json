@@ -10,6 +10,11 @@
                                                         "Description":  "",
                                                         "Value":  "scodev"
                                                     },
+                      "Global-AutomationAccountName":  {
+                                                           "isEncrypted":  false,
+                                                           "Description":  "",
+                                                           "Value":  "SCOrchDev-Staging"
+                                                       },
                       "Global-Tenant":  {
                                             "isEncrypted":  false,
                                             "Description":  "",
@@ -25,11 +30,11 @@
                                                       "Description":  "",
                                                       "Value":  "Microsoft Azure Internal Consumption"
                                                   },
-                      "Global-AutomationAccountName":  {
-                                                           "isEncrypted":  false,
-                                                           "Description":  "",
-                                                           "Value":  "SCOrchDev-Staging"
-                                                       },
+                      "Global-SyncTarget":  {
+                                                "isEncrypted":  false,
+                                                "Description":  "",
+                                                "Value":  "[\"sco-oms-wrk-02.scorchdev.com\"]"
+                                            },
                       "Global-HybridWorkerGroup":  {
                                                        "isEncrypted":  false,
                                                        "Description":  "",

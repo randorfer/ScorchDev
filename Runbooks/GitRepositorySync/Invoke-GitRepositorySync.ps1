@@ -16,7 +16,8 @@ $GlobalVars = Get-BatchAutomationVariable -Prefix 'Global' `
                                                 'RunbookWorkerAccessCredentialName',
                                                 'ResourceGroupName',
                                                 'Tenant',
-                                                'StorageAccountName'
+                                                'StorageAccountName',
+                                                'SyncTarget'
 
 $SubscriptionAccessCredential = Get-AutomationPSCredential -Name $GlobalVars.SubscriptionAccessCredentialName
 $RunbookWorkerAccessCredential = Get-AutomationPSCredential -Name $GlobalVars.RunbookWorkerAccessCredentialName
@@ -26,6 +27,8 @@ Try
     $RepositoryInformationJSON = Get-AutomationVariable -Name 'ContinuousIntegration-RepositoryInformation'
     Connect-AzureRmAccount -Credential $SubscriptionAccessCredential -SubscriptionName $GlobalVars.SubscriptionName -Tenant $GlobalVars.Tenant
 
+    $SyncTarget = $GlobalVars.SyncTarget | ConvertFrom-Json
+
     $UpdatedRepositoryInformation = Sync-GitRepositoryToAzureAutomation -AutomationAccountName $GlobalVars.AutomationAccountName `
                                                                         -SubscriptionName $GlobalVars.SubscriptionName `
                                                                         -SubscriptionAccessCredential $SubscriptionAccessCredential `
@@ -33,7 +36,8 @@ Try
                                                                         -RepositoryInformationJSON $RepositoryInformationJSON `
                                                                         -ResourceGroupName $GlobalVars.ResourceGroupName `
                                                                         -Tenant $GlobalVars.Tenant `
-                                                                        -StorageAccountName $GlobalVars.StorageAccountName
+                                                                        -StorageAccountName $GlobalVars.StorageAccountName `
+                                                                        -SyncTarget $SyncTarget
 
     Set-AutomationVariable -Name 'ContinuousIntegration-RepositoryInformation' `
                             -Value $UpdatedRepositoryInformation
