@@ -28,7 +28,7 @@
                       "Global-SyncTarget":  {
                                                 "isEncrypted":  false,
                                                 "Description":  "",
-                                                "Value":  "[\"sco-oms-wrk-01.scorchdev.com\"]"
+                                                "Value":  "[\"sco-oms-wrk-02.scorchdev.com\"]"
                                             },
                       "Global-AutomationAccountName":  {
                                                            "isEncrypted":  false,
