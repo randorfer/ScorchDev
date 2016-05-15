@@ -1,0 +1,8 @@
+﻿
+[ClassVersion("1.0.0.0"), FriendlyName("cGitRepository")]
+class cGitRepository : OMI_BaseResource
+{
+    [Key] String Repository;
+    [Required] String BaseDirectory;
+    [Required, ValueMap{"Present","Absent"}, Values{"Present","Absent"}] String Ensure;
+};

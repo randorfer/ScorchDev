@@ -1,0 +1,8 @@
+﻿
+[ClassVersion("1.0.0.0"), FriendlyName("cGitRepositoryBranchUpdate")]
+class cGitRepositoryBranchUpdate : OMI_BaseResource
+{
+    [Key] String Repository;
+    [Required] String BaseDirectory;
+    [Required] String Branch;
+};
