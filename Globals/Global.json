@@ -33,7 +33,7 @@
                       "Global-AutomationAccountName":  {
                                                            "isEncrypted":  false,
                                                            "Description":  "",
-                                                           "Value":  "SCOrchDev"
+                                                           "Value":  "SCOrchDev-Staging"
                                                        },
                       "Global-HybridWorkerGroup":  {
                                                        "isEncrypted":  false,
