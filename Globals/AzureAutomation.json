@@ -3,12 +3,12 @@
                       "AzureAutomation-AutomationAccountPrimaryKeyName":  {
                                                                               "isEncrypted":  false,
                                                                               "Description":  "",
-                                                                              "Value":  "SCOrchDev-Staging-PrimaryKey"
+                                                                              "Value":  "SCOrchDev-PrimaryKey"
                                                                           },
                       "AzureAutomation-AutomationAccountURL":  {
                                                                    "isEncrypted":  false,
                                                                    "Description":  "",
-                                                                   "Value":  "https://eus2-agentservice-prod-1.azure-automation.net/accounts/514bc3aa-eb73-46e9-a666-66d522c37c9e"
+                                                                   "Value":  "https://eus2-agentservice-prod-1.azure-automation.net/accounts/29c065e5-4295-47f9-b89e-8649c179e50a"
                                                                },
                       "AzureAutomation-WorkspaceID":  {
                                                           "isEncrypted":  false,
@@ -18,12 +18,12 @@
                       "AzureAutomation-GitRepository":  {
                                                             "isEncrypted":  false,
                                                             "Description":  "",
-                                                            "Value":  "{\"https://github.com/randorfer/RunbookExample\":\"vNext\",\"https://github.com/randorfer/SCOrchDev\":\"vNext\"}"
+                                                            "Value":  "{\"https://github.com/randorfer/RunbookExample\":\"master\",\"https://github.com/randorfer/SCOrchDev\":\"master\"}"
                                                         },
                       "AzureAutomation-HybridRunbookWorkerGroupName":  {
                                                                            "isEncrypted":  false,
                                                                            "Description":  "",
-                                                                           "Value":  "Test"
+                                                                           "Value":  "USEast"
                                                                        },
                       "AzureAutomation-LocalGitRepositoryRoot":  {
                                                                      "isEncrypted":  false,
