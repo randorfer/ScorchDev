@@ -13,12 +13,12 @@
                       "zzGlobal-SubscriptionAccessTenant":  {
                                             "isEncrypted":  false,
                                             "Description":  "The tenant id for ServicePrincipal type auth. Can be blank",
-                                            "Value":  "72f988bf-86f1-41af-91ab-2d7cd011db47"
+                                            "Value":  ""
                                         },
                       "zzGlobal-SubscriptionAccessCredentialName":  {
                                                                       "isEncrypted":  false,
                                                                       "Description":  "Name of the credential to be used for authenticating to the subscription",
-                                                                      "Value":  "6640d6a4-7a7c-45b9-b0a9-bbc055bf8684"
+                                                                      "Value":  "scorchd@microsoft.com"
                                                                   },
                       "zzGlobal-SubscriptionName":  {
                                                       "isEncrypted":  false,
@@ -40,11 +40,6 @@
                                                        "Description":  "resource group that the target automation account is stored in",
                                                        "Value":  "SCOrchDev"
                                                    },
-                                                   "AzureAutomation-WorkspaceID":  {
-                                                          "isEncrypted":  false,
-                                                          "Description":  "",
-                                                          "Value":  "09249256-99e5-4c6e-9d7a-3b73e3a90281"
-                                                      },
                       "zzGlobal-GitRepository":  {
                                                     "isEncrypted":  false,
                                                     "Description":  "a key value pair of repositories and their respective branches to sync into this automation account",
