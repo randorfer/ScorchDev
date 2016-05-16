@@ -31,7 +31,7 @@ Try
     $UpdatedGitRepositoryCurrentCommit = Sync-GitRepositoryToAzureAutomation -AutomationAccountName $GlobalVars.AutomationAccountName `
                                                                              -SubscriptionName $GlobalVars.SubscriptionName `
                                                                              -SubscriptionAccessCredential $SubscriptionAccessCredential `
-                                                                             -RunbookWorkerAccessCredenial $RunbookWorkerAccessCredential `
+                                                                             -RunbookWorkerAccessCredential $RunbookWorkerAccessCredential `
                                                                              -ResourceGroupName $GlobalVars.ResourceGroupName `
                                                                              -Tenant $GlobalVars.Tenant `
                                                                              -StorageAccountName $GlobalVars.StorageAccountName `
