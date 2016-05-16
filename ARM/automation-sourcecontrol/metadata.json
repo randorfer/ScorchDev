@@ -1,0 +1,7 @@
+{
+  "itemDisplayName": "Create an Azure Automation Account with source control integration configured",
+  "description": "Deploys an Azure Automation Account, VMSS for the hybrid runbook worker group and DSC configuration for hybrid runbook worker setup",
+  "summary": "This template deploys a Azure Automation Account, PowerShell Modules, New DSC Configurartion and VM Scale Set then registers the virtual machines in Azure Automation DSC.",
+  "githubUsername": "randorfer",
+  "dateUpdated": "2016-05-15"
+}

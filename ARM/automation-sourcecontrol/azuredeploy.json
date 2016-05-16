@@ -1,0 +1,518 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "automationAccountName": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of the Azure Automation account to deploy to."
+      }
+    },
+    "automationRegionId": {
+      "type": "string",
+      "defaultValue": "East US 2",
+      "allowedValues": [
+        "Japan East",
+        "East US 2",
+        "West Europe",
+        "Southeast Asia",
+        "South Central US",
+        "Central India"
+      ],
+      "metadata": {
+        "description": "The region the Automation account is located in."
+      }
+    },
+    "workspaceId": {
+      "type": "string",
+      "metadata": {
+        "description": "The Workspace ID of a Log Analytics environment with the automation solution deployed to it."
+      }
+    },
+    "hybridRunbookWorkerGroupName": {
+      "type": "string",
+      "defaultValue": "hybrid",
+      "metadata": {
+        "description": "The friendly name of the hybrid runbook worker group."
+      }
+    },
+    "gitRepository": {
+      "type": "string",
+      "defaultValue": "{\\\"https://github.com/randorfer/RunbookExample\\\":\\\"vNext\\\",\\\"https://github.com/randorfer/SCOrchDev\\\":\\\"vNext\\\"}",
+      "metadata": {
+        "description": "JSON String of Key Value Pairs for the repositories / branches to sync."
+      }
+    },
+    "LocalGitRepositoryRoot": {
+      "type": "string",
+      "defaultValue": "c:\\\\git",
+      "metadata": {
+        "description": "Local path to map the git repositories to on the hybrid runbook workers."
+      }
+    },
+    "SubscriptionName": {
+      "type": "string",
+      "defaultValue": "Microsoft Azure Internal Consumption",
+      "metadata": {
+        "description": "Name of the subscription the automation account is provisioned into."
+      }
+    },
+    "SubscriptionAccessCredentialName": {
+      "type": "string",
+      "defaultValue": "DefaultAzureCredential",
+      "metadata": {
+        "description": "DefaultAzureCredential is the name of the Automation credential used in this runbook. This credential allows you to authenticate to Azure. "
+      }
+    },
+    "SubscriptionAccessTenant": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "The tenant value for the default credential. Can be blank if not using ServicePrincipal."
+      }
+    },
+    "SubscriptionAccessCredentialPassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "The password for the Azure Automation credential."
+      }
+    },
+    "jobId": {
+      "type": "string",
+      "metadata": {
+        "description": "The job id to compile the configuration"
+      }
+    }
+  },
+  "variables": {
+    "runbookName": "Invoke-GitRepositorySync",
+    "scriptUri": "https://raw.githubusercontent.com/randorfer/ScorchDev/master/Runbooks/GitRepositorySync/Invoke-GitRepositorySync.ps1",
+    "runbookDescription": "Starts a git repository sync",
+    "sku": "Free",
+    "dscModules": {
+      "xPSDesiredStateConfiguration": {
+        "moduleName": "xPSDesiredStateConfiguration",
+        "moduleUri": "https://github.com/randorfer/RunbookExample/raw/vNext/ARM/automation-sourcecontrol/xPSDesiredStateConfiguration.zip"
+      },
+      "cGit": {
+        "moduleName": "cGit",
+        "moduleUri": "https://github.com/randorfer/RunbookExample/raw/vNext/ARM/automation-sourcecontrol/cGit.zip"
+      },
+      "cWindowscomputer": {
+        "moduleName": "cWindowscomputer",
+        "moduleUri": "https://github.com/randorfer/RunbookExample/raw/vNext/ARM/automation-sourcecontrol/cWindowsComputer.zip"
+      },
+      "cAzureAutomation": {
+        "moduleName": "cAzureAutomation",
+        "moduleUri": "https://github.com/randorfer/RunbookExample/raw/vNext/ARM/automation-sourcecontrol/cAzureAutomation.zip"
+      }
+    },
+    "psModules": {
+      "SCOrchDevAzureAutomationIntegration": {
+        "moduleName": "SCOrchDev-AzureAutomationIntegration",
+        "moduleUri": "https://github.com/randorfer/RunbookExample/raw/vNext/ARM/automation-sourcecontrol/SCOrchDev-AzureAutomationIntegration.zip"
+      },
+      "SCOrchDevException": {
+        "moduleName": "SCOrchDev-Exception",
+        "moduleUri": "https://github.com/randorfer/RunbookExample/raw/vNext/ARM/automation-sourcecontrol/SCOrchDev-Exception.zip"
+      },
+      "SCOrchDevFile": {
+        "moduleName": "SCOrchDev-File",
+        "moduleUri": "https://github.com/randorfer/RunbookExample/raw/vNext/ARM/automation-sourcecontrol/SCOrchDev-File.zip"
+      },
+      "SCOrchDevGitIntegration": {
+        "moduleName": "SCOrchDev-GitIntegration",
+        "moduleUri": "https://github.com/randorfer/RunbookExample/raw/vNext/ARM/automation-sourcecontrol/SCOrchDev-GitIntegration.zip"
+      },
+      "SCOrchDevUtility": {
+        "moduleName": "SCOrchDev-Utility",
+        "moduleUri": "https://github.com/randorfer/RunbookExample/raw/vNext/ARM/automation-sourcecontrol/SCOrchDev-Utility.zip"
+      }
+    },
+    "automationApiVersion": "2015-10-31",
+    "configurationName": "AzureAutomation",
+    "configurationUri": "https://raw.githubusercontent.com/randorfer/ScorchDev/master/DSC/AzureAutomation.ps1",
+    "configurationDescription": "Azure Automation Runbook worker default configuration",
+    "dscOverwrite": "true"
+  },
+  "resources": [
+    {
+      "name": "[parameters('automationAccountName')]",
+      "type": "Microsoft.Automation/automationAccounts",
+      "apiVersion": "2015-01-01-preview",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [ ],
+      "tags": { },
+      "properties": {
+        "sku": {
+          "name": "[variables('sku')]"
+        }
+      },
+      "resources": [
+        {
+          "name": "[variables('runbookName')]",
+          "type": "runbooks",
+          "apiVersion": "2015-01-01-preview",
+          "location": "[resourceGroup().location]",
+          "dependsOn": [
+            "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'))]"
+          ],
+          "tags": { },
+          "properties": {
+            "runbookType": "PowerShell",
+            "logProgress": "false",
+            "logVerbose": "false",
+            "description": "[variables('runbookDescription')]",
+            "publishContentLink": {
+              "uri": "[variables('scriptUri')]",
+              "version": "1.0.0.0"
+            }
+          }
+        },
+        {
+          "name": "[concat(parameters('automationAccountName'), '/', variables('dscModules').xPSDesiredStateConfiguration.ModuleName)]",
+          "type": "microsoft.automation/automationAccounts/Modules",
+          "apiVersion": "[variables('automationApiVersion')]",
+          "tags": { },
+          "dependsOn": [
+            "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'))]"
+          ],
+          "properties": {
+            "contentLink": {
+              "uri": "[variables('dscModules').xPSDesiredStateConfiguration.ModuleUri]"
+            }
+          }
+        },
+        {
+          "name": "[concat(parameters('automationAccountName'), '/', variables('dscModules').cGit.ModuleName)]",
+          "type": "microsoft.automation/automationAccounts/Modules",
+          "apiVersion": "[variables('automationApiVersion')]",
+          "tags": { },
+          "dependsOn": [
+            "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'))]"
+          ],
+          "properties": {
+            "contentLink": {
+              "uri": "[variables('dscModules').cGit.ModuleUri]"
+            }
+          }
+        },
+        {
+          "name": "[concat(parameters('automationAccountName'), '/', variables('dscModules').cWindowscomputer.ModuleName)]",
+          "type": "microsoft.automation/automationAccounts/Modules",
+          "apiVersion": "[variables('automationApiVersion')]",
+          "tags": { },
+          "dependsOn": [
+            "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'))]"
+          ],
+          "properties": {
+            "contentLink": {
+              "uri": "[variables('dscModules').cWindowscomputer.ModuleUri]"
+            }
+          }
+        },
+        {
+          "name": "[concat(parameters('automationAccountName'), '/', variables('dscModules').cAzureAutomation.ModuleName)]",
+          "type": "microsoft.automation/automationAccounts/Modules",
+          "apiVersion": "[variables('automationApiVersion')]",
+          "tags": { },
+          "dependsOn": [
+            "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'))]"
+          ],
+          "properties": {
+            "contentLink": {
+              "uri": "[variables('dscModules').cAzureAutomation.ModuleUri]"
+            }
+          }
+        },
+        {
+          "name": "[concat(parameters('automationAccountName'), '/', variables('psModules').SCOrchDevUtility.ModuleName)]",
+          "type": "microsoft.automation/automationAccounts/Modules",
+          "apiVersion": "[variables('automationApiVersion')]",
+          "tags": { },
+          "dependsOn": [
+            "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'))]"
+          ],
+          "properties": {
+            "contentLink": {
+              "uri": "[variables('psModules').SCOrchDevUtility.ModuleUri]"
+            }
+          }
+        },
+        {
+          "name": "[concat(parameters('automationAccountName'), '/', variables('psModules').SCOrchDevException.ModuleName)]",
+          "type": "microsoft.automation/automationAccounts/Modules",
+          "apiVersion": "[variables('automationApiVersion')]",
+          "tags": { },
+          "dependsOn": [
+            "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'))]",
+            "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'),'/Modules/',variables('psModules').SCOrchDevUtility.ModuleName)]"
+          ],
+          "properties": {
+            "contentLink": {
+              "uri": "[variables('psModules').SCOrchDevException.ModuleUri]"
+            }
+          }
+        },
+        {
+          "name": "[concat(parameters('automationAccountName'), '/', variables('psModules').SCOrchDevFile.ModuleName)]",
+          "type": "microsoft.automation/automationAccounts/Modules",
+          "apiVersion": "[variables('automationApiVersion')]",
+          "tags": { },
+          "dependsOn": [
+            "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'))]",
+            "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'),'/Modules/',variables('psModules').SCOrchDevUtility.ModuleName)]",
+            "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'),'/Modules/',variables('psModules').SCOrchDevException.ModuleName)]"
+          ],
+          "properties": {
+            "contentLink": {
+              "uri": "[variables('psModules').SCOrchDevFile.ModuleUri]"
+            }
+          }
+        },
+        {
+          "name": "[concat(parameters('automationAccountName'), '/', variables('psModules').SCOrchDevGitIntegration.ModuleName)]",
+          "type": "microsoft.automation/automationAccounts/Modules",
+          "apiVersion": "[variables('automationApiVersion')]",
+          "tags": { },
+          "dependsOn": [
+            "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'))]",
+            "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'),'/Modules/',variables('psModules').SCOrchDevUtility.ModuleName)]",
+            "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'),'/Modules/',variables('psModules').SCOrchDevException.ModuleName)]",
+            "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'),'/Modules/',variables('psModules').SCOrchDevFile.ModuleName)]"
+          ],
+          "properties": {
+            "contentLink": {
+              "uri": "[variables('psModules').SCOrchDevGitIntegration.ModuleUri]"
+            }
+          }
+        },
+        {
+          "name": "[concat(parameters('automationAccountName'), '/', variables('psModules').SCOrchDevAzureAutomationIntegration.ModuleName)]",
+          "type": "microsoft.automation/automationAccounts/Modules",
+          "apiVersion": "[variables('automationApiVersion')]",
+          "tags": { },
+          "dependsOn": [
+            "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'))]",
+            "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'),'/Modules/',variables('psModules').SCOrchDevUtility.ModuleName)]",
+            "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'),'/Modules/',variables('psModules').SCOrchDevException.ModuleName)]",
+            "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'),'/Modules/',variables('psModules').SCOrchDevFile.ModuleName)]"
+          ],
+          "properties": {
+            "contentLink": {
+              "uri": "[variables('psModules').SCOrchDevAzureAutomationIntegration.ModuleUri]"
+            }
+          }
+        },
+        {
+          "name": "[concat(parameters('automationAccountName'), '/', parameters('SubscriptionAccessCredentialName'))]",
+          "type": "microsoft.automation/automationAccounts/Credentials",
+          "apiVersion": "2015-01-01-preview",
+          "location": "[resourceGroup().location]",
+          "dependsOn": [
+            "[concat('Microsoft.Automation/automationAccounts/', parameters('AutomationAccountName'))]"
+          ],
+          "tags": { },
+          "properties": {
+            "userName": "[parameters('SubscriptionAccessCredentialName')]",
+            "password": "[parameters('SubscriptionAccessCredentialPassword')]"
+          }
+        },
+        {
+          "name": "[concat(parameters('automationAccountName'), '/', 'Global-SubscriptionAccessCredentialName')]",
+          "type": "microsoft.automation/automationAccounts/Variables",
+          "apiVersion": "2015-01-01-preview",
+          "location": "[resourceGroup().location]",
+          "dependsOn": [
+            "[concat('Microsoft.Automation/automationAccounts/', parameters('AutomationAccountName'))]"
+          ],
+          "tags": { },
+          "properties": {
+            "description": " ",
+            "isEncrypted": "false",
+            "type": "string",
+            "value": "[concat('\"', parameters('SubscriptionAccessCredentialName'),'\"')]"
+          }
+        },
+        {
+          "name": "[concat(parameters('automationAccountName'), '/', 'Global-SubscriptionName')]",
+          "type": "microsoft.automation/automationAccounts/Variables",
+          "apiVersion": "2015-01-01-preview",
+          "location": "[resourceGroup().location]",
+          "dependsOn": [
+            "[concat('Microsoft.Automation/automationAccounts/', parameters('AutomationAccountName'))]"
+          ],
+          "tags": { },
+          "properties": {
+            "description": " ",
+            "isEncrypted": "false",
+            "type": "string",
+            "value": "[concat('\"', parameters('SubscriptionName'),'\"')]"
+          }
+        },
+        {
+          "name": "[concat(parameters('automationAccountName'), '/', 'Global-AutomationAccountName')]",
+          "type": "microsoft.automation/automationAccounts/Variables",
+          "apiVersion": "2015-01-01-preview",
+          "location": "[resourceGroup().location]",
+          "dependsOn": [
+            "[concat('Microsoft.Automation/automationAccounts/', parameters('AutomationAccountName'))]"
+          ],
+          "tags": { },
+          "properties": {
+            "description": " ",
+            "isEncrypted": "false",
+            "type": "string",
+            "value": "[concat('\"', parameters('AutomationAccountName'),'\"')]"
+          }
+        },
+        {
+          "name": "[concat(parameters('automationAccountName'), '/', 'Global-Tenant')]",
+          "type": "microsoft.automation/automationAccounts/Variables",
+          "apiVersion": "2015-01-01-preview",
+          "location": "[resourceGroup().location]",
+          "dependsOn": [
+            "[concat('Microsoft.Automation/automationAccounts/', parameters('AutomationAccountName'))]"
+          ],
+          "tags": { },
+          "properties": {
+            "description": " ",
+            "isEncrypted": "false",
+            "type": "string",
+            "value": "[concat('\"', parameters('SubscriptionAccessTenant'),'\"')]"
+          }
+        },
+
+        {
+          "name": "[concat(parameters('automationAccountName'), '/', 'Global-ResourceGroupName')]",
+          "type": "microsoft.automation/automationAccounts/Variables",
+          "apiVersion": "2015-01-01-preview",
+          "location": "[resourceGroup().location]",
+          "dependsOn": [
+            "[concat('Microsoft.Automation/automationAccounts/', parameters('AutomationAccountName'))]"
+          ],
+          "tags": { },
+          "properties": {
+            "description": " ",
+            "isEncrypted": "false",
+            "type": "string",
+            "value": "[concat('\"', resourceGroup().Name,'\"')]"
+          }
+        },
+        {
+          "name": "[concat(parameters('automationAccountName'), '/', 'AzureAutomation-WorkspaceID')]",
+          "type": "microsoft.automation/automationAccounts/Variables",
+          "apiVersion": "2015-01-01-preview",
+          "location": "[resourceGroup().location]",
+          "dependsOn": [
+            "[concat('Microsoft.Automation/automationAccounts/', parameters('AutomationAccountName'))]"
+          ],
+          "tags": { },
+          "properties": {
+            "description": " ",
+            "isEncrypted": "false",
+            "type": "string",
+            "value": "[concat('\"', parameters('workspaceId'),'\"')]"
+          }
+        },
+        {
+          "name": "[concat(parameters('automationAccountName'), '/', 'AzureAutomation-HybridRunbookWorkerGroupName')]",
+          "type": "microsoft.automation/automationAccounts/Variables",
+          "apiVersion": "2015-01-01-preview",
+          "location": "[resourceGroup().location]",
+          "dependsOn": [
+            "[concat('Microsoft.Automation/automationAccounts/', parameters('AutomationAccountName'))]"
+          ],
+          "tags": { },
+          "properties": {
+            "description": " ",
+            "isEncrypted": "false",
+            "type": "string",
+            "value": "[concat('\"', parameters('HybridRunbookWorkerGroupName'),'\"')]"
+          }
+        },
+        {
+          "name": "[concat(parameters('automationAccountName'), '/', 'AzureAutomation-GitRepository')]",
+          "type": "microsoft.automation/automationAccounts/Variables",
+          "apiVersion": "2015-01-01-preview",
+          "location": "[resourceGroup().location]",
+          "dependsOn": [
+            "[concat('Microsoft.Automation/automationAccounts/', parameters('AutomationAccountName'))]"
+          ],
+          "tags": { },
+          "properties": {
+            "description": " ",
+            "isEncrypted": "false",
+            "type": "string",
+            "value": "[concat('\"', parameters('GitRepository'),'\"')]"
+          }
+        },
+        {
+          "name": "[concat(parameters('automationAccountName'), '/', 'AzureAutomation-LocalGitRepositoryRoot')]",
+          "type": "microsoft.automation/automationAccounts/Variables",
+          "apiVersion": "2015-01-01-preview",
+          "location": "[resourceGroup().location]",
+          "dependsOn": [
+            "[concat('Microsoft.Automation/automationAccounts/', parameters('AutomationAccountName'))]"
+          ],
+          "tags": { },
+          "properties": {
+            "description": " ",
+            "isEncrypted": "false",
+            "type": "string",
+            "value": "[concat('\"', parameters('LocalGitRepositoryRoot'),'\"')]"
+          }
+        },
+        {
+          "name": "[variables('configurationName')]",
+          "type": "Configurations",
+          "apiVersion": "[variables('automationApiVersion')]",
+          "location": "[parameters('automationRegionId')]",
+          "tags": { },
+          "dependsOn": [
+            "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'))]",
+            "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'),'/Modules/',variables('psModules').SCOrchDevAzureAutomationIntegration.ModuleName)]",
+            "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'),'/Modules/',variables('dscModules').xPSDesiredStateConfiguration.ModuleName)]",
+            "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'),'/Modules/',variables('dscModules').cGit.ModuleName)]",
+            "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'),'/Modules/',variables('dscModules').cWindowscomputer.ModuleName)]",
+            "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'),'/Modules/',variables('dscModules').cAzureAutomation.ModuleName)]"
+          ],
+          "properties": {
+            "logVerbose": "false",
+            "description": "[variables('configurationDescription')]",
+            "state": "Published",
+            "overwrite": "[variables('dscOverwrite')]",
+            "Source": {
+              "type": "uri",
+              "Value": "[variables('configurationURI')]"
+            }
+          }
+        },
+        {
+          "name": "[parameters('jobId')]",
+          "type": "Compilationjobs",
+          "apiVersion": "[variables('automationApiVersion')]",
+          "location": "parameters('automationRegionId')]",
+          "tags": { },
+          "dependsOn": [
+            "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'))]",
+            "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'),'/Modules/',variables('dscModules').xPSDesiredStateConfiguration.ModuleName)]",
+            "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'),'/Modules/',variables('dscModules').cGit.ModuleName)]",
+            "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'),'/Modules/',variables('dscModules').cWindowscomputer.ModuleName)]",
+            "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'),'/Modules/',variables('dscModules').cAzureAutomation.ModuleName)]",
+            "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'),'/Configurations/', variables('configurationName'))]"
+          ],
+          "properties": {
+            "configuration": {
+              "name": "[variables('configurationName')]"
+            },
+            "parameters": {
+              "ConfigurationData": "{\"AllNodes\":[{\"NodeName\":\"*\",\"PSDscAllowPlainTextPassword\":true},{\"NodeName\":\"HybridRunbookWorker\"}]}"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "outputs": { }
+}
