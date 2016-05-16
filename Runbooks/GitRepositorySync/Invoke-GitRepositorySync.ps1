@@ -15,9 +15,8 @@ $GlobalVars = Get-BatchAutomationVariable -Prefix 'zzGlobal' `
                                                 'SubscriptionAccessCredentialName',
                                                 'RunbookWorkerAccessCredentialName',
                                                 'ResourceGroupName',
-                                                'Tenant',
+                                                'SubscriptionAccessTenant',
                                                 'StorageAccountName',
-                                                'SyncTarget',
                                                 'GitRepositoryCurrentCommit',
                                                 'LocalGitRepositoryRoot'
 
@@ -33,9 +32,8 @@ Try
                                                                              -SubscriptionAccessCredential $SubscriptionAccessCredential `
                                                                              -RunbookWorkerAccessCredential $RunbookWorkerAccessCredential `
                                                                              -ResourceGroupName $GlobalVars.ResourceGroupName `
-                                                                             -Tenant $GlobalVars.Tenant `
+                                                                             -Tenant $GlobalVars.SubscriptionAccessTenant `
                                                                              -StorageAccountName $GlobalVars.StorageAccountName `
-                                                                             -SyncTarget $GlobalVars.SyncTarget `
                                                                              -GitRepositoryCurrentCommit $GlobalVars.GitRepositoryCurrentCommit `
                                                                              -LocalGitRepositoryRoot $GlobalVars.LocalGitRepositoryRoot
 

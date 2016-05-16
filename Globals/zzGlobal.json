@@ -10,7 +10,7 @@
                                                         "Description":  "Name of a storage account for storing PSModules during import",
                                                         "Value":  "scodev"
                                                     },
-                      "zzGlobal-Tenant":  {
+                      "zzGlobal-SubscriptionAccessTenant":  {
                                             "isEncrypted":  false,
                                             "Description":  "The tenant id for ServicePrincipal type auth. Can be blank",
                                             "Value":  "72f988bf-86f1-41af-91ab-2d7cd011db47"
@@ -25,11 +25,6 @@
                                                       "Description":  "",
                                                       "Value":  "Microsoft Azure Internal Consumption"
                                                   },
-                      "zzGlobal-SyncTarget":  {
-                                                "isEncrypted":  false,
-                                                "Description":  "list of servers to intiate a repository sync on at checkin",
-                                                "Value":  "[\"sco-oms-wrk-02.scorchdev.com\"]"
-                                            },
                       "zzGlobal-AutomationAccountName":  {
                                                            "isEncrypted":  false,
                                                            "Description":  "name of the automation account",

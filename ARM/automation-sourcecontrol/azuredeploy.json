@@ -95,6 +95,21 @@
       "metadata": {
         "description": "The job id to compile the configuration"
       }
+    },
+    "StorageAccountType": {
+      "type": "string",
+      "defaultValue": "Standard_LRS",
+      "allowedValues": [
+        "Standard_LRS",
+        "Standard_ZRS",
+        "Standard_GRS",
+        "Standard_RAGRS",
+        "Premium_LRS"
+      ]
+    },
+    "StorageAccountName": {
+      "type": "string",
+      "defaultValue": "[concat('automationstorage', uniqueString(resourceGroup().id))]"
     }
   },
   "variables": {
@@ -146,9 +161,22 @@
     "configurationName": "AzureAutomation",
     "configurationUri": "https://raw.githubusercontent.com/randorfer/ScorchDev/master/DSC/AzureAutomation.ps1",
     "configurationDescription": "Azure Automation Runbook worker default configuration",
-    "dscOverwrite": "true"
+    "dscOverwrite": "true",
   },
   "resources": [
+    {
+      "name": "[parameters('StorageAccountName')]",
+      "type": "Microsoft.Storage/storageAccounts",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2015-06-15",
+      "dependsOn": [ ],
+      "tags": {
+        "displayName": "[parameters('StorageAccountName')]"
+      },
+      "properties": {
+        "accountType": "[parameters('StorageAccountType')]"
+      }
+    },
     {
       "name": "[parameters('automationAccountName')]",
       "type": "Microsoft.Automation/automationAccounts",
