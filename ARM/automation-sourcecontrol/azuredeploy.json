@@ -141,7 +141,7 @@
         "moduleUri": "https://github.com/randorfer/ScorchDev/raw/master/ARM/automation-sourcecontrol/AzureRM.profile.zip"
       },
       "AzureRMAutomation": {
-        "moduleName": "SCOrchDev-AzureAutomationIntegration",
+        "moduleName": "AzureRM.Automation",
         "moduleUri": "https://github.com/randorfer/ScorchDev/raw/master/ARM/automation-sourcecontrol/AzureRM.Automation.zip"
       },
       "SCOrchDevAzureAutomationIntegration": {
