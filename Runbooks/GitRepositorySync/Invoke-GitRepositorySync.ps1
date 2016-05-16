@@ -40,7 +40,7 @@ Try
                                                                              -LocalGitRepositoryRoot $GlobalVars.LocalGitRepositoryRoot
 
     Set-AutomationVariable -Name 'Global-GitRepositoryCurrentCommit' `
-                            -Value $UpdatedGitRepositoryCurrentCommit
+                           -Value $UpdatedGitRepositoryCurrentCommit
 }
 Catch
 {
