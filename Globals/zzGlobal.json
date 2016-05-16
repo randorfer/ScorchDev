@@ -10,7 +10,7 @@
                                                         "Description":  "Name of a storage account for storing PSModules during import",
                                                         "Value":  "scodev"
                                                     },
-                      "zzGlobal-Tenant":  {
+                      "zzGlobal-SubscriptionAccessTenant":  {
                                             "isEncrypted":  false,
                                             "Description":  "The tenant id for ServicePrincipal type auth. Can be blank",
                                             "Value":  "72f988bf-86f1-41af-91ab-2d7cd011db47"
