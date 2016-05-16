@@ -14,18 +14,31 @@
 
     $Vars = Get-BatchAutomationVariable -Prefix 'AzureAutomation' -Name @(
         'WorkspaceID',
-        'AutomationAccountURL',
-        'AutomationAccountPrimaryKeyName',
         'HybridRunbookWorkerGroupName',
         'GitRepository',
         'LocalGitRepositoryRoot'
     )
+
+    $GlobalVars = Get-BatchAutomationVariable -Prefix 'Global' `
+                                              -Name @(
+        'AutomationAccountName',
+        'SubscriptionName',
+        'SubscriptionAccessCredentialName',
+        'ResourceGroupName',
+        'Tenant'
+    )
+
+    $SubscriptionAccessCredential = Get-AutomationPSCredential -Name $GlobalVars.SubscriptionAccessCredentialName
+        
+    Connect-AzureRmAccount -Credential $SubscriptionAccessCredential `
+                           -SubscriptionName $GlobalVars.SubscriptionName `
+                           -Tenant $GlobalVars.Tenant
+
+    $RegistrationInfo = Get-AzureRmAutomationRegistrationInfo -ResourceGroupName $GlobalVars.ResourceGroupName `
+                                                              -AutomationAccountName $GlobalVars.AutomationAccountName
     
     $WorkspaceCredential = Get-AutomationPSCredential -Name $Vars.WorkspaceID
     $WorkspaceKey = $WorkspaceCredential.GetNetworkCredential().Password
-
-    $PrimaryKeyCredential = Get-AutomationPSCredential -Name $Vars.AutomationAccountPrimaryKeyName
-    $PrimaryKey = $PrimaryKeyCredential.GetNetworkCredential().Password
 
     $MMARemotSetupExeURI = 'https://go.microsoft.com/fwlink/?LinkID=517476'
     $MMASetupExe = 'MMASetup-AMD64.exe'
@@ -155,8 +168,8 @@
         cHybridRunbookWorkerRegistration HybridRegistration
         {
             RunbookWorkerGroup = $Vars.HybridRunbookWorkerGroupName
-            AutomationAccountURL = $Vars.AutomationAccountURL
-            Key = $PrimaryKey
+            AutomationAccountURL = $RegistrationInfo.Endpoint
+            Key = $RegistrationInfo.PrimaryKey
             DependsOn = $HybridRunbookWorkerDependency
         }
     }

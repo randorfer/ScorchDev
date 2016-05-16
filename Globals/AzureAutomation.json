@@ -1,15 +1,5 @@
 ﻿{
     "Variables":  {
-                      "AzureAutomation-AutomationAccountPrimaryKeyName":  {
-                                                                              "isEncrypted":  false,
-                                                                              "Description":  "",
-                                                                              "Value":  "SCOrchDev-Staging-PrimaryKey"
-                                                                          },
-                      "AzureAutomation-AutomationAccountURL":  {
-                                                                   "isEncrypted":  false,
-                                                                   "Description":  "URL for the automation account",
-                                                                   "Value":  "https://eus2-agentservice-prod-1.azure-automation.net/accounts/514bc3aa-eb73-46e9-a666-66d522c37c9e"
-                                                               },
                       "AzureAutomation-WorkspaceID":  {
                                                           "isEncrypted":  false,
                                                           "Description":  "",
