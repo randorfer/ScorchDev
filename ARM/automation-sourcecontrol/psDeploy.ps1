@@ -52,7 +52,7 @@ Try
         'HybridWorkerGroup' = $GlobalVars.HybridWorkerGroup
     }
 
-    New-AzureRmResourcegroup -Name $ResourceGroupName -Location $ResourceLocation -Verbose
+    New-AzureRmResourcegroup -Name $GlobalVars.ResourceGroupName -Location $ResourceLocation -Verbose -Force
 
     New-AzureRmResourceGroupDeployment -Name TestDeployment `
                                        -TemplateFile .\azuredeploy.json `
