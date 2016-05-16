@@ -2,8 +2,6 @@
 #  v0.1
 #  This script can be used to test the ARM template deployment, or as a reference for building your own deployment script.
 param (
-	[Parameter(Mandatory=$false)]
-	[int]$i
 )
 
 $CurrentWorkspace = Get-CurrentLocalDevWorkspace
@@ -16,38 +14,52 @@ Try
                                                     'SubscriptionName',
                                                     'SubscriptionAccessCredentialName',
                                                     'ResourceGroupName',
-                                                    'Tenant'
+                                                    'Tenant',
+                                                    'WorkspaceId',
+                                                    'GitRepository',
+                                                    'HybridWorkerGroup',
+                                                    'LocalGitRepositoryRoot',
+                                                    'RunbookWorkerAccessCredentialName',
+                                                    'SyncTarget',
+                                                    'StorageAccountName'
 
-    $Vars = Get-BatchAutomationVariable -Prefix 'AzureAutomation' `
-                                        -Name 'WorkspaceId'
+
+    $LocalGitRepositoryRoot = ($GlobalVars.LocalGitRepositoryRoot | ConvertTo-JSON)
+    $GitRepository = ($GlobalVars.GitRepository | ConvertTo-Json)
+
+    $LocalGitRepositoryRoot = $LocalGitRepositoryRoot.Substring(1,$LocalGitRepositoryRoot.Length-2)
+    $GitRepository = $GitRepository.Substring(1,$GitRepository.Length-2)
+
     $SubscriptionAccessCredential = Get-AutomationPSCredential -Name $GlobalVars.SubscriptionAccessCredentialName
+    $RunbookWorkerAccessCredential = Get-AutomationPSCredential -Name $GlobalVars.RunbookWorkerAccessCredentialName
 
     Connect-AzureRmAccount -Credential $SubscriptionAccessCredential -SubscriptionName $GlobalVars.SubscriptionName -Tenant $GlobalVars.Tenant
 
     $ResourceGroupName = "AzureAutomationDemo$i"
     $ResourceLocation = 'East US 2'
-    $AccountName = "AutomationAccountTest$i"
+    
+    $GlobalParameters = @{
+        'ResourceGroupName' = $GlobalVars.ResourceGroupName
+        'AutomationAccountName' = $GlobalVars.AutomationAccountName
+        'SubscriptionName' = $GlobalVars.SubscriptionName
+        'SubscriptionAccessCredentialName' = $GlobalVars.SubscriptionAccessCredentialName
+        'SubscriptionAccessCredentialPassword' = $SubscriptionAccessCredential.Password
+        'SubscriptionAccessTenant' = $GlobalVars.SubscriptionAccessTenant
+        'RunbookWorkerAccessCredentialName' = $GlobalVars.RunbookWorkerAccessCredentialName
+        'RunbookWorkerAccessCredentialPassword' = $RunbookWorkerAccessCredential.Password
+        'WorkspaceId' = $GlobalVars.WorkspaceId
+        'GitRepository' = $GitRepository
+        'LocalGitRepositoryroot' = $LocalGitRepositoryRoot
+    }
 
-    $gitRepository = '{\"https://github.com/randorfer/RunbookExample\":\"vNext\",\"https://github.com/randorfer/SCOrchDev\":\"vNext\"}'
-    $localGitRepositoryRoot = 'c:\\git'
-    $subscriptionName = 'Microsoft Azure Internal Consumption'
-    New-AzureRmResourcegroup -Name $ResourceGroupName -Location 'East US 2' -Verbose
-
-    $NewGUID = [system.guid]::newguid().guid
+    $AzureAutomationPara
+    New-AzureRmResourcegroup -Name $ResourceGroupName -Location $ResourceLocation -Verbose
 
     New-AzureRmResourceGroupDeployment -Name TestDeployment `
-                                       -ResourceGroupName $ResourceGroupName `
                                        -TemplateFile .\azuredeploy.json `
-                                       -automationAccountName $AccountName `
-                                       -workspaceId $Vars.WorkspaceId `
-                                       -SubscriptionAccessCredentialName $GlobalVars.SubscriptionAccessCredentialName `
-                                       -SubscriptionAccessCredentialPassword $SubscriptionAccessCredential.Password `
-                                       -SubscriptionAccessTenant $GlobalVars.Tenant `
-                                       -SubscriptionName $subscriptionName `
-                                       -gitRepository $gitRepository `
-                                       -localGitRepositoryRoot $localGitRepositoryRoot `
-                                       -jobId $NewGUID `
-                                       -Verbose
+                                       -jobId ([system.guid]::newguid().guid) `
+                                       -Verbose `
+                                       @GlobalParameters
 }
 Catch
 {

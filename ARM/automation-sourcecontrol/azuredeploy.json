@@ -77,6 +77,19 @@
         "description": "The password for the Azure Automation credential."
       }
     },
+    "RunbookWorkerAccessCredentialName": {
+      "type": "string",
+      "defaultValue": "user@domain.com",
+      "metadata": {
+        "description": "The name of the Automation credential used to authenticate to Hybrid Runbook Workers"
+      }
+    },
+    "RunbookWorkerAccessCredentialPassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "The password for the Azure Automation credential."
+      }
+    },
     "jobId": {
       "type": "string",
       "metadata": {
@@ -305,7 +318,7 @@
           }
         },
         {
-          "name": "[concat(parameters('automationAccountName'), '/', parameters('SubscriptionAccessCredentialName'))]",
+          "name": "[concat(parameters('automationAccountName'), '/', 'SubscriptionAccessCredentialName')]",
           "type": "microsoft.automation/automationAccounts/Credentials",
           "apiVersion": "2015-01-01-preview",
           "location": "[resourceGroup().location]",
@@ -316,6 +329,20 @@
           "properties": {
             "userName": "[parameters('SubscriptionAccessCredentialName')]",
             "password": "[parameters('SubscriptionAccessCredentialPassword')]"
+          }
+        },
+        {
+          "name": "[concat(parameters('automationAccountName'), '/', 'RunbookWorkerAccessCredentialName')]",
+          "type": "microsoft.automation/automationAccounts/Credentials",
+          "apiVersion": "2015-01-01-preview",
+          "location": "[resourceGroup().location]",
+          "dependsOn": [
+            "[concat('Microsoft.Automation/automationAccounts/', parameters('AutomationAccountName'))]"
+          ],
+          "tags": { },
+          "properties": {
+            "userName": "[parameters('RunbookWorkerAccessCredentialName')]",
+            "password": "[parameters('RunbookWorkerAccessCredentialPassword')]"
           }
         },
         {

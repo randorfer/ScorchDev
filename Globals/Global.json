@@ -2,22 +2,22 @@
     "Variables":  {
                       "Global-RunbookWorkerAccessCredentialName":  {
                                                                        "isEncrypted":  false,
-                                                                       "Description":  "",
-                                                                       "Value":  "omsa@scorchdev.com"
+                                                                       "Description":  "The credential name for accessing runbook workers",
+                                                                       "Value":  "ryan"
                                                                    },
                       "Global-StorageAccountName":  {
                                                         "isEncrypted":  false,
-                                                        "Description":  "",
+                                                        "Description":  "Name of a storage account for storing PSModules during import",
                                                         "Value":  "scodev"
                                                     },
                       "Global-Tenant":  {
                                             "isEncrypted":  false,
-                                            "Description":  "",
+                                            "Description":  "The tenant id for ServicePrincipal type auth. Can be blank",
                                             "Value":  "72f988bf-86f1-41af-91ab-2d7cd011db47"
                                         },
                       "Global-SubscriptionAccessCredentialName":  {
                                                                       "isEncrypted":  false,
-                                                                      "Description":  "",
+                                                                      "Description":  "Name of the credential to be used for authenticating to the subscription",
                                                                       "Value":  "6640d6a4-7a7c-45b9-b0a9-bbc055bf8684"
                                                                   },
                       "Global-SubscriptionName":  {
@@ -27,23 +27,48 @@
                                                   },
                       "Global-SyncTarget":  {
                                                 "isEncrypted":  false,
-                                                "Description":  "",
+                                                "Description":  "list of servers to intiate a repository sync on at checkin",
                                                 "Value":  "[\"sco-oms-wrk-02.scorchdev.com\"]"
                                             },
                       "Global-AutomationAccountName":  {
                                                            "isEncrypted":  false,
-                                                           "Description":  "",
+                                                           "Description":  "name of the automation account",
                                                            "Value":  "SCOrchDev-Staging"
                                                        },
                       "Global-HybridWorkerGroup":  {
                                                        "isEncrypted":  false,
-                                                       "Description":  "",
+                                                       "Description":  "name of the hybrid worker group for starting sync job on",
                                                        "Value":  "USEast"
                                                    },
                       "Global-ResourceGroupName":  {
                                                        "isEncrypted":  false,
-                                                       "Description":  "",
+                                                       "Description":  "resource group that the target automation account is stored in",
                                                        "Value":  "SCOrchDev"
-                                                   }
+                                                   },
+                                                   "AzureAutomation-WorkspaceID":  {
+                                                          "isEncrypted":  false,
+                                                          "Description":  "",
+                                                          "Value":  "09249256-99e5-4c6e-9d7a-3b73e3a90281"
+                                                      },
+                      "Global-GitRepository":  {
+                                                    "isEncrypted":  false,
+                                                    "Description":  "a key value pair of repositories and their respective branches to sync into this automation account",
+                                                    "Value":  "{\"https://github.com/randorfer/RunbookExample\":\"vNext\",\"https://github.com/randorfer/SCOrchDev\":\"vNext\"}"
+                                                },
+                      "Global-GitRepositoryCurrentCommit":  {
+                                                                "isEncrypted":  false,
+                                                                "Description":  "a key value pair of repositories and their current commit. -1 for initial",
+                                                                "Value":  "{\"RunbookExample\":\"-1\",\"SCOrchDev\":\"-1\"}"
+                                                            },
+                      "Global-LocalGitRepositoryRoot":  {
+                                                            "isEncrypted":  false,
+                                                            "Description":  "the local path to map the git repositories to",
+                                                            "Value":  "c:\\git"
+                                                        },
+                      "Global-WorkspaceID":  {
+                                                 "isEncrypted":  false,
+                                                 "Description":  "the workspace ID of the Log Analytics account with the automation solution deployed to it",
+                                                 "Value":  "09249256-99e5-4c6e-9d7a-3b73e3a90281"
+                                             }
                   }
 }
