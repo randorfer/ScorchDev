@@ -12,7 +12,7 @@
 
     $SourceDir = 'c:\Source'
 
-    $GlobalVars = Get-BatchAutomationVariable -Prefix 'Global' `
+    $GlobalVars = Get-BatchAutomationVariable -Prefix 'zzGlobal' `
                                               -Name @(
         'AutomationAccountName',
         'SubscriptionName',
@@ -20,7 +20,7 @@
         'ResourceGroupName',
         'Tenant',
         'WorkspaceID',
-        'HybridRunbookWorkerGroupName',
+        'HybridWorkerGroup',
         'GitRepository',
         'LocalGitRepositoryRoot'
     )
@@ -164,7 +164,7 @@
 
         cHybridRunbookWorkerRegistration HybridRegistration
         {
-            RunbookWorkerGroup = $GlobalVars.HybridRunbookWorkerGroupName
+            RunbookWorkerGroup = $GlobalVars.HybridWorkerGroup
             AutomationAccountURL = $RegistrationInfo.Endpoint
             Key = $RegistrationInfo.PrimaryKey
             DependsOn = $HybridRunbookWorkerDependency

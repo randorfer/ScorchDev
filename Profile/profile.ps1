@@ -51,4 +51,4 @@ if((Get-Module -Name posh-git -ListAvailable) -as [bool])
     }
 }
 
-Set-StrictMode -Version 1
+Set-StrictMode -Version Latest

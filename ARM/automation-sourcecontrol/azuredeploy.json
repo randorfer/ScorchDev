@@ -29,7 +29,7 @@
         "description": "The Workspace ID of a Log Analytics environment with the automation solution deployed to it."
       }
     },
-    "hybridRunbookWorkerGroupName": {
+    "hybridWorkerGroup": {
       "type": "string",
       "defaultValue": "hybrid",
       "metadata": {
@@ -43,48 +43,48 @@
         "description": "JSON String of Key Value Pairs for the repositories / branches to sync."
       }
     },
-    "LocalGitRepositoryRoot": {
+    "localGitRepositoryRoot": {
       "type": "string",
       "defaultValue": "c:\\\\git",
       "metadata": {
         "description": "Local path to map the git repositories to on the hybrid runbook workers."
       }
     },
-    "SubscriptionName": {
+    "subscriptionName": {
       "type": "string",
       "defaultValue": "Microsoft Azure Internal Consumption",
       "metadata": {
         "description": "Name of the subscription the automation account is provisioned into."
       }
     },
-    "SubscriptionAccessCredentialName": {
+    "subscriptionAccessCredentialName": {
       "type": "string",
       "defaultValue": "DefaultAzureCredential",
       "metadata": {
         "description": "DefaultAzureCredential is the name of the Automation credential used in this runbook. This credential allows you to authenticate to Azure. "
       }
     },
-    "SubscriptionAccessTenant": {
+    "subscriptionAccessTenant": {
       "type": "string",
       "defaultValue": "",
       "metadata": {
         "description": "The tenant value for the default credential. Can be blank if not using ServicePrincipal."
       }
     },
-    "SubscriptionAccessCredentialPassword": {
+    "subscriptionAccessCredentialPassword": {
       "type": "securestring",
       "metadata": {
         "description": "The password for the Azure Automation credential."
       }
     },
-    "RunbookWorkerAccessCredentialName": {
+    "runbookWorkerAccessCredentialName": {
       "type": "string",
       "defaultValue": "user@domain.com",
       "metadata": {
         "description": "The name of the Automation credential used to authenticate to Hybrid Runbook Workers"
       }
     },
-    "RunbookWorkerAccessCredentialPassword": {
+    "runbookWorkerAccessCredentialPassword": {
       "type": "securestring",
       "metadata": {
         "description": "The password for the Azure Automation credential."
@@ -96,7 +96,7 @@
         "description": "The job id to compile the configuration"
       }
     },
-    "StorageAccountType": {
+    "storageAccountType": {
       "type": "string",
       "defaultValue": "Standard_LRS",
       "allowedValues": [
@@ -107,7 +107,7 @@
         "Premium_LRS"
       ]
     },
-    "StorageAccountName": {
+    "storageAccountName": {
       "type": "string",
       "defaultValue": "[concat('automationstorage', uniqueString(resourceGroup().id))]"
     }
@@ -161,7 +161,7 @@
     "configurationName": "AzureAutomation",
     "configurationUri": "https://raw.githubusercontent.com/randorfer/ScorchDev/master/DSC/AzureAutomation.ps1",
     "configurationDescription": "Azure Automation Runbook worker default configuration",
-    "dscOverwrite": "true",
+    "dscOverwrite": "true"
   },
   "resources": [
     {
@@ -337,7 +337,8 @@
             "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'))]",
             "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'),'/Modules/',variables('psModules').SCOrchDevUtility.ModuleName)]",
             "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'),'/Modules/',variables('psModules').SCOrchDevException.ModuleName)]",
-            "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'),'/Modules/',variables('psModules').SCOrchDevFile.ModuleName)]"
+            "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'),'/Modules/',variables('psModules').SCOrchDevFile.ModuleName)]",
+            "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'),'/Modules/',variables('psModules').SCOrchDevGitIntegration.ModuleName)]"
           ],
           "properties": {
             "contentLink": {
@@ -374,7 +375,7 @@
           }
         },
         {
-          "name": "[concat(parameters('automationAccountName'), '/', 'Global-SubscriptionAccessCredentialName')]",
+          "name": "[concat(parameters('automationAccountName'), '/', 'zzGlobal-SubscriptionAccessCredentialName')]",
           "type": "microsoft.automation/automationAccounts/Variables",
           "apiVersion": "2015-01-01-preview",
           "location": "[resourceGroup().location]",
@@ -390,7 +391,7 @@
           }
         },
         {
-          "name": "[concat(parameters('automationAccountName'), '/', 'Global-SubscriptionName')]",
+          "name": "[concat(parameters('automationAccountName'), '/', 'zzGlobal-SubscriptionName')]",
           "type": "microsoft.automation/automationAccounts/Variables",
           "apiVersion": "2015-01-01-preview",
           "location": "[resourceGroup().location]",
@@ -406,7 +407,7 @@
           }
         },
         {
-          "name": "[concat(parameters('automationAccountName'), '/', 'Global-AutomationAccountName')]",
+          "name": "[concat(parameters('automationAccountName'), '/', 'zzGlobal-AutomationAccountName')]",
           "type": "microsoft.automation/automationAccounts/Variables",
           "apiVersion": "2015-01-01-preview",
           "location": "[resourceGroup().location]",
@@ -422,7 +423,7 @@
           }
         },
         {
-          "name": "[concat(parameters('automationAccountName'), '/', 'Global-Tenant')]",
+          "name": "[concat(parameters('automationAccountName'), '/', 'zzGlobal-SubscriptionAccessTenant')]",
           "type": "microsoft.automation/automationAccounts/Variables",
           "apiVersion": "2015-01-01-preview",
           "location": "[resourceGroup().location]",
@@ -439,7 +440,7 @@
         },
 
         {
-          "name": "[concat(parameters('automationAccountName'), '/', 'Global-ResourceGroupName')]",
+          "name": "[concat(parameters('automationAccountName'), '/', 'zzGlobal-ResourceGroupName')]",
           "type": "microsoft.automation/automationAccounts/Variables",
           "apiVersion": "2015-01-01-preview",
           "location": "[resourceGroup().location]",
@@ -455,7 +456,7 @@
           }
         },
         {
-          "name": "[concat(parameters('automationAccountName'), '/', 'AzureAutomation-WorkspaceID')]",
+          "name": "[concat(parameters('automationAccountName'), '/', 'zzGlobal-WorkspaceID')]",
           "type": "microsoft.automation/automationAccounts/Variables",
           "apiVersion": "2015-01-01-preview",
           "location": "[resourceGroup().location]",
@@ -471,7 +472,7 @@
           }
         },
         {
-          "name": "[concat(parameters('automationAccountName'), '/', 'AzureAutomation-HybridRunbookWorkerGroupName')]",
+          "name": "[concat(parameters('automationAccountName'), '/', 'zzGlobal-HybridWorkerGroup')]",
           "type": "microsoft.automation/automationAccounts/Variables",
           "apiVersion": "2015-01-01-preview",
           "location": "[resourceGroup().location]",
@@ -483,11 +484,11 @@
             "description": " ",
             "isEncrypted": "false",
             "type": "string",
-            "value": "[concat('\"', parameters('HybridRunbookWorkerGroupName'),'\"')]"
+            "value": "[concat('\"', parameters('HybridWorkerGroup'),'\"')]"
           }
         },
         {
-          "name": "[concat(parameters('automationAccountName'), '/', 'AzureAutomation-GitRepository')]",
+          "name": "[concat(parameters('automationAccountName'), '/', 'zzGlobal-GitRepository')]",
           "type": "microsoft.automation/automationAccounts/Variables",
           "apiVersion": "2015-01-01-preview",
           "location": "[resourceGroup().location]",
@@ -503,7 +504,7 @@
           }
         },
         {
-          "name": "[concat(parameters('automationAccountName'), '/', 'AzureAutomation-LocalGitRepositoryRoot')]",
+          "name": "[concat(parameters('automationAccountName'), '/', 'zzGlobal-LocalGitRepositoryRoot')]",
           "type": "microsoft.automation/automationAccounts/Variables",
           "apiVersion": "2015-01-01-preview",
           "location": "[resourceGroup().location]",
