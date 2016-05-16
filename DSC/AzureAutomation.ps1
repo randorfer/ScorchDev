@@ -12,20 +12,17 @@
 
     $SourceDir = 'c:\Source'
 
-    $Vars = Get-BatchAutomationVariable -Prefix 'AzureAutomation' -Name @(
-        'WorkspaceID',
-        'HybridRunbookWorkerGroupName',
-        'GitRepository',
-        'LocalGitRepositoryRoot'
-    )
-
     $GlobalVars = Get-BatchAutomationVariable -Prefix 'Global' `
                                               -Name @(
         'AutomationAccountName',
         'SubscriptionName',
         'SubscriptionAccessCredentialName',
         'ResourceGroupName',
-        'Tenant'
+        'Tenant',
+        'WorkspaceID',
+        'HybridRunbookWorkerGroupName',
+        'GitRepository',
+        'LocalGitRepositoryRoot'
     )
 
     $SubscriptionAccessCredential = Get-AutomationPSCredential -Name $GlobalVars.SubscriptionAccessCredentialName
@@ -37,7 +34,7 @@
     $RegistrationInfo = Get-AzureRmAutomationRegistrationInfo -ResourceGroupName $GlobalVars.ResourceGroupName `
                                                               -AutomationAccountName $GlobalVars.AutomationAccountName
     
-    $WorkspaceCredential = Get-AutomationPSCredential -Name $Vars.WorkspaceID
+    $WorkspaceCredential = Get-AutomationPSCredential -Name $GlobalVars.WorkspaceID
     $WorkspaceKey = $WorkspaceCredential.GetNetworkCredential().Password
 
     $MMARemotSetupExeURI = 'https://go.microsoft.com/fwlink/?LinkID=517476'
@@ -45,7 +42,7 @@
     
     $MMACommandLineArguments = 
         '/Q /C:"setup.exe /qn ADD_OPINSIGHTS_WORKSPACE=1 AcceptEndUserLicenseAgreement=1 ' +
-        "OPINSIGHTS_WORKSPACE_ID=$($Vars.WorkspaceID) " +
+        "OPINSIGHTS_WORKSPACE_ID=$($GlobalVars.WorkspaceID) " +
         "OPINSIGHTS_WORKSPACE_KEY=$($WorkspaceKey)`""
 
     $GITVersion = '2.8.1'
@@ -100,22 +97,22 @@
         {
             Ensure = 'Present'
             Type = 'Directory'
-            DestinationPath = $Vars.LocalGitRepositoryRoot
+            DestinationPath = $GlobalVars.LocalGitRepositoryRoot
             DependsOn = '[xPackage]InstallGIT'
         }
         
-        $RepositoryTable = $Vars.GitRepository | ConvertFrom-JSON | ConvertFrom-PSCustomObject
+        $RepositoryTable = $GlobalVars.GitRepository | ConvertFrom-JSON | ConvertFrom-PSCustomObject
         
         $PSModulePath = @()
         Foreach ($RepositoryPath in $RepositoryTable.Keys)
         {
             $RepositoryName = $RepositoryPath.Split('/')[-1]
             $Branch = $RepositoryTable.$RepositoryPath
-            $PSModulePath += "$($Vars.LocalGitRepositoryRoot)\$($RepositoryName)\PowerShellModules"
+            $PSModulePath += "$($GlobalVars.LocalGitRepositoryRoot)\$($RepositoryName)\PowerShellModules"
             cGitRepository "$RepositoryName"
             {
                 Repository = $RepositoryPath
-                BaseDirectory = $Vars.LocalGitRepositoryRoot
+                BaseDirectory = $GlobalVars.LocalGitRepositoryRoot
                 Ensure = 'Present'
                 DependsOn = '[xPackage]InstallGIT'
             }
@@ -124,7 +121,7 @@
             cGitRepositoryBranch "$RepositoryName-$Branch"
             {
                 Repository = $RepositoryPath
-                BaseDirectory = $Vars.LocalGitRepositoryRoot
+                BaseDirectory = $GlobalVars.LocalGitRepositoryRoot
                 Branch = $Branch
                 DependsOn = '[xPackage]InstallGIT'
             }
@@ -133,7 +130,7 @@
             cGitRepositoryBranchUpdate "$RepositoryName-$Branch"
             {
                 Repository = $RepositoryPath
-                BaseDirectory = $Vars.LocalGitRepositoryRoot
+                BaseDirectory = $GlobalVars.LocalGitRepositoryRoot
                 Branch = $Branch
                 DependsOn = '[xPackage]InstallGIT'
             }
@@ -167,7 +164,7 @@
 
         cHybridRunbookWorkerRegistration HybridRegistration
         {
-            RunbookWorkerGroup = $Vars.HybridRunbookWorkerGroupName
+            RunbookWorkerGroup = $GlobalVars.HybridRunbookWorkerGroupName
             AutomationAccountURL = $RegistrationInfo.Endpoint
             Key = $RegistrationInfo.PrimaryKey
             DependsOn = $HybridRunbookWorkerDependency

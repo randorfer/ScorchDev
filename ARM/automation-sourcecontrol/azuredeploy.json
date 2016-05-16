@@ -77,6 +77,19 @@
         "description": "The password for the Azure Automation credential."
       }
     },
+    "RunbookWorkerAccessCredentialName": {
+      "type": "string",
+      "defaultValue": "user@domain.com",
+      "metadata": {
+        "description": "The name of the Automation credential used to authenticate to Hybrid Runbook Workers"
+      }
+    },
+    "RunbookWorkerAccessCredentialPassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "The password for the Azure Automation credential."
+      }
+    },
     "jobId": {
       "type": "string",
       "metadata": {
@@ -92,41 +105,41 @@
     "dscModules": {
       "xPSDesiredStateConfiguration": {
         "moduleName": "xPSDesiredStateConfiguration",
-        "moduleUri": "https://github.com/randorfer/RunbookExample/raw/vNext/ARM/automation-sourcecontrol/xPSDesiredStateConfiguration.zip"
+        "moduleUri": "https://github.com/randorfer/ScorchDev/raw/master/ARM/automation-sourcecontrol/xPSDesiredStateConfiguration.zip"
       },
       "cGit": {
         "moduleName": "cGit",
-        "moduleUri": "https://github.com/randorfer/RunbookExample/raw/vNext/ARM/automation-sourcecontrol/cGit.zip"
+        "moduleUri": "https://github.com/randorfer/ScorchDev/raw/master/ARM/automation-sourcecontrol/cGit.zip"
       },
       "cWindowscomputer": {
         "moduleName": "cWindowscomputer",
-        "moduleUri": "https://github.com/randorfer/RunbookExample/raw/vNext/ARM/automation-sourcecontrol/cWindowsComputer.zip"
+        "moduleUri": "https://github.com/randorfer/ScorchDev/raw/master/ARM/automation-sourcecontrol/cWindowsComputer.zip"
       },
       "cAzureAutomation": {
         "moduleName": "cAzureAutomation",
-        "moduleUri": "https://github.com/randorfer/RunbookExample/raw/vNext/ARM/automation-sourcecontrol/cAzureAutomation.zip"
+        "moduleUri": "https://github.com/randorfer/ScorchDev/raw/master/ARM/automation-sourcecontrol/cAzureAutomation.zip"
       }
     },
     "psModules": {
       "SCOrchDevAzureAutomationIntegration": {
         "moduleName": "SCOrchDev-AzureAutomationIntegration",
-        "moduleUri": "https://github.com/randorfer/RunbookExample/raw/vNext/ARM/automation-sourcecontrol/SCOrchDev-AzureAutomationIntegration.zip"
+        "moduleUri": "https://github.com/randorfer/ScorchDev/raw/master/ARM/automation-sourcecontrol/SCOrchDev-AzureAutomationIntegration.zip"
       },
       "SCOrchDevException": {
         "moduleName": "SCOrchDev-Exception",
-        "moduleUri": "https://github.com/randorfer/RunbookExample/raw/vNext/ARM/automation-sourcecontrol/SCOrchDev-Exception.zip"
+        "moduleUri": "https://github.com/randorfer/ScorchDev/raw/master/ARM/automation-sourcecontrol/SCOrchDev-Exception.zip"
       },
       "SCOrchDevFile": {
         "moduleName": "SCOrchDev-File",
-        "moduleUri": "https://github.com/randorfer/RunbookExample/raw/vNext/ARM/automation-sourcecontrol/SCOrchDev-File.zip"
+        "moduleUri": "https://github.com/randorfer/ScorchDev/raw/master/ARM/automation-sourcecontrol/SCOrchDev-File.zip"
       },
       "SCOrchDevGitIntegration": {
         "moduleName": "SCOrchDev-GitIntegration",
-        "moduleUri": "https://github.com/randorfer/RunbookExample/raw/vNext/ARM/automation-sourcecontrol/SCOrchDev-GitIntegration.zip"
+        "moduleUri": "https://github.com/randorfer/ScorchDev/raw/master/ARM/automation-sourcecontrol/SCOrchDev-GitIntegration.zip"
       },
       "SCOrchDevUtility": {
         "moduleName": "SCOrchDev-Utility",
-        "moduleUri": "https://github.com/randorfer/RunbookExample/raw/vNext/ARM/automation-sourcecontrol/SCOrchDev-Utility.zip"
+        "moduleUri": "https://github.com/randorfer/ScorchDev/raw/master/ARM/automation-sourcecontrol/SCOrchDev-Utility.zip"
       }
     },
     "automationApiVersion": "2015-10-31",
@@ -305,7 +318,7 @@
           }
         },
         {
-          "name": "[concat(parameters('automationAccountName'), '/', parameters('SubscriptionAccessCredentialName'))]",
+          "name": "[concat(parameters('automationAccountName'), '/', 'SubscriptionAccessCredentialName')]",
           "type": "microsoft.automation/automationAccounts/Credentials",
           "apiVersion": "2015-01-01-preview",
           "location": "[resourceGroup().location]",
@@ -316,6 +329,20 @@
           "properties": {
             "userName": "[parameters('SubscriptionAccessCredentialName')]",
             "password": "[parameters('SubscriptionAccessCredentialPassword')]"
+          }
+        },
+        {
+          "name": "[concat(parameters('automationAccountName'), '/', 'RunbookWorkerAccessCredentialName')]",
+          "type": "microsoft.automation/automationAccounts/Credentials",
+          "apiVersion": "2015-01-01-preview",
+          "location": "[resourceGroup().location]",
+          "dependsOn": [
+            "[concat('Microsoft.Automation/automationAccounts/', parameters('AutomationAccountName'))]"
+          ],
+          "tags": { },
+          "properties": {
+            "userName": "[parameters('RunbookWorkerAccessCredentialName')]",
+            "password": "[parameters('RunbookWorkerAccessCredentialPassword')]"
           }
         },
         {

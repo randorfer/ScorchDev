@@ -9,7 +9,7 @@ Param(
 $CompletedParams = Write-StartingMessage -CommandName 'Invoke-GitRepositorySync'
 $ErrorActionPreference = [System.Management.Automation.ActionPreference]::Stop
     
-$GlobalVars = Get-BatchAutomationVariable -Prefix 'Global' `
+$GlobalVars = Get-BatchAutomationVariable -Prefix 'zzGlobal' `
                                           -Name 'AutomationAccountName',
                                                 'SubscriptionName',
                                                 'SubscriptionAccessCredentialName',
@@ -17,30 +17,30 @@ $GlobalVars = Get-BatchAutomationVariable -Prefix 'Global' `
                                                 'ResourceGroupName',
                                                 'Tenant',
                                                 'StorageAccountName',
-                                                'SyncTarget'
+                                                'SyncTarget',
+                                                'GitRepositoryCurrentCommit',
+                                                'LocalGitRepositoryRoot'
 
 $SubscriptionAccessCredential = Get-AutomationPSCredential -Name $GlobalVars.SubscriptionAccessCredentialName
 $RunbookWorkerAccessCredential = Get-AutomationPSCredential -Name $GlobalVars.RunbookWorkerAccessCredentialName
         
 Try
 {
-    $RepositoryInformationJSON = Get-AutomationVariable -Name 'ContinuousIntegration-RepositoryInformation'
     Connect-AzureRmAccount -Credential $SubscriptionAccessCredential -SubscriptionName $GlobalVars.SubscriptionName -Tenant $GlobalVars.Tenant
+    
+    $UpdatedGitRepositoryCurrentCommit = Sync-GitRepositoryToAzureAutomation -AutomationAccountName $GlobalVars.AutomationAccountName `
+                                                                             -SubscriptionName $GlobalVars.SubscriptionName `
+                                                                             -SubscriptionAccessCredential $SubscriptionAccessCredential `
+                                                                             -RunbookWorkerAccessCredenial $RunbookWorkerAccessCredential `
+                                                                             -ResourceGroupName $GlobalVars.ResourceGroupName `
+                                                                             -Tenant $GlobalVars.Tenant `
+                                                                             -StorageAccountName $GlobalVars.StorageAccountName `
+                                                                             -SyncTarget $GlobalVars.SyncTarget `
+                                                                             -GitRepositoryCurrentCommit $GlobalVars.GitRepositoryCurrentCommit `
+                                                                             -LocalGitRepositoryRoot $GlobalVars.LocalGitRepositoryRoot
 
-    $SyncTarget = $GlobalVars.SyncTarget | ConvertFrom-Json
-
-    $UpdatedRepositoryInformation = Sync-GitRepositoryToAzureAutomation -AutomationAccountName $GlobalVars.AutomationAccountName `
-                                                                        -SubscriptionName $GlobalVars.SubscriptionName `
-                                                                        -SubscriptionAccessCredential $SubscriptionAccessCredential `
-                                                                        -RunbookWorkerAccessCredenial $RunbookWorkerAccessCredential `
-                                                                        -RepositoryInformationJSON $RepositoryInformationJSON `
-                                                                        -ResourceGroupName $GlobalVars.ResourceGroupName `
-                                                                        -Tenant $GlobalVars.Tenant `
-                                                                        -StorageAccountName $GlobalVars.StorageAccountName `
-                                                                        -SyncTarget $SyncTarget
-
-    Set-AutomationVariable -Name 'ContinuousIntegration-RepositoryInformation' `
-                            -Value $UpdatedRepositoryInformation
+    Set-AutomationVariable -Name 'Global-GitRepositoryCurrentCommit' `
+                           -Value $UpdatedGitRepositoryCurrentCommit
 }
 Catch
 {
