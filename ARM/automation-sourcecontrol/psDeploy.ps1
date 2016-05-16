@@ -49,6 +49,7 @@ Try
         'GitRepository' = $GitRepository
         'LocalGitRepositoryroot' = $LocalGitRepositoryRoot
         'StorageAccountName' = $GlobalVars.StorageAccountName
+        'HybridWorkerGroup' = $GlobalVars.HybridWorkerGroup
     }
 
     New-AzureRmResourcegroup -Name $ResourceGroupName -Location $ResourceLocation -Verbose
