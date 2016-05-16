@@ -136,6 +136,14 @@
       }
     },
     "psModules": {
+      "AzureRMProfile": {
+        "moduleName": "AzureRM.profile",
+        "moduleUri": "https://github.com/randorfer/ScorchDev/raw/master/ARM/automation-sourcecontrol/AzureRM.profile.zip"
+      },
+      "AzureRMAutomation": {
+        "moduleName": "SCOrchDev-AzureAutomationIntegration",
+        "moduleUri": "https://github.com/randorfer/ScorchDev/raw/master/ARM/automation-sourcecontrol/AzureRM.Automation.zip"
+      },
       "SCOrchDevAzureAutomationIntegration": {
         "moduleName": "SCOrchDev-AzureAutomationIntegration",
         "moduleUri": "https://github.com/randorfer/ScorchDev/raw/master/ARM/automation-sourcecontrol/SCOrchDev-AzureAutomationIntegration.zip"
@@ -263,6 +271,35 @@
           "properties": {
             "contentLink": {
               "uri": "[variables('dscModules').cAzureAutomation.ModuleUri]"
+            }
+          }
+        },
+        {
+          "name": "[concat(parameters('automationAccountName'), '/', variables('psModules').AzureRMProfile.ModuleName)]",
+          "type": "microsoft.automation/automationAccounts/Modules",
+          "apiVersion": "[variables('automationApiVersion')]",
+          "tags": { },
+          "dependsOn": [
+            "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'))]"
+          ],
+          "properties": {
+            "contentLink": {
+              "uri": "[variables('psModules').AzureRMProfile.ModuleUri]"
+            }
+          }
+        },
+        {
+          "name": "[concat(parameters('automationAccountName'), '/', variables('psModules').AzureRMAutomation.ModuleName)]",
+          "type": "microsoft.automation/automationAccounts/Modules",
+          "apiVersion": "[variables('automationApiVersion')]",
+          "tags": { },
+          "dependsOn": [
+            "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'))]",
+            "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'),'/Modules/',variables('psModules').AzureRMProfile.ModuleName)]"
+          ],
+          "properties": {
+            "contentLink": {
+              "uri": "[variables('psModules').AzureRMAutomation.ModuleUri]"
             }
           }
         },
@@ -556,6 +593,8 @@
             "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'),'/Modules/',variables('dscModules').cGit.ModuleName)]",
             "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'),'/Modules/',variables('dscModules').cWindowscomputer.ModuleName)]",
             "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'),'/Modules/',variables('dscModules').cAzureAutomation.ModuleName)]",
+            "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'),'/Modules/',variables('psModules').AzureRMProfile.ModuleName)]",
+            "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'),'/Modules/',variables('psModules').AzureRMAutomation.ModuleName)]",
             "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'),'/Configurations/', variables('configurationName'))]"
           ],
           "properties": {
