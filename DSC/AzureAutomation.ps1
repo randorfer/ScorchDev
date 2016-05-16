@@ -17,8 +17,8 @@
         'AutomationAccountName',
         'SubscriptionName',
         'SubscriptionAccessCredentialName',
+        'SubscriptionAccessTenant',
         'ResourceGroupName',
-        'Tenant',
         'WorkspaceID',
         'HybridWorkerGroup',
         'GitRepository',
@@ -29,7 +29,7 @@
         
     Connect-AzureRmAccount -Credential $SubscriptionAccessCredential `
                            -SubscriptionName $GlobalVars.SubscriptionName `
-                           -Tenant $GlobalVars.Tenant
+                           -Tenant $GlobalVars.SubscriptionAccessTenant
 
     $RegistrationInfo = Get-AzureRmAutomationRegistrationInfo -ResourceGroupName $GlobalVars.ResourceGroupName `
                                                               -AutomationAccountName $GlobalVars.AutomationAccountName
