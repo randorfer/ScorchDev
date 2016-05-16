@@ -575,9 +575,9 @@ Function Remove-AzureAutomationOrphanAsset
         [String]
         $SubscriptionName,
 
-        [Parameter(Mandatory = $True)]
-        [PSCustomObject] 
-        $RepositoryInformation,
+        [Parameter(Mandatory = $False)]
+        [string]
+        $LocalGitRepositoryRoot = 'c:\git',
 
         [Parameter(Mandatory = $False)]
         [string]
@@ -597,7 +597,7 @@ Function Remove-AzureAutomationOrphanAsset
             $AzureAutomationVariables = Group-AutomationAssetByDescriptionRepository -InputObject $AzureAutomationVariables 
         }
 
-        $RepositoryAssets = Get-GitRepositoryAssetName -Path "$($RepositoryInformation.Path)\$($RepositoryInformation.GlobalsFolder)"
+        $RepositoryAssets = Get-GitRepositoryAssetName -Path "$($LocalGitRepositoryRoot)\$($RepositoryName)\Globals"
 
         if($AzureAutomationVariables."$RepositoryName" -as [bool])
         {
@@ -727,9 +727,9 @@ Function Remove-AzureAutomationOrphanRunbook
         [String]
         $SubscriptionName,
 
-        [Parameter(Mandatory = $True)]
-        [PSCustomObject] 
-        $RepositoryInformation,
+        [Parameter(Mandatory = $False)]
+        [string]
+        $LocalGitRepositoryRoot = 'c:\git',
 
         [Parameter(Mandatory = $False)]
         [string]
@@ -754,7 +754,7 @@ Function Remove-AzureAutomationOrphanRunbook
             $AzureAutomationRunbook = Group-AutomationAssetByTaggedRepository -InputObject $AzureAutomationRunbook 
         }
 
-        $RepositoryWorkflows = Get-GitRepositoryRunbookName -Path "$($RepositoryInformation.Path)\$($RepositoryInformation.RunbookFolder)"
+        $RepositoryWorkflows = Get-GitRepositoryRunbookName -Path "$($LocalGitRepositoryRoot)\$($RepositoryName)\Runbooks"
         $Differences = Compare-Object -ReferenceObject $AzureAutomationRunbook.$RepositoryName.Name `
                                       -DifferenceObject $RepositoryWorkflows
     
@@ -830,9 +830,9 @@ Function Remove-AzureAutomationOrphanDSC
         [String]
         $SubscriptionName,
 
-        [Parameter(Mandatory = $True)]
-        [PSCustomObject] 
-        $RepositoryInformation,
+        [Parameter(Mandatory = $False)]
+        [string]
+        $LocalGitRepositoryRoot = 'c:\git',
 
         [Parameter(Mandatory = $False)]
         [string]
@@ -848,7 +848,7 @@ Function Remove-AzureAutomationOrphanDSC
         $AzureAutomationDSCConfiguration = (Get-AzureRmAutomationDscConfiguration -ResourceGroupName $ResourceGroupName `
                                                                                   -AutomationAccountName $AutomationAccountName).Name
 
-        $DSCConfiguration = Get-GitRepositoryDSCInformation -Path "$($RepositoryInformation.Path)\..\"
+        $DSCConfiguration = Get-GitRepositoryDSCInformation -Path $LocalGitRepositoryRoot
 
         $DSCConfigurationDifferences = Compare-Object -ReferenceObject ($AzureAutomationDSCConfiguration -as [string[]]) `
                                                           -DifferenceObject ($DSCNodeConfiguration  -as [string[]])
@@ -1202,7 +1202,7 @@ Function Sync-IndividualGitRepositoryToAzureAutomation
                                                     -AutomationAccountName $AutomationAccountName `
                                                     -ResourceGroupName $ResourceGroupName `
                                                     -SubscriptionName $SubscriptionName `
-                                                    -RepositoryInformation $RepositoryInformation `
+                                                    -LocalGitRepositoryRoot $LocalGitRepositoryRoot `
                                                     -Tenant $Tenant
             }
             if($ReturnInformation.CleanAssets)
@@ -1212,7 +1212,7 @@ Function Sync-IndividualGitRepositoryToAzureAutomation
                                                   -AutomationAccountName $AutomationAccountName `
                                                   -ResourceGroupName $ResourceGroupName `
                                                   -SubscriptionName $SubscriptionName `
-                                                  -RepositoryInformation $RepositoryInformation `
+                                                  -LocalGitRepositoryRoot $LocalGitRepositoryRoot `
                                                   -Tenant $Tenant
             }
             if($ReturnInformation.CleanDSC)
@@ -1222,7 +1222,7 @@ Function Sync-IndividualGitRepositoryToAzureAutomation
                                                 -AutomationAccountName $AutomationAccountName `
                                                 -ResourceGroupName $ResourceGroupName `
                                                 -SubscriptionName $SubscriptionName `
-                                                -RepositoryInformation $RepositoryInformation `
+                                                -LocalGitRepositoryRoot $LocalGitRepositoryRoot `
                                                 -Tenant $Tenant
             }
 

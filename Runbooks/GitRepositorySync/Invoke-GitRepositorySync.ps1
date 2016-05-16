@@ -9,7 +9,7 @@ Param(
 $CompletedParams = Write-StartingMessage -CommandName 'Invoke-GitRepositorySync'
 $ErrorActionPreference = [System.Management.Automation.ActionPreference]::Stop
     
-$GlobalVars = Get-BatchAutomationVariable -Prefix 'Global' `
+$GlobalVars = Get-BatchAutomationVariable -Prefix 'zzGlobal' `
                                           -Name 'AutomationAccountName',
                                                 'SubscriptionName',
                                                 'SubscriptionAccessCredentialName',
