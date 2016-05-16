@@ -1005,7 +1005,7 @@ Function Sync-GitRepositoryToAzureAutomation
 
         [Parameter(Mandatory = $True)]
         [pscredential]
-        $RunbookWorkerAccessCredenial,
+        $RunbookWorkerAccessCredential,
         
         [Parameter(Mandatory = $True)]
         [string]
@@ -1026,9 +1026,6 @@ Function Sync-GitRepositoryToAzureAutomation
         [Parameter(Mandatory = $True)]
         [string]
         $StorageAccountName,
-
-        [Parameter(Mandatory = $False)]
-        $SyncTarget = '["localhost"]',
 
         [Parameter(Mandatory = $false)]
         $GitRepositoryCurrentCommit = '{"RunbookExample":"-1","SCOrchDev":"-1"}',
@@ -1056,9 +1053,17 @@ Function Sync-GitRepositoryToAzureAutomation
     
     Try
     {
-        # Update the DSC on all remote machines as well
-        Start-DscConfiguration -ComputerName ($SyncTarget | ConvertFrom-Json) `
-                               -Credential $RunbookWorkerAccessCredenial `
+        # Update the DSC on all remote machines as well thats are of the hybridrunbookworker type
+        Connect-AzureRmAccount -Credential $SubscriptionAccessCredential `
+                               -SubscriptionName $SubscriptionName `
+                               -Tenant $Tenant
+
+        $Node = Get-AzureRmAutomationDscNode -NodeConfigurationName AzureAutomation.HybridRunbookWorker `
+                                             -ResourceGroupName $ResourceGroupName `
+                                             -AutomationAccountName $AutomationAccountName | ? { $_.Status -ne 'Unresponsive' }
+        $IPAddress = $Node.IpAddress | % { $_.Split(';')[0] }
+        Start-DscConfiguration -ComputerName $IPAddress `
+                               -Credential $RunbookWorkerAccessCredential `
                                -UseExisting `
                                -Wait `
                                -Force
