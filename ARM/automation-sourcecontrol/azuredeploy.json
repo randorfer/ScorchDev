@@ -275,35 +275,6 @@
           }
         },
         {
-          "name": "[concat(parameters('automationAccountName'), '/', variables('psModules').AzureRMProfile.ModuleName)]",
-          "type": "microsoft.automation/automationAccounts/Modules",
-          "apiVersion": "[variables('automationApiVersion')]",
-          "tags": { },
-          "dependsOn": [
-            "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'))]"
-          ],
-          "properties": {
-            "contentLink": {
-              "uri": "[variables('psModules').AzureRMProfile.ModuleUri]"
-            }
-          }
-        },
-        {
-          "name": "[concat(parameters('automationAccountName'), '/', variables('psModules').AzureRMAutomation.ModuleName)]",
-          "type": "microsoft.automation/automationAccounts/Modules",
-          "apiVersion": "[variables('automationApiVersion')]",
-          "tags": { },
-          "dependsOn": [
-            "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'))]",
-            "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'),'/Modules/',variables('psModules').AzureRMProfile.ModuleName)]"
-          ],
-          "properties": {
-            "contentLink": {
-              "uri": "[variables('psModules').AzureRMAutomation.ModuleUri]"
-            }
-          }
-        },
-        {
           "name": "[concat(parameters('automationAccountName'), '/', variables('psModules').SCOrchDevUtility.ModuleName)]",
           "type": "microsoft.automation/automationAccounts/Modules",
           "apiVersion": "[variables('automationApiVersion')]",
@@ -593,8 +564,6 @@
             "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'),'/Modules/',variables('dscModules').cGit.ModuleName)]",
             "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'),'/Modules/',variables('dscModules').cWindowscomputer.ModuleName)]",
             "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'),'/Modules/',variables('dscModules').cAzureAutomation.ModuleName)]",
-            "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'),'/Modules/',variables('psModules').AzureRMProfile.ModuleName)]",
-            "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'),'/Modules/',variables('psModules').AzureRMAutomation.ModuleName)]",
             "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'),'/Configurations/', variables('configurationName'))]"
           ],
           "properties": {
