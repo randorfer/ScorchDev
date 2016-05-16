@@ -17,7 +17,6 @@
         'AutomationAccountName',
         'SubscriptionName',
         'SubscriptionAccessCredentialName',
-        'SubscriptionAccessTenant',
         'ResourceGroupName',
         'WorkspaceID',
         'HybridWorkerGroup',
@@ -26,14 +25,14 @@
     )
 
     $SubscriptionAccessCredential = Get-AutomationPSCredential -Name $GlobalVars.SubscriptionAccessCredentialName
-        
+    
+    
     Connect-AzureRmAccount -Credential $SubscriptionAccessCredential `
-                           -SubscriptionName $GlobalVars.SubscriptionName `
-                           -Tenant $GlobalVars.SubscriptionAccessTenant
+                           -SubscriptionName $GlobalVars.SubscriptionName
 
     $RegistrationInfo = Get-AzureRmAutomationRegistrationInfo -ResourceGroupName $GlobalVars.ResourceGroupName `
                                                               -AutomationAccountName $GlobalVars.AutomationAccountName
-    
+
     $WorkspaceCredential = Get-AutomationPSCredential -Name $GlobalVars.WorkspaceID
     $WorkspaceKey = $WorkspaceCredential.GetNetworkCredential().Password
 
