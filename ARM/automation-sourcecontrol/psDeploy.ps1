@@ -9,7 +9,7 @@ Try
 {
     Select-LocalDevWorkspace -Workspace SCOrchDev
 
-    $GlobalVars = Get-BatchAutomationVariable -Prefix 'Global' `
+    $GlobalVars = Get-BatchAutomationVariable -Prefix 'zzGlobal' `
                                               -Name 'AutomationAccountName',
                                                     'SubscriptionName',
                                                     'SubscriptionAccessCredentialName',
@@ -20,7 +20,6 @@ Try
                                                     'HybridWorkerGroup',
                                                     'LocalGitRepositoryRoot',
                                                     'RunbookWorkerAccessCredentialName',
-                                                    'SyncTarget',
                                                     'StorageAccountName'
 
 
@@ -35,7 +34,6 @@ Try
 
     Connect-AzureRmAccount -Credential $SubscriptionAccessCredential -SubscriptionName $GlobalVars.SubscriptionName -Tenant $GlobalVars.Tenant
 
-    $ResourceGroupName = "AzureAutomationDemo$i"
     $ResourceLocation = 'East US 2'
     
     $GlobalParameters = @{
@@ -50,9 +48,9 @@ Try
         'WorkspaceId' = $GlobalVars.WorkspaceId
         'GitRepository' = $GitRepository
         'LocalGitRepositoryroot' = $LocalGitRepositoryRoot
+        'StorageAccountName' = $GlobalVars.StorageAccountName
     }
 
-    $AzureAutomationPara
     New-AzureRmResourcegroup -Name $ResourceGroupName -Location $ResourceLocation -Verbose
 
     New-AzureRmResourceGroupDeployment -Name TestDeployment `
