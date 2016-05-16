@@ -25,11 +25,6 @@
                                                       "Description":  "",
                                                       "Value":  "Microsoft Azure Internal Consumption"
                                                   },
-                      "zzGlobal-SyncTarget":  {
-                                                "isEncrypted":  false,
-                                                "Description":  "list of servers to intiate a repository sync on at checkin",
-                                                "Value":  "[\"sco-oms-wrk-02.scorchdev.com\"]"
-                                            },
                       "zzGlobal-AutomationAccountName":  {
                                                            "isEncrypted":  false,
                                                            "Description":  "name of the automation account",

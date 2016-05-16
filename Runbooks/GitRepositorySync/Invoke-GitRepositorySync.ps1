@@ -17,7 +17,6 @@ $GlobalVars = Get-BatchAutomationVariable -Prefix 'zzGlobal' `
                                                 'ResourceGroupName',
                                                 'Tenant',
                                                 'StorageAccountName',
-                                                'SyncTarget',
                                                 'GitRepositoryCurrentCommit',
                                                 'LocalGitRepositoryRoot'
 
@@ -35,7 +34,6 @@ Try
                                                                              -ResourceGroupName $GlobalVars.ResourceGroupName `
                                                                              -Tenant $GlobalVars.Tenant `
                                                                              -StorageAccountName $GlobalVars.StorageAccountName `
-                                                                             -SyncTarget $GlobalVars.SyncTarget `
                                                                              -GitRepositoryCurrentCommit $GlobalVars.GitRepositoryCurrentCommit `
                                                                              -LocalGitRepositoryRoot $GlobalVars.LocalGitRepositoryRoot
 
