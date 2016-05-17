@@ -5,21 +5,16 @@
                                                                        "Description":  "The credential name for accessing runbook workers",
                                                                        "Value":  "ryan"
                                                                    },
-                      "zzGlobal-StorageAccountName":  {
-                                                        "isEncrypted":  false,
-                                                        "Description":  "Name of a storage account for storing PSModules during import",
-                                                        "Value":  "scodev"
-                                                    },
-                      "zzGlobal-SubscriptionAccessTenant":  {
-                                            "isEncrypted":  false,
-                                            "Description":  "The tenant id for ServicePrincipal type auth. Can be blank",
-                                            "Value":  ""
-                                        },
                       "zzGlobal-SubscriptionAccessCredentialName":  {
                                                                       "isEncrypted":  false,
                                                                       "Description":  "Name of the credential to be used for authenticating to the subscription",
                                                                       "Value":  "scorchd@microsoft.com"
                                                                   },
+                      "zzGlobal-WorkspaceID":  {
+                                                 "isEncrypted":  false,
+                                                 "Description":  "the workspace ID of the Log Analytics account with the automation solution deployed to it",
+                                                 "Value":  "09249256-99e5-4c6e-9d7a-3b73e3a90281"
+                                             },
                       "zzGlobal-SubscriptionName":  {
                                                       "isEncrypted":  false,
                                                       "Description":  "",
@@ -30,10 +25,15 @@
                                                            "Description":  "name of the automation account",
                                                            "Value":  "SCOrchDev-Staging"
                                                        },
+                      "zzGlobal-StorageAccountName":  {
+                                                        "isEncrypted":  false,
+                                                        "Description":  "Name of a storage account for storing PSModules during import",
+                                                        "Value":  "scodev"
+                                                    },
                       "zzGlobal-HybridWorkerGroup":  {
                                                        "isEncrypted":  false,
                                                        "Description":  "name of the hybrid worker group for starting sync job on",
-                                                       "Value":  "USEast"
+                                                       "Value":  "Hybrid"
                                                    },
                       "zzGlobal-ResourceGroupName":  {
                                                        "isEncrypted":  false,
@@ -55,10 +55,10 @@
                                                             "Description":  "the local path to map the git repositories to",
                                                             "Value":  "c:\\git"
                                                         },
-                      "zzGlobal-WorkspaceID":  {
-                                                 "isEncrypted":  false,
-                                                 "Description":  "the workspace ID of the Log Analytics account with the automation solution deployed to it",
-                                                 "Value":  "09249256-99e5-4c6e-9d7a-3b73e3a90281"
-                                             }
+                      "zzGlobal-SubscriptionAccessTenant":  {
+                                            "isEncrypted":  false,
+                                            "Description":  "The tenant id for ServicePrincipal type auth. Can be blank",
+                                            "Value":  ""
+                                        }
                   }
 }
