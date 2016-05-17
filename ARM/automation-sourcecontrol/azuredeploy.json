@@ -558,6 +558,22 @@
           }
         },
         {
+          "name": "[concat(parameters('automationAccountName'), '/', 'zzGlobal-StorageAccountName')]",
+          "type": "microsoft.automation/automationAccounts/Variables",
+          "apiVersion": "2015-01-01-preview",
+          "location": "[resourceGroup().location]",
+          "dependsOn": [
+            "[concat('Microsoft.Automation/automationAccounts/', parameters('AutomationAccountName'))]"
+          ],
+          "tags": { },
+          "properties": {
+            "description": " ",
+            "isEncrypted": "false",
+            "type": "string",
+            "value": "[concat('\"', parameters('StorageAccountName'),'\"')]"
+          }
+        },
+        {
           "name": "[variables('configurationName')]",
           "type": "Configurations",
           "apiVersion": "[variables('automationApiVersion')]",
