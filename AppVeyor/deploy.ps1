@@ -10,7 +10,7 @@ $GlobalVars = Get-BatchAutomationVariable -Prefix 'zzGlobal' `
                                                 'SubscriptionAccessCredentialName', 
                                                 'HybridWorkerGroup', 
                                                 'ResourceGroupName',
-                                                'Tenant'
+                                                'SubscriptionAccessTenant'
 
 $Password = $env:AccessCredentialPassword | ConvertTo-SecureString -AsPlainText -Force
 $SubscriptionAccessCredential = New-Object -TypeName System.Management.Automation.PSCredential `
