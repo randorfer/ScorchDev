@@ -37,7 +37,7 @@ Try
                                                                              -GitRepositoryCurrentCommit $GlobalVars.GitRepositoryCurrentCommit `
                                                                              -LocalGitRepositoryRoot $GlobalVars.LocalGitRepositoryRoot
 
-    Set-AutomationVariable -Name 'Global-GitRepositoryCurrentCommit' `
+    Set-AutomationVariable -Name 'zzGlobal-GitRepositoryCurrentCommit' `
                            -Value $UpdatedGitRepositoryCurrentCommit
 }
 Catch
