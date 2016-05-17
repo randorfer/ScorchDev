@@ -22,7 +22,6 @@ Try
                                                     'RunbookWorkerAccessCredentialName',
                                                     'StorageAccountName'
 
-
     $LocalGitRepositoryRoot = ($GlobalVars.LocalGitRepositoryRoot | ConvertTo-JSON)
     $GitRepository = ($GlobalVars.GitRepository | ConvertTo-Json)
 
