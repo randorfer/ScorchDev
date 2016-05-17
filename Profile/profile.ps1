@@ -10,13 +10,6 @@ $AutomationWorkspace = @{
         'LocalPowerShellModulePath' = 'LocalPowerShellModules'
         'RunbookPath' = 'Runbooks'
     }
-    'RunbookExample' = @{
-        'Workspace' = 'C:\GIT\RunbookExample'
-        'ModulePath' = 'PowerShellModules'
-        'GlobalPath' = 'Globals'
-        'LocalPowerShellModulePath' = 'LocalPowerShellModules'
-        'RunbookPath' = 'Runbooks'
-    }
 }
 
 Foreach($_AutomationWorkspace in $AutomationWorkspace.Keys)
@@ -29,7 +22,7 @@ Foreach($_AutomationWorkspace in $AutomationWorkspace.Keys)
 }
 
 $Env:LocalAuthoring = $true
-$Env:AutomationDefaultWorkspace = 'RunbookExample'
+$Env:AutomationDefaultWorkspace = 'SCOrchDev'
 $Env:AutomationWorkspace = $AutomationWorkspace | ConvertTo-Json
 
 if((Get-Module -Name posh-git -ListAvailable) -as [bool])
