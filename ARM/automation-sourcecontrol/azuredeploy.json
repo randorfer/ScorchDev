@@ -29,6 +29,12 @@
         "description": "The Workspace ID of a Log Analytics environment with the automation solution deployed to it."
       }
     },
+    "workspacePrimaryKey": {
+      "type": "securestring",
+      "metadata": {
+        "description": "The Primary key for the workspace."
+      }
+    },
     "hybridWorkerGroup": {
       "type": "string",
       "defaultValue": "hybrid",
@@ -379,6 +385,20 @@
           "properties": {
             "userName": "[parameters('RunbookWorkerAccessCredentialName')]",
             "password": "[parameters('RunbookWorkerAccessCredentialPassword')]"
+          }
+        },
+        {
+          "name": "[concat(parameters('automationAccountName'), '/', parameters('workspaceId'))]",
+          "type": "microsoft.automation/automationAccounts/Credentials",
+          "apiVersion": "2015-01-01-preview",
+          "location": "[resourceGroup().location]",
+          "dependsOn": [
+            "[concat('Microsoft.Automation/automationAccounts/', parameters('AutomationAccountName'))]"
+          ],
+          "tags": { },
+          "properties": {
+            "userName": "[parameters('workspaceId')]",
+            "password": "[parameters('workspacePrimaryKey')]"
           }
         },
         {
