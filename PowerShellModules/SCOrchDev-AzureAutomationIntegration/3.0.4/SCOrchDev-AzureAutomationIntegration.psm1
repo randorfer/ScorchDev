@@ -1,6 +1,4 @@
-﻿#requires -Version 3 -Modules SCOrchDev-Exception, SCOrchDev-GitIntegration, SCOrchDev-Utility
-$NunitExe = "$PsScriptRoot\NUnitToHTML\NUnit2Report.Console.exe"
-$RepositoryNameRegex = '__RepositoryName:([^;]+);'
+﻿$RepositoryNameRegex = '__RepositoryName:([^;]+);'
 $CurrentCommitRegex = 'CurrentCommit:([^;]+);__'
 
 <#
@@ -1063,12 +1061,26 @@ Function Sync-GitRepositoryToAzureAutomation
                                              -AutomationAccountName $AutomationAccountName | ? { $_.Status -ne 'Unresponsive' }
         
         $TrustedHosts = (Get-Item WSMan:\localhost\Client\TrustedHosts).Value -as [string]
-        $IPAddress = $Node.IpAddress | % { 
+        $IPAddress = $Node.IpAddress | % {
             $_IPAddress = $_.Split(';')[0]
-            if($TrustedHosts -notlike "*$_IPAddress*")
+            if($TrustedHosts -as [bool])
             {
-                $TrustedHosts = "$($TrustedHosts),$($_IPAddress)"
+                if($TrustedHosts -notlike "*$_IPAddress*")
+                {
+                    $TrustedHosts = "$($TrustedHosts),$($_IPAddress)"
+                }
+            }
+            else
+            {
+                $TrustedHosts = $_IPAddress
+            }
+            Try
+            {
                 Set-Item WSMan:\localhost\Client\TrustedHosts -Value $TrustedHosts -Force
+            }
+            Catch
+            {
+                Write-Exception -Exception $_ -Stream Warning
             }
             $_IPAddress
         }
@@ -1097,8 +1109,9 @@ Function Sync-GitRepositoryToAzureAutomation
         $GitRepositoryCurrentCommit.$RepositoryName = $CurrentCommit
     }
 
-    Write-CompletedMessage @CompletedParams
-    Return ($GitRepositoryCurrentCommit | ConvertTo-JSON) -as [string]
+    $GitRepositoryCurrentCommitJSON = ($GitRepositoryCurrentCommit | ConvertTo-JSON) -as [string]
+    Write-CompletedMessage @CompletedParams -Status $GitRepositoryCurrentCommitJSON
+    Return $GitRepositoryCurrentCommitJSON
 }
 <#
 #>
@@ -2186,4 +2199,4 @@ Function ConvertTo-AutomationDescriptionTagLine
     Write-CompletedMessage @CompletedParams -Status $Description
     Return $Description
 }
-Export-ModuleMember -Function * -Verbose:$false
+Export-ModuleMember -Function *-* -Verbose:$false
