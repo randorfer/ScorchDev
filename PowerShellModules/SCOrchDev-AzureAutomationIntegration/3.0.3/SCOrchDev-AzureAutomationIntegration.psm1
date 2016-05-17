@@ -1061,7 +1061,17 @@ Function Sync-GitRepositoryToAzureAutomation
         $Node = Get-AzureRmAutomationDscNode -NodeConfigurationName AzureAutomation.HybridRunbookWorker `
                                              -ResourceGroupName $ResourceGroupName `
                                              -AutomationAccountName $AutomationAccountName | ? { $_.Status -ne 'Unresponsive' }
-        $IPAddress = $Node.IpAddress | % { $_.Split(';')[0] }
+        
+        $TrustedHosts = (Get-Item WSMan:\localhost\Client\TrustedHosts).Value -as [string]
+        $IPAddress = $Node.IpAddress | % { 
+            $_IPAddress = $_.Split(';')[0]
+            if($TrustedHosts -notlike "*$_IPAddress*")
+            {
+                $TrustedHosts = "$($TrustedHosts),$($_IPAddress)"
+                Set-Item WSMan:\localhost\Client\TrustedHosts -Value $TrustedHosts -Force
+            }
+            $_IPAddress
+        }
         Start-DscConfiguration -ComputerName $IPAddress `
                                -Credential $RunbookWorkerAccessCredential `
                                -UseExisting `
