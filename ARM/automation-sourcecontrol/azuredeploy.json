@@ -136,14 +136,6 @@
       }
     },
     "psModules": {
-      "AzureRMProfile": {
-        "moduleName": "AzureRM.profile",
-        "moduleUri": "https://github.com/randorfer/ScorchDev/raw/master/ARM/automation-sourcecontrol/AzureRM.profile.zip"
-      },
-      "AzureRMAutomation": {
-        "moduleName": "AzureRM.Automation",
-        "moduleUri": "https://github.com/randorfer/ScorchDev/raw/master/ARM/automation-sourcecontrol/AzureRM.Automation.zip"
-      },
       "SCOrchDevAzureAutomationIntegration": {
         "moduleName": "SCOrchDev-AzureAutomationIntegration",
         "moduleUri": "https://github.com/randorfer/ScorchDev/raw/master/ARM/automation-sourcecontrol/SCOrchDev-AzureAutomationIntegration.zip"
