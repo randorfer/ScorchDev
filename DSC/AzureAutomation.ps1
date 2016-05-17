@@ -150,17 +150,20 @@
             DestinationPath = "$($SourceDir)\$($MMASetupExe)"
             MatchSource = $False
         }
-        Package InstallMicrosoftManagementAgent
+        xPackage InstallMicrosoftManagementAgent
         {
-             Name = 'Microsoft Monitoring Agent' 
-             ProductId = 'E854571C-3C01-4128-99B8-52512F44E5E9'
+             Name = "Microsoft Monitoring Agent"
              Path = "$($SourceDir)\$($MMASetupExE)" 
              Arguments = $MMACommandLineArguments 
              Ensure = 'Present'
+             InstalledCheckRegKey = 'SOFTWARE\Microsoft\Microsoft Operations Manager\3.0\Setup'
+             InstalledCheckRegValueName = 'Product'
+             InstalledCheckRegValueData = 'Microsoft Monitoring Agent'
+             ProductID = ''
              DependsOn = "[xRemoteFile]DownloadMicrosoftManagementAgent"
         }
-        $HybridRunbookWorkerDependency += "[Package]InstallMicrosoftManagementAgent"
-
+        $HybridRunbookWorkerDependency += "[xPackage]InstallMicrosoftManagementAgent"
+        
         cHybridRunbookWorkerRegistration HybridRegistration
         {
             RunbookWorkerGroup = $GlobalVars.HybridWorkerGroup
