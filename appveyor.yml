@@ -4,7 +4,7 @@ pull_requests:
 os: WMF 5
 environment:
   AccessCredentialPassword:
-    secure: +ssIq4M39yXq/VqooAUE56V8KUTDbxgQqB2SgG+edn2P16qNYtIzLWyEUlLhYqC7
+    secure: adXivaBYsVrmrqpF1uA9YQ==
 clone_folder: c:\git\ScorchDev
 init:
 - ps: $env:PSModulePath = "$($env:PSModulePath);c:\git\ScorchDev\PowerShellModules"
