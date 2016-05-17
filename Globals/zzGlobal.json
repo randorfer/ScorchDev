@@ -43,12 +43,12 @@
                       "zzGlobal-GitRepository":  {
                                                     "isEncrypted":  false,
                                                     "Description":  "a key value pair of repositories and their respective branches to sync into this automation account",
-                                                    "Value":  "{\"https://github.com/randorfer/RunbookExample\":\"vNext\",\"https://github.com/randorfer/SCOrchDev\":\"vNext\"}"
+                                                    "Value":  "{\"https://github.com/randorfer/SCOrchDev\":\"master\"}"
                                                 },
                       "zzGlobal-GitRepositoryCurrentCommit":  {
                                                                 "isEncrypted":  false,
                                                                 "Description":  "a key value pair of repositories and their current commit. -1 for initial",
-                                                                "Value":  "{\"RunbookExample\":\"-1\",\"SCOrchDev\":\"-1\"}"
+                                                                "Value":  "{\"SCOrchDev\":\"-1\"}"
                                                             },
                       "zzGlobal-LocalGitRepositoryRoot":  {
                                                             "isEncrypted":  false,
