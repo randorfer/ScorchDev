@@ -347,7 +347,7 @@
           }
         },
         {
-          "name": "[concat(parameters('automationAccountName'), '/', 'SubscriptionAccessCredentialName')]",
+          "name": "[concat(parameters('automationAccountName'), '/', parameters('SubscriptionAccessCredentialName'))]",
           "type": "microsoft.automation/automationAccounts/Credentials",
           "apiVersion": "2015-01-01-preview",
           "location": "[resourceGroup().location]",
@@ -361,7 +361,7 @@
           }
         },
         {
-          "name": "[concat(parameters('automationAccountName'), '/', 'RunbookWorkerAccessCredentialName')]",
+          "name": "[concat(parameters('automationAccountName'), '/', parameters('RunbookWorkerAccessCredentialName'))]",
           "type": "microsoft.automation/automationAccounts/Credentials",
           "apiVersion": "2015-01-01-preview",
           "location": "[resourceGroup().location]",
