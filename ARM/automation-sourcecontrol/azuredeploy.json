@@ -43,6 +43,13 @@
         "description": "JSON String of Key Value Pairs for the repositories / branches to sync."
       }
     },
+    "gitRepositoryCurrentCommit": {
+      "type": "string",
+      "defaultValue": "{\\\"https://github.com/randorfer/RunbookExample\\\":\\\"-1\\\",\\\"https://github.com/randorfer/SCOrchDev\\\":\\\"-1\\\"}",
+      "metadata": {
+        "description": "JSON String of Key Value Pairs for the repositories / initial branches to sync."
+      }
+    },
     "localGitRepositoryRoot": {
       "type": "string",
       "defaultValue": "c:\\\\git",
@@ -136,14 +143,6 @@
       }
     },
     "psModules": {
-      "AzureRMProfile": {
-        "moduleName": "AzureRM.profile",
-        "moduleUri": "https://github.com/randorfer/ScorchDev/raw/master/ARM/automation-sourcecontrol/AzureRM.profile.zip"
-      },
-      "AzureRMAutomation": {
-        "moduleName": "AzureRM.Automation",
-        "moduleUri": "https://github.com/randorfer/ScorchDev/raw/master/ARM/automation-sourcecontrol/AzureRM.Automation.zip"
-      },
       "SCOrchDevAzureAutomationIntegration": {
         "moduleName": "SCOrchDev-AzureAutomationIntegration",
         "moduleUri": "https://github.com/randorfer/ScorchDev/raw/master/ARM/automation-sourcecontrol/SCOrchDev-AzureAutomationIntegration.zip"
@@ -355,7 +354,7 @@
           }
         },
         {
-          "name": "[concat(parameters('automationAccountName'), '/', 'SubscriptionAccessCredentialName')]",
+          "name": "[concat(parameters('automationAccountName'), '/', parameters('SubscriptionAccessCredentialName'))]",
           "type": "microsoft.automation/automationAccounts/Credentials",
           "apiVersion": "2015-01-01-preview",
           "location": "[resourceGroup().location]",
@@ -369,7 +368,7 @@
           }
         },
         {
-          "name": "[concat(parameters('automationAccountName'), '/', 'RunbookWorkerAccessCredentialName')]",
+          "name": "[concat(parameters('automationAccountName'), '/', parameters('RunbookWorkerAccessCredentialName'))]",
           "type": "microsoft.automation/automationAccounts/Credentials",
           "apiVersion": "2015-01-01-preview",
           "location": "[resourceGroup().location]",
@@ -446,7 +445,22 @@
             "value": "[concat('\"', parameters('SubscriptionAccessTenant'),'\"')]"
           }
         },
-
+        {
+          "name": "[concat(parameters('automationAccountName'), '/', 'zzGlobal-RunbookWorkerAccessCredentialName')]",
+          "type": "microsoft.automation/automationAccounts/Variables",
+          "apiVersion": "2015-01-01-preview",
+          "location": "[resourceGroup().location]",
+          "dependsOn": [
+            "[concat('Microsoft.Automation/automationAccounts/', parameters('AutomationAccountName'))]"
+          ],
+          "tags": { },
+          "properties": {
+            "description": " ",
+            "isEncrypted": "false",
+            "type": "string",
+            "value": "[concat('\"', parameters('RunbookWorkerAccessCredentialName'),'\"')]"
+          }
+        },
         {
           "name": "[concat(parameters('automationAccountName'), '/', 'zzGlobal-ResourceGroupName')]",
           "type": "microsoft.automation/automationAccounts/Variables",
@@ -512,6 +526,22 @@
           }
         },
         {
+          "name": "[concat(parameters('automationAccountName'), '/', 'zzGlobal-GitRepositoryCurrentCommit')]",
+          "type": "microsoft.automation/automationAccounts/Variables",
+          "apiVersion": "2015-01-01-preview",
+          "location": "[resourceGroup().location]",
+          "dependsOn": [
+            "[concat('Microsoft.Automation/automationAccounts/', parameters('AutomationAccountName'))]"
+          ],
+          "tags": { },
+          "properties": {
+            "description": " ",
+            "isEncrypted": "false",
+            "type": "string",
+            "value": "[concat('\"', parameters('GitRepositoryCurrentCommit'),'\"')]"
+          }
+        },
+        {
           "name": "[concat(parameters('automationAccountName'), '/', 'zzGlobal-LocalGitRepositoryRoot')]",
           "type": "microsoft.automation/automationAccounts/Variables",
           "apiVersion": "2015-01-01-preview",
@@ -525,6 +555,22 @@
             "isEncrypted": "false",
             "type": "string",
             "value": "[concat('\"', parameters('LocalGitRepositoryRoot'),'\"')]"
+          }
+        },
+        {
+          "name": "[concat(parameters('automationAccountName'), '/', 'zzGlobal-StorageAccountName')]",
+          "type": "microsoft.automation/automationAccounts/Variables",
+          "apiVersion": "2015-01-01-preview",
+          "location": "[resourceGroup().location]",
+          "dependsOn": [
+            "[concat('Microsoft.Automation/automationAccounts/', parameters('AutomationAccountName'))]"
+          ],
+          "tags": { },
+          "properties": {
+            "description": " ",
+            "isEncrypted": "false",
+            "type": "string",
+            "value": "[concat('\"', parameters('StorageAccountName'),'\"')]"
           }
         },
         {
