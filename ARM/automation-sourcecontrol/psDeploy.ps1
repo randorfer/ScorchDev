@@ -33,6 +33,7 @@ Try
 
     $SubscriptionAccessCredential = Get-AutomationPSCredential -Name $GlobalVars.SubscriptionAccessCredentialName
     $RunbookWorkerAccessCredential = Get-AutomationPSCredential -Name $GlobalVars.RunbookWorkerAccessCredentialName
+    $WorkspaceCredential = Get-AutomationPSCredential -Name $GlobalVars.WorkspaceId
 
     Connect-AzureRmAccount -Credential $SubscriptionAccessCredential -SubscriptionName $GlobalVars.SubscriptionName -Tenant $GlobalVars.SubscriptionAccessTenant
 
@@ -48,6 +49,7 @@ Try
         'RunbookWorkerAccessCredentialName' = $GlobalVars.RunbookWorkerAccessCredentialName
         'RunbookWorkerAccessCredentialPassword' = $RunbookWorkerAccessCredential.Password
         'WorkspaceId' = $GlobalVars.WorkspaceId
+        'workspacePrimaryKey' = $WorkspaceCredential.Password
         'GitRepository' = $GitRepository
         'GitRepositoryCurrentCommit' = $GitRepositoryCurrentCommit
         'LocalGitRepositoryroot' = $LocalGitRepositoryRoot
