@@ -17,6 +17,7 @@ Try
                                                     'ResourceGroupName',
                                                     'WorkspaceId',
                                                     'GitRepository',
+                                                    'GitRepositoryCurrentCommit',
                                                     'HybridWorkerGroup',
                                                     'LocalGitRepositoryRoot',
                                                     'RunbookWorkerAccessCredentialName',
@@ -24,9 +25,11 @@ Try
 
     $LocalGitRepositoryRoot = ($GlobalVars.LocalGitRepositoryRoot | ConvertTo-JSON)
     $GitRepository = ($GlobalVars.GitRepository | ConvertTo-Json)
+    $GitRepositoryCurrentCommit = ($GlobalVars.GitRepositoryCurrentCommit | ConvertTo-Json)
 
     $LocalGitRepositoryRoot = $LocalGitRepositoryRoot.Substring(1,$LocalGitRepositoryRoot.Length-2)
     $GitRepository = $GitRepository.Substring(1,$GitRepository.Length-2)
+    $GitRepositoryCurrentCommit = $GitRepositoryCurrentCommit.Substring(1,$GitRepositoryCurrentCommit.Length-2)
 
     $SubscriptionAccessCredential = Get-AutomationPSCredential -Name $GlobalVars.SubscriptionAccessCredentialName
     $RunbookWorkerAccessCredential = Get-AutomationPSCredential -Name $GlobalVars.RunbookWorkerAccessCredentialName
@@ -46,6 +49,7 @@ Try
         'RunbookWorkerAccessCredentialPassword' = $RunbookWorkerAccessCredential.Password
         'WorkspaceId' = $GlobalVars.WorkspaceId
         'GitRepository' = $GitRepository
+        'GitRepositoryCurrentCommit' = $GitRepositoryCurrentCommit
         'LocalGitRepositoryroot' = $LocalGitRepositoryRoot
         'StorageAccountName' = $GlobalVars.StorageAccountName
         'HybridWorkerGroup' = $GlobalVars.HybridWorkerGroup
