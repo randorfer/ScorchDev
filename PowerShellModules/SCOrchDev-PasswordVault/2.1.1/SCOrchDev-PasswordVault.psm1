@@ -150,7 +150,7 @@ Function Set-PasswordVaultCredential
             Position = 1
         )]
         [string]
-        $Resource = ([guid]::NewGuid()) -as [string]
+        $Resource = 'PowerShell'
     )
     try
     {

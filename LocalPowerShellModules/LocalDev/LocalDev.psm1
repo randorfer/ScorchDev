@@ -305,11 +305,11 @@ Function Get-AutomationPSCredential
         $Name
     )
     $ErrorActionPreference = 'Stop'
-    if([Environment]::OSVersion.Version -ge (new-object 'Version' 8,0))
+    if([Environment]::OSVersion.Version -ge (new-object 'Version' 6,3))
     {
         Try
         {
-            $Credential = (Get-PasswordVaultCredential -UserName $Name -AsPSCredential)
+            $Credential = (Get-PasswordVaultCredential -UserName $Name -Resource 'PowerShell' -AsPSCredential)
             Write-Verbose -Message "Credential [$Name] found in PasswordVault"
             if(($Credential -as [array]).count -gt 1)
             {
